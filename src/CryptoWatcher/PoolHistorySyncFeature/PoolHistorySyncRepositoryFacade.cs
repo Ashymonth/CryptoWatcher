@@ -1,0 +1,62 @@
+using CryptoWatcher.Abstractions;
+using CryptoWatcher.Entities;
+
+namespace CryptoWatcher.PoolHistorySyncFeature;
+
+/// <summary>
+/// <see cref="IPoolHistorySyncRepositoryFacade"/>
+/// </summary>
+public class PoolHistorySyncRepositoryFacade : IPoolHistorySyncRepositoryFacade
+{
+    private readonly IRepository<Network> _networkRepository;
+    private readonly IRepository<Wallet> _walletRepository;
+    private readonly IRepository<LiquidityPoolPosition> _liquidityPoolPositionRepository;
+    private readonly IRepository<LiquidityPoolPositionSnapshot> _liquidityPoolPositionSnapshotRepository;
+
+    public PoolHistorySyncRepositoryFacade(IRepository<Network> networkRepository,
+        IRepository<Wallet> walletRepository, IRepository<LiquidityPoolPosition> liquidityPoolPositionRepository,
+        IRepository<LiquidityPoolPositionSnapshot> liquidityPoolPositionSnapshotRepository)
+    {
+        _networkRepository = networkRepository;
+        _walletRepository = walletRepository;
+        _liquidityPoolPositionRepository = liquidityPoolPositionRepository;
+        _liquidityPoolPositionSnapshotRepository = liquidityPoolPositionSnapshotRepository;
+    }
+
+    public async Task<List<Network>> GetNetworksAsync(CancellationToken ct = default)
+    {
+        return await _networkRepository.ListAsync(ct);
+    }
+
+    public async Task<List<Wallet>> GetWalletsAsync(CancellationToken ct = default)
+    {
+        return await _walletRepository.ListAsync(ct);
+    }
+
+    public async Task<List<LiquidityPoolPosition>> GetLiquidityPoolPositionsAsync(Network network, Wallet wallet,
+        CancellationToken ct = default)
+    {
+        return await _liquidityPoolPositionRepository.ListAsync(
+            new GetPositionsByWalletAndNetworkSpecification(network, wallet), ct);
+    }
+
+    public async Task MergePoolPositionsAsync(IList<LiquidityPoolPosition> positions,
+        IList<LiquidityPoolPositionSnapshot> snapshots,
+        CancellationToken ct = default)
+    {
+        await using var tr = await _liquidityPoolPositionRepository.UnitOfWork.BeginTransactionAsync(ct);
+        try
+        {
+            await _liquidityPoolPositionRepository.BulkMergeAsync(positions, ct);
+
+            await _liquidityPoolPositionSnapshotRepository.BulkMergeAsync(snapshots, ct);
+
+            await _liquidityPoolPositionRepository.UnitOfWork.SaveChangesAsync(ct);
+        }
+        catch
+        {
+            await _liquidityPoolPositionRepository.UnitOfWork.RollbackTransactionAsync(ct);
+            throw;
+        }
+    }
+}

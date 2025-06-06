@@ -1,0 +1,20 @@
+using CryptoWatcher.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace CryptoWatcher.Data.Configuration;
+
+public class LiquidityPoolPositionHistoryConfiguration : IEntityTypeConfiguration<LiquidityPoolPositionSnapshot>
+{
+    public void Configure(EntityTypeBuilder<LiquidityPoolPositionSnapshot> builder)
+    {
+        builder.Property(poolPositionHistory => poolPositionHistory.NetworkName).HasMaxLength(32);
+
+        builder.HasKey(history => new { history.NetworkName, history.LiquidityPoolPositionId, history.Day });
+
+        builder.HasOne(liquidityPoolPositionHistory => liquidityPoolPositionHistory.LiquidityPoolPosition)
+            .WithMany(position => position.PositionSnapshots)
+            .HasForeignKey(history => new { history.LiquidityPoolPositionId, history.NetworkName })
+            .IsRequired();
+    }
+}

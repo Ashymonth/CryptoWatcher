@@ -1,0 +1,14 @@
+﻿<Solution>
+  <Folder Name="/clients/">
+    <Project Path="clients\AaveClient\AaveClient.csproj" Type="Classic C#" />
+    <Project Path="clients\HyperliquidClient\HyperliquidClient.csproj" Type="Classic C#" />
+    <Project Path="clients\UniswapClient\UniswapClient.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src\CryptoWatcher.Application\CryptoWatcher.Application.csproj" Type="Classic C#" />
+    <Project Path="src\CryptoWatcher.Data\CryptoWatcher.Data.csproj" Type="Classic C#" />
+    <Project Path="src\CryptoWatcher.Host\CryptoWatcher.Host.csproj" Type="Classic C#" />
+    <Project Path="src\CryptoWatcher\CryptoWatcher.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>

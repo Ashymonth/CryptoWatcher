@@ -1,0 +1,92 @@
+using System.Data;
+using CryptoWatcher.Abstractions;
+using CryptoWatcher.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+
+namespace CryptoWatcher.Data;
+
+/// <summary>
+/// Represents the Entity Framework Core database context for the CryptoWatcher application.
+/// </summary>
+/// <remarks>
+/// This class provides access to the application's data through DbSet properties for key entities
+/// like networks, liquidity pool positions, and pool history. It initializes the database schema
+/// and configures entity relationships using Fluent API within the OnModelCreating method.
+/// </remarks>
+public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(options), IUnitOfWork
+{
+    private IDbContextTransaction? _activeTransaction;
+    
+    /// <summary>
+    /// Represents the collection of blockchain networks as part of the database context in the CryptoWatcher application.
+    /// </summary>
+    /// <remarks>
+    /// This property defines the entity set for blockchain networks, enabling the application to query and manage
+    /// network-related data stored in the database. Each network record contains essential configuration
+    /// details such as RPC URLs, contract addresses, and associated historical data, which are
+    /// critical for interacting with and monitoring blockchain states.
+    /// </remarks>
+    public DbSet<Network> Networks => Set<Network>();
+
+    /// <summary>
+    /// Represents the collection of user wallet entities within the application's database context.
+    /// </summary>
+    /// <remarks>
+    /// This property defines the entity set for managing wallets in the CryptoWatcher application. Each wallet record
+    /// includes details such as unique identifiers and blockchain addresses, allowing the application to track and
+    /// manage user wallet information effectively. This is essential for associating users with addresses,
+    /// performing transactions, and retrieving relevant blockchain data.
+    /// </remarks>
+    public DbSet<Wallet> Wallets => Set<Wallet>();
+
+    /// <summary>
+    /// Represents the collection of liquidity pool positions as part of the database context in the CryptoWatcher application.
+    /// </summary>
+    /// <remarks>
+    /// This property defines the entity set for managing and querying liquidity pool positions stored in the database.
+    /// Each record provides detailed information about token amounts, their corresponding USD values, network details,
+    /// and metadata regarding the liquidity pool position's activity status. It integrates with other entities such as
+    /// networks to ensure comprehensive tracking of liquidity metrics.
+    /// </remarks>
+    public DbSet<LiquidityPoolPosition> LiquidityPoolPositions => Set<LiquidityPoolPosition>();
+
+    /// <summary>
+    /// Represents the collection of liquidity pool position snapshots as part of the database context in the CryptoWatcher application.
+    /// </summary>
+    /// <remarks>
+    /// This property defines the entity set for liquidity pool position snapshots, enabling the application to query and manage
+    /// historical snapshots of liquidity pool positions. Each snapshot contains time-series data such as token amounts, fees, APR, and
+    /// range status, providing a detailed record of liquidity pool performance over time.
+    /// </remarks>
+    public DbSet<LiquidityPoolPositionSnapshot> LiquidityPoolPositionSnapshots => Set<LiquidityPoolPositionSnapshot>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(CryptoWatcherDbContext).Assembly);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IAsyncDisposable> BeginTransactionAsync(CancellationToken ct)
+    {
+        return _activeTransaction = await Database.BeginTransactionAsync(ct);
+    }
+
+    /// <inheritdoc/>
+    public async Task RollbackTransactionAsync(CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(_activeTransaction);
+        await _activeTransaction.RollbackAsync(ct);
+    }
+
+    /// <inheritdoc/>
+    public new async Task SaveChangesAsync(CancellationToken ct)
+    {
+        await base.SaveChangesAsync(ct);
+
+        if (_activeTransaction is not null)
+        {
+            await _activeTransaction.CommitAsync(ct);
+        }
+    }
+}
