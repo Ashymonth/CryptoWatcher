@@ -1,4 +1,3 @@
-using System.Numerics;
 using Nethereum.Web3;
 using UniswapClient.Models;
 using UniswapClient.UniswapV4.PositionsFetcher.Contracts;
@@ -8,7 +7,7 @@ namespace UniswapClient.UniswapV4.PositionsFetcher;
 
 public interface IUniswapV4PositionFetcher
 {
-    Task<List<IUniswapPosition>> GetPositionsDataAsync(IWeb3 web3, NetworkInfo network,
+    Task<List<IUniswapPosition>> GetPositionsDataAsync(NetworkInfo network,
         string walletAddress);
 }
 
@@ -23,9 +22,10 @@ internal class UniswapV4PositionFetcher : IUniswapV4PositionFetcher
         _stateView = stateView;
     }
 
-    public async Task<List<IUniswapPosition>> GetPositionsDataAsync(IWeb3 web3, NetworkInfo network,
+    public async Task<List<IUniswapPosition>> GetPositionsDataAsync(NetworkInfo network,
         string walletAddress)
     {
+        var web3 = new Web3(network.NetworkUrl);
         var tokenIds = await _apiClient.GetPoolPositionTokenIdsAsync(walletAddress);
 
         return await GetPositionsDataAsync(web3, network, tokenIds);

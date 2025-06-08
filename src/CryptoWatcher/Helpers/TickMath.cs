@@ -45,7 +45,7 @@ public static class TickMath
             ? ParseHex("fffcb933bd6fad37aa2d162d1a594001")
             : ParseHex("100000000000000000000000000000000");
 
-        for (int i = 1; i < RatioS.Length; i++)
+        for (var i = 1; i < RatioS.Length; i++)
         {
             if ((absTick & (BigInteger.One << i)) != 0)
                 ratio = (ratio * RatioS[i]) >> 128;
@@ -54,7 +54,7 @@ public static class TickMath
         if (tick > 0)
             ratio = BigInteger.Divide(BigInteger.One << 256, ratio);
 
-        // Округление до Q96
+        // Round to Q96
         return (ratio >> 32) + ((ratio & 0xFFFFFFFF) > 0 ? 1 : 0);
     }
 

@@ -9,14 +9,13 @@ using CryptoWatcher.Host.Configs;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Host.Integrations;
 using CryptoWatcher.Host.Services;
+using CryptoWatcher.Integrations;
 using CryptoWatcher.PoolHistorySyncFeature;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using UniswapClient.Extensions;
-using UniswapClient.UniswapV4;
-using UniswapProvider = CryptoWatcher.Application.Uniswap.UniswapProvider;
 
 var xx = new UiPoolDataProviderFetcher();
 
@@ -42,6 +41,7 @@ builder.Services.AddSingleton<TokenService>();
 builder.Services.AddSingleton<TokenEnricher>();
 
 builder.Services.AddUniswapClient();
+builder.Services.AddSingleton<IUniswapProvider, UniswapProvider>();
 
 builder.Services.AddScoped<IPoolHistorySyncRepositoryFacade, PoolHistorySyncRepositoryFacade>();
 builder.Services.AddScoped<ExcelService>();
@@ -52,9 +52,6 @@ builder.Services.AddSingleton<UniswapProvider>();
 
 builder.Services.AddHttpClient<CoinGeckoTokenPriceProvider>((provider, client) =>
     client.BaseAddress = provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
-
-builder.Services.AddHttpClient<UniswapV4ClientOld>((provider, client) =>
-    client.BaseAddress = provider.GetRequiredService<ExternalServicesConfig>().Uniswap);
 
 var app = builder.Build();
 

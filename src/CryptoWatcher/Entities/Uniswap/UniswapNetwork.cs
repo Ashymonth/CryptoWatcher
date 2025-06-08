@@ -61,7 +61,7 @@ public class UniswapNetwork
     /// <summary>
     /// 
     /// </summary>
-    public UniswapProtocolVersion SupportedProtocolVersions { get; init; }
+    public UniswapProtocolVersion ProtocolVersion { get; init; }
     
     /// <summary>
     /// A collection of historical data records related to liquidity pools within the blockchain uniswapNetwork.

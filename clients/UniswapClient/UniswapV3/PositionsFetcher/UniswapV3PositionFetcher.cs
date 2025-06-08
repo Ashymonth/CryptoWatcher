@@ -12,17 +12,16 @@ namespace UniswapClient.UniswapV3.PositionsFetcher;
 
 public interface IUniswapV3PositionFetcher
 {
-    Task<List<IUniswapPosition>> GetPositionsDataAsync(IWeb3 web3,
-        NetworkInfo network,
+    Task<List<IUniswapPosition>> GetPositionsDataAsync(NetworkInfo network,
         string walletAddress);
 }
 
 internal class UniswapV3PositionFetcher : IUniswapV3PositionFetcher
 {
-    public async Task<List<IUniswapPosition>> GetPositionsDataAsync(IWeb3 web3,
-        NetworkInfo network,
+    public async Task<List<IUniswapPosition>> GetPositionsDataAsync(NetworkInfo network,
         string walletAddress)
     {
+        var web3 = new Web3(network.NetworkUrl);
         var balance = await web3.Eth.ERC20.GetContractService(network.NftManagerAddress)
             .BalanceOfQueryAsync(walletAddress);
 

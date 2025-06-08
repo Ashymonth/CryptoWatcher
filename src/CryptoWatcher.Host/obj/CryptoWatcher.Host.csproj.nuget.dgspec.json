@@ -407,6 +407,10 @@
               "target": "Package",
               "version": "[9.0.2, )"
             },
+            "Riok.Mapperly": {
+              "target": "Package",
+              "version": "[4.2.1, )"
+            },
             "Serilog.AspNetCore": {
               "target": "Package",
               "version": "[9.0.0, )"

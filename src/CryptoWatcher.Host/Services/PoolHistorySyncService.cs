@@ -2,6 +2,7 @@ using CryptoWatcher.Application.Uniswap;
 using CryptoWatcher.Core;
 using CryptoWatcher.Entities;
 using CryptoWatcher.Entities.Uniswap;
+using CryptoWatcher.Integrations;
 using CryptoWatcher.Models;
 using CryptoWatcher.PoolHistorySyncFeature;
 using Nethereum.Web3;
@@ -12,14 +13,14 @@ namespace CryptoWatcher.Host.Services;
 public class PoolHistorySyncService
 {
     private readonly TokenEnricher _enricher;
-    private readonly UniswapProvider _providerFactory;
+    private readonly IUniswapProvider _providerFactory;
     private readonly IUniswapMath _math;
     private readonly IPoolHistorySyncRepositoryFacade _repositoryFacade;
     private readonly ILogger<PoolHistorySyncService> _logger;
 
     public PoolHistorySyncService(
         TokenEnricher enricher,
-        UniswapProvider providerFactory,
+        IUniswapProvider providerFactory,
         IUniswapMath math,
         IPoolHistorySyncRepositoryFacade repositoryFacade,
         ILogger<PoolHistorySyncService> logger)
@@ -84,7 +85,7 @@ public class PoolHistorySyncService
                             continue;
                         }
 
-                        var pool = await _providerFactory.GetPoolAsync(web3, network, uniswapPosition);
+                        var pool = await _providerFactory.GetPoolAsync(network, uniswapPosition);
                         var positionInPool = _math.CalculatePosition(pool, uniswapPosition);
                         var fee = _math.CalculateClaimableFee(pool, uniswapPosition);
 

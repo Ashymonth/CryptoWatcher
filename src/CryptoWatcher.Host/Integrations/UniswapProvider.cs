@@ -1,6 +1,7 @@
 using CryptoWatcher.Core;
 using CryptoWatcher.Entities;
 using CryptoWatcher.Entities.Uniswap;
+using CryptoWatcher.Host.Mappers;
 using CryptoWatcher.Integrations;
 using CryptoWatcher.Models;
 using Nethereum.Web3;
@@ -12,12 +13,6 @@ namespace CryptoWatcher.Host.Integrations;
 
 public class UniswapProvider : IUniswapProvider
 {
-    private static class UniswapProtocolVersion
-    {
-        public const int V3 = 3;
-        public const int V4 = 4;
-    }
-
     private readonly UniswapV3Client _uniswapV3Client;
     private readonly UniswapV4Client _uniswapV4Client;
     private readonly IUniswapMath _uniswapMath;
@@ -31,7 +26,6 @@ public class UniswapProvider : IUniswapProvider
 
     public async Task<List<IUniswapPosition>> GetPositionsAsync(UniswapNetwork uniswapNetwork, Wallet wallet)
     {
-        var result = new List<IUniswapPosition>();
         var networkInfo = new NetworkInfo
         {
             NetworkUrl = uniswapNetwork.RpcUrl,
@@ -39,36 +33,27 @@ public class UniswapProvider : IUniswapProvider
             NftManagerAddress = uniswapNetwork.NftManagerAddress
         };
 
-        if ((uniswapNetwork.SupportedProtocolVersions & Entities.Uniswap.UniswapProtocolVersion.V3) ==
-            Entities.Uniswap.UniswapProtocolVersion.V3)
+        return uniswapNetwork.ProtocolVersion switch
         {
-            result.AddRange(await _uniswapV3Client.PositionFetcher.GetPositionsDataAsync(
-                new Web3(uniswapNetwork.RpcUrl),
-                networkInfo, wallet.Address));
-        }
-
-        if ((uniswapNetwork.SupportedProtocolVersions & Entities.Uniswap.UniswapProtocolVersion.V4) ==
-            Entities.Uniswap.UniswapProtocolVersion.V4)
-        {
-            result.AddRange(await _uniswapV4Client.PositionFetcher.GetPositionsDataAsync(
-                new Web3(uniswapNetwork.RpcUrl),
-                networkInfo, wallet.Address));
-        }
-
-        return result;
+            UniswapProtocolVersion.V3 => await _uniswapV3Client.PositionFetcher.GetPositionsDataAsync(
+                networkInfo, wallet.Address),
+            UniswapProtocolVersion.V4 => await _uniswapV4Client.PositionFetcher.GetPositionsDataAsync(
+                networkInfo, wallet.Address),
+            _ => throw new ArgumentOutOfRangeException(nameof(uniswapNetwork))
+        };
     }
 
     public async Task<LiquidityPool> GetPoolAsync(UniswapNetwork uniswapNetwork, IUniswapPosition position)
     {
         var pool = position.ProtocolVersion switch
         {
-            UniswapProtocolVersion.V3 => await GetV3PoolAsync(uniswapNetwork, position),
-            UniswapProtocolVersion.V4 => await GetV4PoolAsync(uniswapNetwork, position),
+            3 => await GetV3PoolAsync(uniswapNetwork, position),
+            4 => await GetV4PoolAsync(uniswapNetwork, position),
             _ => throw new ArgumentOutOfRangeException(nameof(position), position.ProtocolVersion,
-                "Only v3 and v4 protocol supported ")
+                "Only v3 and v4 protocol supported")
         };
 
-        return Map(pool);
+        return pool.MapToLiquidityPool();
     }
 
     public PositionInPool GetPoolPositionAsync(LiquidityPool pool, IUniswapPosition uniswapPosition)
@@ -98,26 +83,5 @@ public class UniswapProvider : IUniswapProvider
     {
         return await _uniswapV4Client.LiquidityPool.GetPoolAsync(new Web3(uniswapNetwork.RpcUrl),
             (position as UniswapV4PositionInfo)!);
-    }
-
-    private static LiquidityPool Map(LiquidityPoolInfo poolInfo)
-    {
-        return new LiquidityPool
-        {
-            Tick = poolInfo.Tick,
-            LowerTick = new LiquidityPoolTick
-            {
-                FeeGrowthOutside0X128 = poolInfo.LowerTick.FeeGrowthOutside0X128,
-                FeeGrowthOutside1X128 = poolInfo.LowerTick.FeeGrowthOutside1X128,
-            },
-            UpperTick = new LiquidityPoolTick
-            {
-                FeeGrowthOutside0X128 = poolInfo.UpperTick.FeeGrowthOutside0X128,
-                FeeGrowthOutside1X128 = poolInfo.UpperTick.FeeGrowthOutside1X128,
-            },
-            SqrtPriceX96 = poolInfo.SqrtPriceX96,
-            FeeGrowthGlobal0X128 = poolInfo.FeeGrowthGlobal0X128,
-            FeeGrowthGlobal1X128 = poolInfo.FeeGrowthGlobal1X128,
-        };
     }
 }

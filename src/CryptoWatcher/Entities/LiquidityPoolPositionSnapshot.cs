@@ -13,8 +13,8 @@ public class LiquidityPoolPositionSnapshot
 {
     public DateOnly Day { get; init; }
 
-    public string Token0Symbol { get; set; } = null!;
-    public string Token1Symbol { get; set; } = null!;
+    public string Token0Symbol { get; init; } = null!;
+    public string Token1Symbol { get; init; } = null!;
     
     public decimal Token0Amount { get; init; }
     public decimal Token1Amount { get; init; }
