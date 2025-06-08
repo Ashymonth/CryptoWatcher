@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CryptoWatcher.Data.Configuration;
 
-public class LiquidityPoolPositionHistoryConfiguration : IEntityTypeConfiguration<LiquidityPoolPositionSnapshot>
+public class LiquidityPoolPositionSnapshotConfiguration : IEntityTypeConfiguration<LiquidityPoolPositionSnapshot>
 {
     public void Configure(EntityTypeBuilder<LiquidityPoolPositionSnapshot> builder)
     {
@@ -16,5 +16,8 @@ public class LiquidityPoolPositionHistoryConfiguration : IEntityTypeConfiguratio
             .WithMany(position => position.PositionSnapshots)
             .HasForeignKey(history => new { history.LiquidityPoolPositionId, history.NetworkName })
             .IsRequired();
+        
+        builder.OwnsOne<TokenInfo>(snapshot => snapshot.Token0Fee);
+        builder.OwnsOne<TokenInfo>(snapshot => snapshot.Token1Fee);
     }
 }

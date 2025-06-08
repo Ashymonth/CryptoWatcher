@@ -95,7 +95,7 @@ public class PoolHistorySyncService
                         var positionEntity =
                             MapToLiquidityPoolPosition(network, wallet, uniswapPosition, tokensEnriched);
                         var snapshotEntity = MapToLiquidityPoolPositionSnapshot(
-                            network, uniswapPosition, pool, tokensEnriched, feeEnriched);
+                            network, uniswapPosition, pool, feeEnriched);
 
                         positions.Add(positionEntity);
                         poolPositionSnapshots.Add(snapshotEntity);
@@ -144,15 +144,9 @@ public class PoolHistorySyncService
             NetworkName = uniswapNetwork.Name,
             CreatedAt = DateOnly.FromDateTime(DateTime.Now),
             IsActive = position.Liquidity != 0,
-            Token0Symbol = tokensEnriched.Token0.Symbol,
-            Token1Symbol = tokensEnriched.Token1.Symbol,
-            
-            Token0Amount = tokensEnriched.Token0.Amount,
-            Token1Amount = tokensEnriched.Token1.Amount,
-            
-            Token0PriceInUsd = tokensEnriched.Token0.PriceInUsd,
-            Token1PriceInUsd = tokensEnriched.Token1.PriceInUsd,
-            
+            Token0 = tokensEnriched.Token0,
+            Token1 = tokensEnriched.Token1,
+ 
             WalletAddress = wallet.Address,
             PositionId = (ulong)position.PositionId
         };
@@ -162,22 +156,13 @@ public class PoolHistorySyncService
         UniswapNetwork uniswapNetwork,
         IUniswapPosition position,
         LiquidityPool pool,
-        TokenInfoPair poolInfo,
         TokenInfoPair feeInfo)
     {
         return new LiquidityPoolPositionSnapshot
         {
             Day = DateOnly.FromDateTime(DateTime.Now),
-            Token0Amount = poolInfo.Token0.Amount,
-            Token1Amount = poolInfo.Token1.Amount,
-            Token0PriceInUsd = poolInfo.Token0.PriceInUsd,
-            Token1PriceInUsd = poolInfo.Token1.PriceInUsd,
-            Token0Symbol = poolInfo.Token0.Symbol,
-            Token1Symbol = poolInfo.Token1.Symbol,
-
-            Token0FeesUnclaimed = feeInfo.Token0.Amount,
-            Token1FeesUnclaimed = feeInfo.Token1.Amount,
- 
+            Token0Fee = feeInfo.Token0,
+            Token1Fee = feeInfo.Token1,
             IsInRange = pool.Tick >= position.TickLower && pool.Tick < position.TickUpper,
             LiquidityPoolPositionId = (ulong)position.PositionId,
             NetworkName = uniswapNetwork.Name,

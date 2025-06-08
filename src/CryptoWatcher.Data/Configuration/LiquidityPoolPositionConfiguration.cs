@@ -12,5 +12,8 @@ public class LiquidityPoolPositionConfiguration : IEntityTypeConfiguration<Liqui
         
         builder.Property(network => network.NetworkName).HasMaxLength(32);
         builder.Property(network => network.WalletAddress).HasMaxLength(64);
+        
+        builder.OwnsOne<TokenInfo>(position => position.Token0);
+        builder.OwnsOne<TokenInfo>(position => position.Token1);
     }
 }

@@ -13,18 +13,10 @@ public class LiquidityPoolPositionSnapshot
 {
     public DateOnly Day { get; init; }
 
-    public string Token0Symbol { get; init; } = null!;
-    public string Token1Symbol { get; init; } = null!;
+    public TokenInfo Token0Fee { get; set; } = null!;
     
-    public decimal Token0Amount { get; init; }
-    public decimal Token1Amount { get; init; }
-
-    public decimal Token0PriceInUsd { get; init; }
-    public decimal Token1PriceInUsd { get; init; }
-
-    public decimal Token0FeesUnclaimed { get; init; }
-    public decimal Token1FeesUnclaimed { get; init; }
-  
+    public TokenInfo Token1Fee { get; set; } = null!;
+    
     public bool IsInRange { get; init; }
 
     public ulong LiquidityPoolPositionId { get; init; }
@@ -35,7 +27,7 @@ public class LiquidityPoolPositionSnapshot
 
     public decimal CalculateFeeInUsd()
     {
-        return Token0FeesUnclaimed * Token0PriceInUsd +
-               Token1FeesUnclaimed * Token1PriceInUsd;
+        return Token0Fee.Amount * Token0Fee.PriceInUsd +
+               Token1Fee.Amount * Token1Fee.PriceInUsd;
     }
 }

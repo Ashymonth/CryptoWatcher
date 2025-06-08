@@ -30,52 +30,10 @@ public class LiquidityPoolPosition
     /// It is used to track the timeline of when the position was initialized.
     /// </remarks>
     public DateOnly CreatedAt { get; init; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public string Token0Symbol { get; init; } = null!;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public string Token1Symbol { get; init; } = null!;
     
-    /// <summary>
-    /// Represents the quantity of the first token (Token0) held in the liquidity pool position.
-    /// </summary>
-    /// <remarks>
-    /// This property indicates the amount of the first token associated with a position in the liquidity pool.
-    /// It is useful for tracking the allocation of Token0 in a specific liquidity pool scenario.
-    /// </remarks>
-    public decimal Token0Amount { get; init; }
-
-    /// <summary>
-    /// Represents the quantity of the second token in the liquidity pool.
-    /// </summary>
-    /// <remarks>
-    /// This property tracks the amount of the secondary token associated with a specific position in the liquidity pool.
-    /// It is used to monitor and analyze the investment or holdings of that token within the pool.
-    /// </remarks>
-    public decimal Token1Amount { get; init; }
-
-    /// <summary>
-    /// Represents the value of the first token in the liquidity pool expressed in USD.
-    /// </summary>
-    /// <remarks>
-    /// This property calculates the equivalent USD value of the token identified as Token0 in the liquidity pool.
-    /// It is useful for assessing the monetary worth of Token0 within a specific liquidity position.
-    /// </remarks>
-    public decimal Token0PriceInUsd { get; init; }
-
-    /// <summary>
-    /// Represents the amount of the second token in the liquidity pool, converted to USD.
-    /// </summary>
-    /// <remarks>
-    /// This property holds the USD-equivalent value of the second token (Token1PriceInUsd) within the liquidity pool.
-    /// It is used to provide a consistent currency representation for tracking and analysis purposes.
-    /// </remarks>
-    public decimal Token1PriceInUsd { get; init; }
+    public TokenInfo Token0 { get; set; } = null!;
+    
+    public TokenInfo Token1 { get; set; } = null!;
 
     /// <summary>
     /// Indicates whether the liquidity pool position is active.

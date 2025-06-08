@@ -45,7 +45,7 @@ public class ExcelService
                 {
                     Network = poolPosition.NetworkName,
                     Day = positionSnapshot.Day.ToShortDateString(),
-                    TokenPairSymbol = $"{positionSnapshot.Token0Symbol} / {positionSnapshot.Token1Symbol}",
+                    TokenPairSymbol = $"{positionSnapshot.Token0Fee.Symbol} / {positionSnapshot.Token1Fee.Symbol}",
                     FeeInUsd = Math.Round(positionSnapshot.CalculateFeeInUsd(), 2)
                 }, PoolInfoExcelRowContext.Default.PoolInfoExcel);
             }

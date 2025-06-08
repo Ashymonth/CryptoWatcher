@@ -22,11 +22,11 @@ public class TokenEnricher
         };
     }
 
-    private async ValueTask<TokenInfo> EnrichTokenAsync(IWeb3 web3, Token token, CancellationToken ct)
+    private async ValueTask<TokenInfoWithAddress> EnrichTokenAsync(IWeb3 web3, Token token, CancellationToken ct)
     {
         var tokenDecimals = await _tokenService.GetTokenDecimalsAsync(web3, token.Address, ct);
         var symbol = await _tokenService.GetTokenSymbolAsync(web3, token.Address);
-        return new TokenInfo
+        return new TokenInfoWithAddress
         {
             Address = token.Address,
             Symbol = symbol,
