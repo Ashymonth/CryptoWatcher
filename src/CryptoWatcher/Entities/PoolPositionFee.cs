@@ -23,10 +23,7 @@ public class PoolPositionFee
 
     public string NetworkName { get; init; } = null!;
 
+    public decimal FeeInUsd => Token0Fee.AmountInUsd + Token1Fee.AmountInUsd;
+    
     public PoolPosition PoolPosition { get; init; } = null!;
-
-    public decimal CalculateFeeInUsd()
-    {
-        return Token0Fee.AmountInUsd + Token1Fee.AmountInUsd;
-    }
 }

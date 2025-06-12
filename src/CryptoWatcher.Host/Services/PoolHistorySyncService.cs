@@ -54,7 +54,8 @@ public class PoolHistorySyncService
 
                 if (uniswapPositions.Count == 0)
                 {
-                    _logger.LogInformation("No positions found for wallet {WalletAddress} on uniswapNetwork {NetworkName}",
+                    _logger.LogInformation(
+                        "No positions found for wallet {WalletAddress} on uniswapNetwork {NetworkName}",
                         wallet.Address, network.Name);
                     continue;
                 }
@@ -64,11 +65,12 @@ public class PoolHistorySyncService
                     uniswapPositions.Count, wallet.Address, network.Name);
 
                 var existedPositions = (await _repositoryFacade.GetLiquidityPoolPositionsAsync(network, wallet, ct))
-                    .ToDictionary(position => position.PositionId);
+                    .ToDictionary(position => new { position.PositionId, position.NetworkName, position.Day });
 
                 var positions = new List<PoolPosition>();
                 var poolPositionSnapshots = new List<PoolPositionFee>();
 
+                var now = DateOnly.FromDateTime(DateTime.Now);
                 foreach (var uniswapPosition in uniswapPositions)
                 {
                     using var positionScope = _logger.BeginScope("Processing position {PositionId}",
@@ -76,7 +78,12 @@ public class PoolHistorySyncService
 
                     try
                     {
-                        if (existedPositions.TryGetValue((ulong)uniswapPosition.PositionId,
+                        if (existedPositions.TryGetValue(new
+                                {
+                                    PositionId = (ulong)uniswapPosition.PositionId,
+                                    NetworkName = network.Name,
+                                    Day = now
+                                },
                                 out var existedPosition) &&
                             !existedPosition.IsActive)
                         {
@@ -94,7 +101,7 @@ public class PoolHistorySyncService
                         var positionEntity =
                             MapToLiquidityPoolPosition(network, wallet, uniswapPosition, tokensEnriched,
                                 positionInPool.IsInRange);
-                        
+
                         var snapshotEntity = MapToLiquidityPoolPositionSnapshot(
                             network, uniswapPosition, pool, feeEnriched);
 

@@ -1,4 +1,5 @@
 using CryptoWatcher.Data;
+using CryptoWatcher.Entities;
 using Microsoft.EntityFrameworkCore;
 using SpreadCheetah;
 using SpreadCheetah.SourceGeneration;
@@ -39,30 +40,50 @@ public class ExcelService
 
         await sheet.AddHeaderRowAsync(PoolInfoExcelRowContext.Default.PoolInfoExcel);
 
-        foreach (var poolPosition in pools)
+        var groupedPoolPositions = pools
+            .OrderBy(position => position.Day)
+            .GroupBy(position => new { position.PositionId, position.NetworkName })
+            .ToArray();
+
+        foreach (var groupedPoolPosition in groupedPoolPositions)
         {
-            foreach (var positionSnapshot in poolPosition.PositionFees.OrderBy(snapshot => snapshot.Day))
+            foreach (var poolPosition in groupedPoolPosition)
             {
-                await sheet.AddAsRowAsync(new PoolInfoExcel
+                foreach (var positionSnapshot in poolPosition.PositionFees.OrderBy(snapshot => snapshot.Day))
                 {
-                    Day = positionSnapshot.Day.ToShortDateString(),
-                    PositionInUsd = Math.Round(poolPosition.Token0.AmountInUsd + poolPosition.Token1.AmountInUsd, 2),
-                    TokenPairSymbol = $"{positionSnapshot.Token0Fee.Symbol} / {positionSnapshot.Token1Fee.Symbol}",
-                    FeeInUsd = Math.Round(positionSnapshot.CalculateFeeInUsd(), 2),
-                    Network = poolPosition.NetworkName,
-                }, PoolInfoExcelRowContext.Default.PoolInfoExcel);
+                    await sheet.AddAsRowAsync(new PoolInfoExcel
+                    {
+                        Day = positionSnapshot.Day.ToShortDateString(),
+                        PositionInUsd =
+                            Math.Round(poolPosition.Token0.AmountInUsd + poolPosition.Token1.AmountInUsd, 2),
+                        TokenPairSymbol = $"{positionSnapshot.Token0Fee.Symbol} / {positionSnapshot.Token1Fee.Symbol}",
+                        FeeInUsd = Math.Round(positionSnapshot.FeeInUsd, 2),
+                        Network = poolPosition.NetworkName,
+                    }, PoolInfoExcelRowContext.Default.PoolInfoExcel);
+                }
             }
 
             await sheet.AddRowAsync([]);
         }
 
+        var feeSum = groupedPoolPositions.Sum(groupedPoolPosition =>
+        {
+            var fee = groupedPoolPosition.SelectMany(position =>
+                position.PositionFees.OrderBy(positionFee => positionFee.Day));
+
+            return CalculateFeeInUsd(fee);
+        });
+
+        var positionSum = groupedPoolPositions
+            .Select(grouping => grouping.OrderByDescending(position => position.Day).Last())
+            .Sum(position => position.Token0.AmountInUsd + position.Token1.AmountInUsd);
+
         await sheet.AddAsRowAsync(new PoolInfoExcel
         {
             Day = "Итого",
-            FeeInUsd = Math.Round(pools.Sum(position => position.PositionFees.Max(fee => fee.CalculateFeeInUsd())), 2),
+            FeeInUsd = Math.Round(feeSum, 2),
             Network = "-",
-            PositionInUsd = Math.Round(pools.Sum(position => position.Token0.AmountInUsd + position.Token1.AmountInUsd),
-                2),
+            PositionInUsd = Math.Round(positionSum, 2),
             TokenPairSymbol = "-"
         }, PoolInfoExcelRowContext.Default.PoolInfoExcel);
 
@@ -73,31 +94,45 @@ public class ExcelService
         return ms;
     }
 
+    private decimal CalculateFeeInUsd(IEnumerable<PoolPositionFee> positionFees)
+    {
+        var prevDayFee = 0m;
+        var result = 0m;
+        foreach (var poolPositionFee in positionFees)
+        {
+            if (poolPositionFee.FeeInUsd > prevDayFee)
+            {
+                prevDayFee = poolPositionFee.FeeInUsd;
+                continue;
+            }
+
+            if (poolPositionFee.FeeInUsd < prevDayFee)
+            {
+                result += prevDayFee;
+                prevDayFee = 0;
+            }
+        }
+
+        return result + prevDayFee;
+    }
+
     public class PoolInfoExcel
     {
+        [ColumnHeader("День")] public string Day { get; init; } = null!;
+        
+        [ColumnHeader("Позиция в $")]
+        [ColumnWidth(255)]
+        public decimal PositionInUsd { get; init; }
+        
         [ColumnHeader("Комиссия в $")]
         [ColumnWidth(255)]
         public decimal FeeInUsd { get; init; }
 
-        [ColumnHeader("Позиция в $")]
-        [ColumnWidth(255)]
-        public decimal PositionInUsd { get; init; }
-
         [ColumnHeader("APY %")] public decimal Apy => Math.Round(FeeInUsd / PositionInUsd * 100 * 12, 2);
-
-        [ColumnHeader("День")] public string Day { get; init; } = null!;
 
         [ColumnHeader("Пара")] public string TokenPairSymbol { get; init; } = null!;
 
         [ColumnHeader("Сеть")] public string Network { get; init; } = null!;
-
-        private decimal GetAnnualizationFactor()
-        {
-            var daysActive = (DateTime.Now - DateTime.Parse(Day)).TotalDays;
-            if (daysActive <= 0) return 12;
-
-            return 365m / (decimal)daysActive;
-        }
     }
 }
 
