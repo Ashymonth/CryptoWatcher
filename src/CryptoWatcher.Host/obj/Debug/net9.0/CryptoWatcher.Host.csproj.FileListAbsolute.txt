@@ -238,3 +238,13 @@ E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\obj\Debug\net9
 E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\obj\Debug\net9.0\CryptoWatcher.Host.pdb
 E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\obj\Debug\net9.0\CryptoWatcher.Host.genruntimeconfig.cache
 E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\obj\Debug\net9.0\ref\CryptoWatcher.Host.dll
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\Microsoft.Extensions.Configuration.dll
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Binder.dll
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\Microsoft.Extensions.Diagnostics.dll
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\Microsoft.Extensions.Http.dll
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\CoinGeckoClient.dll
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\HyperliquidClient.dll
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\CoinGeckoClient.pdb
+E:\Programming\Home projects\CryptoWatcher\src\CryptoWatcher.Host\bin\Debug\net9.0\HyperliquidClient.pdb

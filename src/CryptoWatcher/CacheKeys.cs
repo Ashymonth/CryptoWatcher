@@ -20,4 +20,10 @@ public static class CacheKeys
         public const int CacheLifetimeInSecond = int.MaxValue;
     }
     
+    public static class TokenId
+    {
+        public const string TokenIdByTokenSymbolTemplate = "token:tokenSybmol:{0}:tokenId";
+        public const int CacheLifetimeInSecond = int.MaxValue;
+    }
+    
 }

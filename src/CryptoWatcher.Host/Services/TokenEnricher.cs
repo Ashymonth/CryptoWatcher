@@ -1,3 +1,4 @@
+using CryptoWatcher.Application;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Models;
 using Nethereum.Web3;
@@ -7,10 +8,12 @@ namespace CryptoWatcher.Host.Services;
 public class TokenEnricher
 {
     private readonly TokenService _tokenService;
+    private readonly CoinNormalizer _coinNormalizer;
 
-    public TokenEnricher(TokenService tokenService)
+    public TokenEnricher(TokenService tokenService, CoinNormalizer coinNormalizer)
     {
         _tokenService = tokenService;
+        _coinNormalizer = coinNormalizer;
     }
 
     public async ValueTask<TokenInfoPair> EnrichAsync(IWeb3 web3, TokenPair tokenPair, CancellationToken ct = default)
@@ -22,7 +25,7 @@ public class TokenEnricher
         };
     }
 
-    private async ValueTask<TokenInfoWithAddress> EnrichTokenAsync(IWeb3 web3, Token token, CancellationToken ct)
+    public async ValueTask<TokenInfoWithAddress> EnrichTokenAsync(IWeb3 web3, Token token, CancellationToken ct)
     {
         var tokenDecimals = await _tokenService.GetTokenDecimalsAsync(web3, token.Address, ct);
         var symbol = await _tokenService.GetTokenSymbolAsync(web3, token.Address);

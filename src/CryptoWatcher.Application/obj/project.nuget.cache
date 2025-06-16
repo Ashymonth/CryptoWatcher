@@ -1,13 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "iFaPqolEdnk=",
+  "dgSpecHash": "S4pl+5y2xM0=",
   "success": true,
   "projectFilePath": "E:\\Programming\\Home projects\\CryptoWatcher\\src\\CryptoWatcher.Application\\CryptoWatcher.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Ashym\\.nuget\\packages\\adraffy.ensnormalize\\0.1.5\\adraffy.ensnormalize.0.1.5.nupkg.sha512",
     "C:\\Users\\Ashym\\.nuget\\packages\\ardalis.specification\\9.1.0\\ardalis.specification.9.1.0.nupkg.sha512",
+    "C:\\Users\\Ashym\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\9.0.6\\microsoft.extensions.caching.abstractions.9.0.6.nupkg.sha512",
     "C:\\Users\\Ashym\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.5\\microsoft.extensions.dependencyinjection.abstractions.9.0.5.nupkg.sha512",
     "C:\\Users\\Ashym\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\6.0.0\\microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\Ashym\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.6\\microsoft.extensions.primitives.9.0.6.nupkg.sha512",
     "C:\\Users\\Ashym\\.nuget\\packages\\nbitcoin.secp256k1\\3.1.1\\nbitcoin.secp256k1.3.1.1.nupkg.sha512",
     "C:\\Users\\Ashym\\.nuget\\packages\\nethereum.abi\\4.29.0\\nethereum.abi.4.29.0.nupkg.sha512",
     "C:\\Users\\Ashym\\.nuget\\packages\\nethereum.accounts\\4.29.0\\nethereum.accounts.4.29.0.nupkg.sha512",

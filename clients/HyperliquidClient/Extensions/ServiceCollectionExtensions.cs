@@ -8,7 +8,7 @@ public static class ServiceCollectionExtensions
 {
     private const string BaseUrl = "https://api.hyperliquid.xyz";
 
-    public static void AddUniswapClient(this IServiceCollection services,
+    public static void AddHyperLiquidClient(this IServiceCollection services,
         Func<IServiceProvider, Uri>? hyperliquidUriFactory = null)
     {
         services.AddHttpClient<UserNonFundingLedgerUpdatesClient>((provider, client) =>

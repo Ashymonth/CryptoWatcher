@@ -1,5 +1,12 @@
 using System.Linq.Expressions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using AaveClient;
+using AaveClient.Extensions;
+using CoinGeckoClient;
+using CoinGeckoClient.Extensions;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Application;
 using CryptoWatcher.Application.Uniswap;
 using CryptoWatcher.Core;
 using CryptoWatcher.Data;
@@ -14,6 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using UniswapClient.Extensions;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,11 +31,12 @@ builder.Services.AddSingleton(provider => provider.GetRequiredService<IOptions<E
 
 builder.Services.AddConfiguredDatabase(builder.Configuration.GetConnectionString("Postgres")!);
 
-builder.Services.AddStackExchangeRedisCache(options =>
-    options.Configuration = builder.Configuration.GetConnectionString("Redis"));
-builder.Services.AddHybridCache();
+builder.Services
+    .AddStackExchangeRedisCache(options => options.Configuration = builder.Configuration.GetConnectionString("Redis"))
+    .AddHybridCache();
 
-builder.Services.AddHangfire(configuration => configuration.UseRecommendedSerializerSettings().UseInMemoryStorage())
+builder.Services
+    .AddHangfire(configuration => configuration.UseRecommendedSerializerSettings().UseInMemoryStorage())
     .AddHangfireServer();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
@@ -43,10 +52,23 @@ builder.Services.AddScoped<ExcelService>();
 builder.Services.AddScoped<PoolHistorySyncService>();
 
 builder.Services.AddSingleton<IUniswapMath, UniswapMath>();
-builder.Services.AddSingleton<UniswapProvider>();
+builder.Services.AddSingleton<IUniswapProvider, UniswapProvider>();
 
-builder.Services.AddHttpClient<CoinGeckoTokenPriceProvider>((provider, client) =>
-    client.BaseAddress = provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
+builder.Services.AddCoinGeckoClient(provider => provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
+builder.Services.AddTransient<ICoinPriceProvider, CoinGeckoCoinPriceProvider>();
+
+builder.Services.AddSingleton<CoinPriceService>();
+builder.Services.AddSingleton<CoinNormalizer>();
+
+builder.Services.AddAaveClient();
+builder.Services.AddSingleton<AaveProvider>();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.PropertyNameCaseInsensitive = true;
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
+});
 
 var app = builder.Build();
 
@@ -57,13 +79,20 @@ using (var scope = app.Services.CreateScope())
 
     db.Database.Migrate();
 
-    var service = scope.ServiceProvider.GetRequiredService<PoolHistorySyncService>();
+    var wallet = await db.Wallets.FirstAsync();
+    var geckoApiClient = scope.ServiceProvider.GetRequiredService<CoinPriceService>();
 
-    Expression<Func<Task>> x = () => service.SyncAsync(CancellationToken.None);
+    var aave = scope.ServiceProvider.GetRequiredService<AaveProvider>();
 
-    var recurringManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManagerV2>();
-    recurringManager.AddOrUpdate("pool_history", x, Cron.Hourly);
-    recurringManager.TriggerJob("pool_history");
+
+    await aave.GetLendingPositionAsync(wallet, default);
+    // var service = scope.ServiceProvider.GetRequiredService<PoolHistorySyncService>();
+    //
+    // Expression<Func<Task>> x = () => service.SyncAsync(CancellationToken.None);
+    //
+    // var recurringManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManagerV2>();
+    // recurringManager.AddOrUpdate("pool_history", x, Cron.Hourly);
+    // recurringManager.TriggerJob("pool_history");
 }
 
 app.MapGet("/report", async (ExcelService excelService, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to) =>
