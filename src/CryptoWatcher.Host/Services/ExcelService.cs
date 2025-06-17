@@ -47,6 +47,7 @@ public class ExcelService
 
         foreach (var groupedPoolPosition in groupedPoolPositions)
         {
+            var initialPosition = groupedPoolPosition.MinBy(position => position.Day);
             foreach (var poolPosition in groupedPoolPosition)
             {
                 foreach (var positionSnapshot in poolPosition.PositionFees.OrderBy(snapshot => snapshot.Day))
@@ -56,6 +57,9 @@ public class ExcelService
                         Day = positionSnapshot.Day.ToShortDateString(),
                         PositionInUsd =
                             Math.Round(poolPosition.Token0.AmountInUsd + poolPosition.Token1.AmountInUsd, 2),
+                        HoldInUsd = Math.Round(initialPosition!.Token0.Amount * positionSnapshot.Token0Fee.PriceInUsd +
+                                               initialPosition.Token1.Amount * positionSnapshot.Token1Fee.PriceInUsd -
+                                               positionSnapshot.FeeInUsd, 2),
                         TokenPairSymbol = $"{positionSnapshot.Token0Fee.Symbol} / {positionSnapshot.Token1Fee.Symbol}",
                         FeeInUsd = Math.Round(positionSnapshot.FeeInUsd, 2),
                         Network = poolPosition.NetworkName,
@@ -119,13 +123,17 @@ public class ExcelService
     public class PoolInfoExcel
     {
         [ColumnHeader("День")] public string Day { get; init; } = null!;
-        
+
         [ColumnHeader("Позиция в $")]
-        [ColumnWidth(255)]
+        [ColumnWidth(20)]
         public decimal PositionInUsd { get; init; }
+
+        [ColumnHeader("HOLD $")]
+        [ColumnWidth(20)]
+        public decimal HoldInUsd { get; set; }
         
         [ColumnHeader("Комиссия в $")]
-        [ColumnWidth(255)]
+        [ColumnWidth(20)]
         public decimal FeeInUsd { get; init; }
 
         [ColumnHeader("APY %")] public decimal Apy => Math.Round(FeeInUsd / PositionInUsd * 100 * 12, 2);
