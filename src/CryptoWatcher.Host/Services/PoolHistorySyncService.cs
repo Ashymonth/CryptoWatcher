@@ -92,6 +92,14 @@ public class PoolHistorySyncService
                             positions.Add(dbPoolPosition);
                         }
 
+                        if (dbPoolPosition.PoolPositionSnapshots.Count == 1) // for case when position was created
+                                                                             // and added liquidity in 1 day
+                        {
+                            dbPoolPosition =
+                                MapToLiquidityPoolPosition(network, wallet, uniswapPosition, tokensEnriched);
+                            positions.Add(dbPoolPosition);
+                        }
+                        
                         if (!dbPoolPosition.IsActive)
                         {
                             _logger.LogInformation("Skipping inactive position");
