@@ -1,3 +1,4 @@
+using System.Numerics;
 using CryptoWatcher.Core;
 using CryptoWatcher.Entities;
 using CryptoWatcher.Entities.Uniswap;
@@ -33,13 +34,12 @@ public class PoolHistorySyncService
 
     public async Task SyncAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("Starting pool history synchronization");
+        _logger.StartingPoolSync();
 
         var wallets = await _repositoryFacade.GetWalletsAsync(ct);
         var networks = await _repositoryFacade.GetNetworksAsync(ct);
 
-        _logger.LogInformation("Found {WalletCount} wallets and {NetworkCount} networks to process",
-            wallets.Count, networks.Count);
+        _logger.WalletsAndNetworksCount(wallets.Count, networks.Count);
 
         foreach (var wallet in wallets)
         {
@@ -54,19 +54,14 @@ public class PoolHistorySyncService
 
                 if (uniswapPositions.Count == 0)
                 {
-                    _logger.LogInformation(
-                        "No positions found for wallet {WalletAddress} on uniswapNetwork {NetworkName}",
-                        wallet.Address, network.Name);
+                    _logger.NoPositionsFound(wallet.Address, network.Name);
                     continue;
                 }
 
-                _logger.LogInformation(
-                    "Found {PositionCount} positions for wallet {WalletAddress} on uniswapNetwork {NetworkName}",
-                    uniswapPositions.Count, wallet.Address, network.Name);
+                _logger.PositionsFound(uniswapPositions.Count, wallet.Address, network.Name);
 
                 var existedPositions = (await _repositoryFacade.GetLiquidityPoolPositionsAsync(network, wallet, ct))
-                    .ToDictionary(position =>
-                        new PositionKey(position.PositionId, position.NetworkName));
+                    .ToDictionary(position => new PositionKey(position.PositionId, position.NetworkName));
 
                 var positions = new List<PoolPosition>();
                 var poolPositionSnapshots = new List<PoolPositionSnapshot>();
@@ -93,16 +88,16 @@ public class PoolHistorySyncService
                         }
 
                         if (dbPoolPosition.PoolPositionSnapshots.Count == 1) // for case when position was created
-                                                                             // and added liquidity in 1 day
+                            // and added liquidity in 1 day
                         {
                             dbPoolPosition =
                                 MapToLiquidityPoolPosition(network, wallet, uniswapPosition, tokensEnriched);
                             positions.Add(dbPoolPosition);
                         }
-                        
+
                         if (!dbPoolPosition.IsActive)
                         {
-                            _logger.LogInformation("Skipping inactive position");
+                            _logger.SkippingInactivePosition();
                             continue;
                         }
 
@@ -115,13 +110,11 @@ public class PoolHistorySyncService
 
                         poolPositionSnapshots.Add(snapshotEntity);
 
-                        _logger.LogInformation("Successfully synchronized position");
+                        _logger.PositionSynchronizedSuccessfully();
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex,
-                            "Failed to process position {PositionId} on uniswapNetwork {NetworkName} for wallet {WalletAddress}: {ErrorMessage}",
-                            uniswapPosition.PositionId, network.Name, wallet.Address, ex.Message);
+                        _logger.PositionProcessingFailed(uniswapPosition.PositionId, network.Name, wallet.Address, ex);
                     }
                 }
 
@@ -129,27 +122,21 @@ public class PoolHistorySyncService
                 {
                     await _repositoryFacade.MergePoolPositionsAsync(positions, poolPositionSnapshots, ct);
 
-                    _logger.LogInformation(
-                        "Persisted {PositionCount} positions and {SnapshotCount} snapshots for uniswapNetwork {NetworkName}",
-                        positions.Count, poolPositionSnapshots.Count, network.Name);
+                    _logger.PositionsPersisted(positions.Count, poolPositionSnapshots.Count, network.Name);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex,
-                        "Failed to save positions/snapshots to database for uniswapNetwork {NetworkName}: {ErrorMessage}",
-                        network.Name, ex.Message);
+                    _logger.PositionsSaveFailed(network.Name, ex);
                 }
 
-                _logger.LogInformation("Completed processing uniswapNetwork {NetworkName} for wallet {WalletAddress}",
-                    network.Name, wallet.Address);
+                _logger.NetworkProcessingCompleted(network.Name, wallet.Address);
             }
 
-            _logger.LogInformation("Completed processing wallet {WalletAddress}", wallet.Address);
+            _logger.WalletProcessingCompleted(wallet.Address);
         }
 
-        _logger.LogInformation("Pool history synchronization completed successfully");
+        _logger.PoolSyncCompleted();
     }
-
 
     private static PoolPosition MapToLiquidityPoolPosition(UniswapNetwork uniswapNetwork, Wallet wallet,
         IUniswapPosition position, TokenInfoPair tokensEnriched)
@@ -184,4 +171,52 @@ public class PoolHistorySyncService
     }
 
     private readonly record struct PositionKey(ulong PositionId, string NetworkName);
+}
+
+public static partial class PoolSyncLogs
+{
+    [LoggerMessage(LogLevel.Information, "Starting pool history synchronization")]
+    public static partial void StartingPoolSync(this ILogger logger);
+
+    [LoggerMessage(LogLevel.Information, "Found {WalletCount} wallets and {NetworkCount} networks to process")]
+    public static partial void WalletsAndNetworksCount(this ILogger logger, int walletCount, int networkCount);
+
+    [LoggerMessage(LogLevel.Information,
+        "No positions found for wallet {WalletAddress} on uniswapNetwork {NetworkName}")]
+    public static partial void NoPositionsFound(this ILogger logger, string walletAddress, string networkName);
+
+    [LoggerMessage(LogLevel.Information,
+        "Found {PositionCount} positions for wallet {WalletAddress} on uniswapNetwork {NetworkName}")]
+    public static partial void PositionsFound(this ILogger logger, int positionCount, string walletAddress,
+        string networkName);
+
+    [LoggerMessage(LogLevel.Information, "Skipping inactive position")]
+    public static partial void SkippingInactivePosition(this ILogger logger);
+
+    [LoggerMessage(LogLevel.Information, "Successfully synchronized position")]
+    public static partial void PositionSynchronizedSuccessfully(this ILogger logger);
+
+    [LoggerMessage(LogLevel.Error,
+        "Failed to process position {PositionId} on uniswapNetwork {NetworkName} for wallet {WalletAddress}")]
+    public static partial void PositionProcessingFailed(this ILogger logger, BigInteger positionId, string networkName,
+        string walletAddress, Exception ex);
+
+    [LoggerMessage(LogLevel.Information,
+        "Persisted {PositionCount} positions and {SnapshotCount} snapshots for uniswapNetwork {NetworkName}")]
+    public static partial void PositionsPersisted(this ILogger logger, int positionCount, int snapshotCount,
+        string networkName);
+
+    [LoggerMessage(LogLevel.Error, "Failed to save positions/snapshots to database for uniswapNetwork {NetworkName}")]
+    public static partial void PositionsSaveFailed(this ILogger logger, string networkName, Exception ex);
+
+    [LoggerMessage(LogLevel.Information,
+        "Completed processing uniswapNetwork {NetworkName} for wallet {WalletAddress}")]
+    public static partial void
+        NetworkProcessingCompleted(this ILogger logger, string networkName, string walletAddress);
+
+    [LoggerMessage(LogLevel.Information, "Completed processing wallet {WalletAddress}")]
+    public static partial void WalletProcessingCompleted(this ILogger logger, string walletAddress);
+
+    [LoggerMessage(LogLevel.Information, "Pool history synchronization completed successfully")]
+    public static partial void PoolSyncCompleted(this ILogger logger);
 }
