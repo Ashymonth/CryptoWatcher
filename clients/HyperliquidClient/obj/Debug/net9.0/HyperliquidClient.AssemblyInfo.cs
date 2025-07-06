@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HyperliquidClient")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c1690f58f9f21ac82a47d222c6d9ae0774134a4f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1e005de536b5b2b7b43011c57290578f804b891")]
 [assembly: System.Reflection.AssemblyProductAttribute("HyperliquidClient")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HyperliquidClient")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

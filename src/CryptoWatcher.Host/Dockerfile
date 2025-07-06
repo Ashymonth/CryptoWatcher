@@ -8,10 +8,13 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["src/CryptoWatcher.Host/CryptoWatcher.Host.csproj", "src/CryptoWatcher.Host/"]
+COPY ["clients/AaveClient/AaveClient.csproj", "clients/AaveClient/"]
 COPY ["clients/UniswapClient/UniswapClient.csproj", "clients/UniswapClient/"]
 COPY ["src/CryptoWatcher.Application/CryptoWatcher.Application.csproj", "src/CryptoWatcher.Application/"]
 COPY ["src/CryptoWatcher/CryptoWatcher.csproj", "src/CryptoWatcher/"]
 COPY ["src/CryptoWatcher.Data/CryptoWatcher.Data.csproj", "src/CryptoWatcher.Data/"]
+COPY ["clients/CoinGeckoClient/CoinGeckoClient.csproj", "clients/CoinGeckoClient/"]
+COPY ["clients/HyperliquidClient/HyperliquidClient.csproj", "clients/HyperliquidClient/"]
 RUN dotnet restore "src/CryptoWatcher.Host/CryptoWatcher.Host.csproj"
 COPY . .
 WORKDIR "/src/src/CryptoWatcher.Host"

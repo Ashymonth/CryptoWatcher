@@ -10,6 +10,8 @@ public sealed class GetPositionsByWalletAndNetworkSpecification : Specification<
     {
         Query
             .Include(position => position.PoolPositionSnapshots)
-            .Where(position => position.UniswapNetwork.Name == uniswapNetwork.Name && position.Wallet.Address == wallet.Address);
+            .Where(position => position.UniswapNetwork.Name == uniswapNetwork.Name &&
+                               position.Wallet.Address == wallet.Address &&
+                               position.IsActive);
     }
 }
