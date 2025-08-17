@@ -1,6 +1,7 @@
 using System.Data;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Entities;
+using CryptoWatcher.Entities.Hyperliquid;
 using CryptoWatcher.Entities.Uniswap;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -18,7 +19,7 @@ namespace CryptoWatcher.Data;
 public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(options), IUnitOfWork
 {
     private IDbContextTransaction? _activeTransaction;
-    
+
     /// <summary>
     /// Represents the collection of blockchain networks as part of the database context in the CryptoWatcher application.
     /// </summary>
@@ -51,8 +52,15 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     /// networks to ensure comprehensive tracking of liquidity metrics.
     /// </remarks>
     public DbSet<PoolPosition> PoolPositions => Set<PoolPosition>();
-    
+
     public DbSet<PoolPositionSnapshot> PoolPositionSnapshots => Set<PoolPositionSnapshot>();
+
+    public DbSet<HyperliquidVaultPosition> HyperliquidVaultPositions => Set<HyperliquidVaultPosition>();
+
+    public DbSet<HyperliquidVaultEvent> HyperliquidVaultEvents => Set<HyperliquidVaultEvent>();
+    
+    public DbSet<HyperliquidVaultPositionSnapshot> HyperliquidVaultPositionSnapshots =>
+        Set<HyperliquidVaultPositionSnapshot>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

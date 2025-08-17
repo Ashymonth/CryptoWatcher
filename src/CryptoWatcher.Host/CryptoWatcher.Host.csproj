@@ -44,8 +44,4 @@
       <PackageReference Include="TickerQ.EntityFrameworkCore" Version="2.4.4" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Jobs\" />
-    </ItemGroup>
-
 </Project>

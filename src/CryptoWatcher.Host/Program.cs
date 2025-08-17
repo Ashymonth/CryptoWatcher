@@ -8,13 +8,17 @@ using CryptoWatcher.Application;
 using CryptoWatcher.Application.Uniswap;
 using CryptoWatcher.Core;
 using CryptoWatcher.Data;
+using CryptoWatcher.Entities;
 using CryptoWatcher.Host.Configs;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Host.Integrations;
 using CryptoWatcher.Host.Services;
 using CryptoWatcher.Integrations;
 using CryptoWatcher.PoolHistorySyncFeature;
+using EFCore.BulkExtensions;
 using Hangfire;
+using HyperliquidClient;
+using HyperliquidClient.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using TickerQ.Dashboard.DependencyInjection;
@@ -70,6 +74,9 @@ builder.Services.AddSingleton<CoinPriceService>();
 builder.Services.AddSingleton<CoinNormalizer>();
 
 builder.Services.AddAaveClient();
+builder.Services.AddHyperLiquidClient();
+builder.Services.AddScoped<IHyperliquidProvider, HyperliquidProvider>();
+ 
 builder.Services.AddSingleton<AaveProvider>();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -87,6 +94,20 @@ using (var scope = app.Services.CreateScope())
 {
     var service = scope.ServiceProvider.GetRequiredService<PoolHistorySyncService>();
 
+    var context = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
+    
+    var client = scope.ServiceProvider.GetRequiredService<IHyperliquidProvider>();
+    
+    var wallet = new Wallet
+    {
+        Address = "0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f"
+    };
+ 
+    
+    //
+    // var test = await client.GetVaultsFundingHistory(wallet);
+    // var test1 = await client.GetVaultsPositionsEquityAsync(wallet);
+    
     Expression<Func<Task>> x = () => service.SyncAsync(CancellationToken.None);
 
     var recurringManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManagerV2>();

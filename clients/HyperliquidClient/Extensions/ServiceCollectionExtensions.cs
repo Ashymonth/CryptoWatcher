@@ -11,12 +11,13 @@ public static class ServiceCollectionExtensions
     public static void AddHyperLiquidClient(this IServiceCollection services,
         Func<IServiceProvider, Uri>? hyperliquidUriFactory = null)
     {
-        services.AddHttpClient<UserNonFundingLedgerUpdatesClient>((provider, client) =>
+        services.AddHttpClient<IUserNonFundingLedgerUpdatesClient, UserNonFundingLedgerUpdatesClient>((provider,
+            client) =>
         {
             client.BaseAddress = hyperliquidUriFactory?.Invoke(provider) ?? new Uri(BaseUrl);
         });
 
-        services.AddHttpClient<UserVaultEquitiesClient>((provider, client) =>
+        services.AddHttpClient<IUserVaultEquitiesClient, UserVaultEquitiesClient>((provider, client) =>
         {
             client.BaseAddress = hyperliquidUriFactory?.Invoke(provider) ?? new Uri(BaseUrl);
         });

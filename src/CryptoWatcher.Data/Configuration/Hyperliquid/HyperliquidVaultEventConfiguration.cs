@@ -1,0 +1,13 @@
+using CryptoWatcher.Entities.Hyperliquid;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace CryptoWatcher.Data.Configuration.Hyperliquid;
+
+public class HyperliquidVaultEventConfiguration : IEntityTypeConfiguration<HyperliquidVaultEvent>
+{
+    public void Configure(EntityTypeBuilder<HyperliquidVaultEvent> builder)
+    {
+        builder.HasKey(@event => new { @event.VaultAddress, @event.WalletAddress, @event.Date });
+    }
+}

@@ -2,6 +2,7 @@ using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Entities;
+using CryptoWatcher.Entities.Hyperliquid;
 using EFCore.BulkExtensions;
 
 namespace CryptoWatcher.Data;
@@ -24,6 +25,21 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
             nameof(PoolPositionSnapshot.Day), nameof(PoolPositionSnapshot.PoolPositionId),
             nameof(PoolPositionSnapshot.NetworkName)
         ],
+        [typeof(HyperliquidVaultPosition)] =
+        [
+            nameof(HyperliquidVaultPosition.VaultAddress), nameof(HyperliquidVaultPosition.WalletAddress)
+        ],
+        [typeof(HyperliquidVaultEvent)] =
+        [
+            nameof(HyperliquidVaultPosition.VaultAddress), nameof(HyperliquidVaultPosition.WalletAddress),
+            nameof(HyperliquidVaultPositionSnapshot.Day)
+        ],
+        [typeof(HyperliquidVaultPositionSnapshot)] =
+        [
+            nameof(HyperliquidVaultPositionSnapshot.WalletAddress),
+            nameof(HyperliquidVaultPositionSnapshot.VaultAddress),
+            nameof(HyperliquidVaultPositionSnapshot.Day)
+        ],
     };
 
     private readonly CryptoWatcherDbContext _dbContext;
@@ -40,6 +56,22 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
     {
         _dbContext = dbContext;
         UnitOfWork = unitOfWork;
+    }
+
+    public async Task BulkMergeWithGraphAsync(IList<TEntity> entities, CancellationToken ct)
+    {
+        if (entities.Count == 0)
+        {
+            return;
+        }
+
+        await _dbContext.BulkInsertOrUpdateAsync(entities,
+            config =>
+            {
+                config.IncludeGraph = true;
+                config.UpdateByProperties = Type2PrimaryKeyFields.GetValueOrDefault(typeof(TEntity));
+            },
+            cancellationToken: ct);
     }
 
     public async Task BulkMergeAsync(IList<TEntity> entities, CancellationToken ct)
