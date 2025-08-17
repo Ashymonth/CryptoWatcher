@@ -17,6 +17,9 @@ using CryptoWatcher.PoolHistorySyncFeature;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using TickerQ.Dashboard.DependencyInjection;
+using TickerQ.DependencyInjection;
+using TickerQ.EntityFrameworkCore.DependencyInjection;
 using UniswapClient.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +33,16 @@ builder.Services.AddConfiguredDatabase(builder.Configuration.GetConnectionString
 builder.Services
     .AddStackExchangeRedisCache(options => options.Configuration = builder.Configuration.GetConnectionString("Redis"))
     .AddHybridCache();
+
+builder.Services.AddTickerQ(optionsBuilder =>
+{
+    optionsBuilder.SetInstanceIdentifier("CryptoWatcher");
+    optionsBuilder.AddDashboard();
+    optionsBuilder.AddOperationalStore<CryptoWatcherDbContext>(optionBuilder =>
+    {
+        optionBuilder.UseModelCustomizerForMigrations();
+    });
+});
 
 builder.Services
     .AddHangfire(configuration => configuration.UseRecommendedSerializerSettings().UseInMemoryStorage())
@@ -68,7 +81,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 var app = builder.Build();
 
-Console.WriteLine(app.Environment.EnvironmentName);
+app.UseTickerQ();
+
 using (var scope = app.Services.CreateScope())
 {
     var service = scope.ServiceProvider.GetRequiredService<PoolHistorySyncService>();
