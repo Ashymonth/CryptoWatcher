@@ -3,7 +3,7 @@ using Ardalis.Specification.EntityFrameworkCore;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Entities;
 using CryptoWatcher.Entities.Hyperliquid;
-using EFCore.BulkExtensions;
+using Z.BulkOperations;
 
 namespace CryptoWatcher.Data;
 
@@ -65,13 +65,17 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
             return;
         }
 
-        await _dbContext.BulkInsertOrUpdateAsync(entities,
-            config =>
+        await _dbContext.BulkMergeAsync(entities, operation =>
+        {
+            operation.IncludeGraph = true;
+            operation.IncludeGraphOperationBuilder = bulkOperation =>
             {
-                config.IncludeGraph = true;
-                config.UpdateByProperties = Type2PrimaryKeyFields.GetValueOrDefault(typeof(TEntity));
-            },
-            cancellationToken: ct);
+                if (Type2PrimaryKeyFields.TryGetValue(bulkOperation.EntityType.ClrType, out var primaryKeys))
+                {
+                    bulkOperation.ColumnPrimaryKeyNames = primaryKeys;
+                }
+            };
+        }, ct);
     }
 
     public async Task BulkMergeAsync(IList<TEntity> entities, CancellationToken ct)
@@ -81,9 +85,8 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
             return;
         }
 
-        await _dbContext.BulkInsertOrUpdateAsync(entities,
-            config => { config.UpdateByProperties = Type2PrimaryKeyFields.GetValueOrDefault(typeof(TEntity)); },
-            cancellationToken: ct);
+        await _dbContext.BulkMergeAsync(entities, operation => operation.ColumnPrimaryKeyExpression =
+                entity => Type2PrimaryKeyFields.GetValueOrDefault(typeof(TEntity)), ct);
     }
 
     public async Task<TEntity> InsertAsync(TEntity entity, CancellationToken ct)
