@@ -34,8 +34,8 @@ public class SyncHyperliquidPositions
         var now = DateTime.Now;
         foreach (var wallet in wallets)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync(ct);
-
+            await using var transaction = await _repository.UnitOfWork.BeginTransactionAsync(ct);
+            
             var fundingHistory = await _hyperliquidProvider.GetVaultsFundingHistory(wallet, ct);
 
             var vaultPositions = await _hyperliquidProvider.GetVaultsPositionsEquityAsync(wallet, ct);
