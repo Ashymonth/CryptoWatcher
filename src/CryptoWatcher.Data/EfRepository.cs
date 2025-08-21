@@ -2,6 +2,7 @@ using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Entities;
+using CryptoWatcher.Entities.Hyperliquid;
 using EFCore.BulkExtensions;
 
 namespace CryptoWatcher.Data;
@@ -15,6 +16,11 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
     // ReSharper disable once StaticMemberInGenericType
     private static readonly Dictionary<Type, List<string>> Type2PrimaryKeyFields = new()
     {
+        [typeof(Wallet)] =
+        [
+            nameof(Wallet.Address)
+        ],
+
         [typeof(PoolPosition)] =
         [
             nameof(PoolPosition.PositionId), nameof(PoolPosition.NetworkName)
@@ -23,6 +29,21 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
         [
             nameof(PoolPositionSnapshot.Day), nameof(PoolPositionSnapshot.PoolPositionId),
             nameof(PoolPositionSnapshot.NetworkName)
+        ],
+        [typeof(HyperliquidVaultPosition)] =
+        [
+            nameof(HyperliquidVaultPosition.VaultAddress), nameof(HyperliquidVaultPosition.WalletAddress)
+        ],
+        [typeof(HyperliquidVaultEvent)] =
+        [
+            nameof(HyperliquidVaultEvent.VaultAddress), nameof(HyperliquidVaultEvent.WalletAddress),
+            nameof(HyperliquidVaultEvent.Date)
+        ],
+        [typeof(HyperliquidVaultPositionSnapshot)] =
+        [
+            nameof(HyperliquidVaultPositionSnapshot.VaultAddress),
+            nameof(HyperliquidVaultPositionSnapshot.WalletAddress),
+            nameof(HyperliquidVaultPositionSnapshot.Day)
         ],
     };
 
@@ -41,7 +62,7 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
         _dbContext = dbContext;
         UnitOfWork = unitOfWork;
     }
-
+ 
     public async Task BulkMergeAsync(IList<TEntity> entities, CancellationToken ct)
     {
         if (entities.Count == 0)
@@ -50,7 +71,7 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
         }
 
         await _dbContext.BulkInsertOrUpdateAsync(entities,
-            config => { config.UpdateByProperties = Type2PrimaryKeyFields.GetValueOrDefault(typeof(TEntity)); },
+            operation => operation.UpdateByProperties = Type2PrimaryKeyFields.GetValueOrDefault(typeof(TEntity)),
             cancellationToken: ct);
     }
 

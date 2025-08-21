@@ -39,6 +39,9 @@
       <PackageReference Include="Riok.Mapperly" Version="4.2.1" />
       <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
       <PackageReference Include="SpreadCheetah" Version="1.21.1" />
+      <PackageReference Include="TickerQ" Version="2.4.4" />
+      <PackageReference Include="TickerQ.Dashboard" Version="2.4.4" />
+      <PackageReference Include="TickerQ.EntityFrameworkCore" Version="2.4.4" />
     </ItemGroup>
 
 </Project>

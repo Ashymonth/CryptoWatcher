@@ -22,6 +22,72 @@ namespace CryptoWatcher.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultEvent", b =>
+                {
+                    b.Property<string>("VaultAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("WalletAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Usd")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("VaultAddress", "WalletAddress", "Date");
+
+                    b.HasIndex("WalletAddress");
+
+                    b.ToTable("HyperliquidVaultEvents");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", b =>
+                {
+                    b.Property<string>("VaultAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("WalletAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("VaultAddress", "WalletAddress");
+
+                    b.HasIndex("WalletAddress");
+
+                    b.ToTable("HyperliquidVaultPositions");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPositionSnapshot", b =>
+                {
+                    b.Property<string>("VaultAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("WalletAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("VaultAddress", "WalletAddress", "Day");
+
+                    b.HasIndex("WalletAddress");
+
+                    b.ToTable("HyperliquidVaultPositionSnapshots");
+                });
+
             modelBuilder.Entity("CryptoWatcher.Entities.PoolPosition", b =>
                 {
                     b.Property<decimal>("PositionId")
@@ -111,6 +177,219 @@ namespace CryptoWatcher.Data.Migrations
                     b.HasKey("Address");
 
                     b.ToTable("Wallets");
+                });
+
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Expression")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Function")
+                        .HasColumnType("text");
+
+                    b.Property<string>("InitIdentifier")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("Request")
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("Retries")
+                        .HasColumnType("integer");
+
+                    b.PrimitiveCollection<int[]>("RetryIntervals")
+                        .HasColumnType("integer[]");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Expression")
+                        .HasDatabaseName("IX_CronTickers_Expression");
+
+                    b.ToTable("CronTickers", "ticker");
+                });
+
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CronTickerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("ElapsedTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Exception")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExecutedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExecutionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LockHolder")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LockedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CronTickerId")
+                        .HasDatabaseName("IX_CronTickerOccurrence_CronTickerId");
+
+                    b.HasIndex("ExecutionTime")
+                        .HasDatabaseName("IX_CronTickerOccurrence_ExecutionTime");
+
+                    b.HasIndex("CronTickerId", "ExecutionTime")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CronTickerId_ExecutionTime");
+
+                    b.HasIndex("Status", "ExecutionTime")
+                        .HasDatabaseName("IX_CronTickerOccurrence_Status_ExecutionTime");
+
+                    b.ToTable("CronTickerOccurrences", "ticker");
+                });
+
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BatchParent")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("BatchRunCondition")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<long>("ElapsedTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Exception")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExecutedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExecutionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Function")
+                        .HasColumnType("text");
+
+                    b.Property<string>("InitIdentifier")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LockHolder")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LockedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("Request")
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("Retries")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer");
+
+                    b.PrimitiveCollection<int[]>("RetryIntervals")
+                        .HasColumnType("integer[]");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchParent");
+
+                    b.HasIndex("ExecutionTime")
+                        .HasDatabaseName("IX_TimeTicker_ExecutionTime");
+
+                    b.HasIndex("Status", "ExecutionTime")
+                        .HasDatabaseName("IX_TimeTicker_Status_ExecutionTime");
+
+                    b.ToTable("TimeTickers", "ticker");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultEvent", b =>
+                {
+                    b.HasOne("CryptoWatcher.Entities.Wallet", "Wallet")
+                        .WithMany()
+                        .HasForeignKey("WalletAddress")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", null)
+                        .WithMany("VaultEvents")
+                        .HasForeignKey("VaultAddress", "WalletAddress")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", b =>
+                {
+                    b.HasOne("CryptoWatcher.Entities.Wallet", "Wallet")
+                        .WithMany()
+                        .HasForeignKey("WalletAddress")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPositionSnapshot", b =>
+                {
+                    b.HasOne("CryptoWatcher.Entities.Wallet", "Wallet")
+                        .WithMany()
+                        .HasForeignKey("WalletAddress")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", "VaultPosition")
+                        .WithMany("PositionSnapshots")
+                        .HasForeignKey("VaultAddress", "WalletAddress")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("VaultPosition");
+
+                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("CryptoWatcher.Entities.PoolPosition", b =>
@@ -271,6 +550,34 @@ namespace CryptoWatcher.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>
+                {
+                    b.HasOne("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", "CronTicker")
+                        .WithMany()
+                        .HasForeignKey("CronTickerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CronTicker");
+                });
+
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
+                {
+                    b.HasOne("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", "ParentJob")
+                        .WithMany("ChildJobs")
+                        .HasForeignKey("BatchParent")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ParentJob");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", b =>
+                {
+                    b.Navigation("PositionSnapshots");
+
+                    b.Navigation("VaultEvents");
+                });
+
             modelBuilder.Entity("CryptoWatcher.Entities.PoolPosition", b =>
                 {
                     b.Navigation("PoolPositionSnapshots");
@@ -284,6 +591,11 @@ namespace CryptoWatcher.Data.Migrations
             modelBuilder.Entity("CryptoWatcher.Entities.Wallet", b =>
                 {
                     b.Navigation("LiquidityPoolPositions");
+                });
+
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
+                {
+                    b.Navigation("ChildJobs");
                 });
 #pragma warning restore 612, 618
         }

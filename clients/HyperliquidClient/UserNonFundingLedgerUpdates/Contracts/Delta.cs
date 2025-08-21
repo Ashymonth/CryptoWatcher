@@ -1,3 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace HyperliquidClient.UserNonFundingLedgerUpdates.Contracts;
 
-public record Delta(string Type, string Vault, string Usdc);
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "type", IgnoreUnrecognizedTypeDiscriminators = true)]
+[JsonDerivedType(typeof(VaultDeposit), "vaultDeposit")]
+[JsonDerivedType(typeof(VaultWithdraw), "vaultWithdraw")]
+public record Delta(string Type);

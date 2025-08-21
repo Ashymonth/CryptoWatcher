@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\buildMultiTargeting\CryptoWatcher.Host.props" />
-</Project>

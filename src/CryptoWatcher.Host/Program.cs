@@ -8,6 +8,7 @@ using CryptoWatcher.Application;
 using CryptoWatcher.Application.Uniswap;
 using CryptoWatcher.Core;
 using CryptoWatcher.Data;
+using CryptoWatcher.Entities;
 using CryptoWatcher.Host.Configs;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Host.Integrations;
@@ -15,8 +16,12 @@ using CryptoWatcher.Host.Services;
 using CryptoWatcher.Integrations;
 using CryptoWatcher.PoolHistorySyncFeature;
 using Hangfire;
+using HyperliquidClient.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using TickerQ.Dashboard.DependencyInjection;
+using TickerQ.DependencyInjection;
+using TickerQ.EntityFrameworkCore.DependencyInjection;
 using UniswapClient.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +35,16 @@ builder.Services.AddConfiguredDatabase(builder.Configuration.GetConnectionString
 builder.Services
     .AddStackExchangeRedisCache(options => options.Configuration = builder.Configuration.GetConnectionString("Redis"))
     .AddHybridCache();
+
+builder.Services.AddTickerQ(optionsBuilder =>
+{
+    optionsBuilder.SetInstanceIdentifier("CryptoWatcher");
+    optionsBuilder.AddDashboard();
+    optionsBuilder.AddOperationalStore<CryptoWatcherDbContext>(optionBuilder =>
+    {
+        optionBuilder.UseModelCustomizerForMigrations();
+    });
+});
 
 builder.Services
     .AddHangfire(configuration => configuration.UseRecommendedSerializerSettings().UseInMemoryStorage())
@@ -57,6 +72,10 @@ builder.Services.AddSingleton<CoinPriceService>();
 builder.Services.AddSingleton<CoinNormalizer>();
 
 builder.Services.AddAaveClient();
+builder.Services.AddHyperLiquidClient();
+builder.Services.AddScoped<IHyperliquidProvider, HyperliquidProvider>();
+builder.Services.AddScoped<HyperliquidExcelService>();
+
 builder.Services.AddSingleton<AaveProvider>();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -68,7 +87,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 var app = builder.Build();
 
-Console.WriteLine(app.Environment.EnvironmentName);
+app.UseTickerQ();
+
 using (var scope = app.Services.CreateScope())
 {
     var service = scope.ServiceProvider.GetRequiredService<PoolHistorySyncService>();
@@ -80,11 +100,17 @@ using (var scope = app.Services.CreateScope())
     recurringManager.TriggerJob("pool_history");
 }
 
-app.MapGet("/report", async (ExcelService excelService, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to) =>
-{
-    var repot = await excelService.ExportPoolInfoToExcelAsync(from, to);
+app.MapGet("/report",
+    async (ExcelService excelService, HyperliquidExcelService hyperliquidExcelService,
+        [FromQuery] bool poolReport,
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? to) =>
+    {
+        var repot = poolReport
+            ? await excelService.ExportPoolInfoToExcelAsync(from, to)
+            : await hyperliquidExcelService.CreateReportAsync(from, to);
 
-    return TypedResults.File(repot, fileDownloadName: "report.xlsx");
-});
+        return TypedResults.File(repot, fileDownloadName: "report.xlsx");
+    });
 
 app.Run();
