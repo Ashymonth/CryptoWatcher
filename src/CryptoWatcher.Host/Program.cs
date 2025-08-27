@@ -18,6 +18,7 @@ using CryptoWatcher.PoolHistorySyncFeature;
 using Hangfire;
 using HyperliquidClient.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.DependencyInjection;
@@ -91,6 +92,13 @@ app.UseTickerQ();
 
 using (var scope = app.Services.CreateScope())
 {
+    var context = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
+
+    if (!app.Environment.IsDevelopment())
+    {
+        context.Database.Migrate();
+    }
+
     var service = scope.ServiceProvider.GetRequiredService<PoolHistorySyncService>();
 
     Expression<Func<Task>> x = () => service.SyncAsync(CancellationToken.None);
