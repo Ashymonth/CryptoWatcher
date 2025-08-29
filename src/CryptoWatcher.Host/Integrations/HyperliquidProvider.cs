@@ -1,4 +1,4 @@
-using CryptoWatcher.HyperliquidModule;
+using CryptoWatcher.HyperliquidModule.Abstractions;
 using CryptoWatcher.HyperliquidModule.Entities;
 using CryptoWatcher.Shared.Entities;
 using HyperliquidClient;

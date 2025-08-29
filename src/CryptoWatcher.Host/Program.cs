@@ -10,7 +10,8 @@ using CryptoWatcher.Host.Configs;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Host.Integrations;
 using CryptoWatcher.Host.Services;
-using CryptoWatcher.HyperliquidModule;
+using CryptoWatcher.HyperliquidModule.Abstractions;
+using CryptoWatcher.HyperliquidModule.Extensions;
 using CryptoWatcher.Integrations;
 using CryptoWatcher.UniswapModule;
 using CryptoWatcher.UniswapModule.Services;
@@ -76,6 +77,8 @@ builder.Services.AddScoped<IHyperliquidProvider, HyperliquidProvider>();
 builder.Services.AddScoped<HyperliquidExcelService>();
 
 builder.Services.AddSingleton<AaveProvider>();
+
+builder.Services.AddHyperliquidModule();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
