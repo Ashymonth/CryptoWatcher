@@ -55,7 +55,7 @@ builder.Services.AddUniswapClient();
 builder.Services.AddSingleton<IUniswapProvider, UniswapProvider>();
 
 builder.Services.AddScoped<IPoolHistorySyncRepositoryFacade, PoolHistorySyncRepositoryFacade>();
-builder.Services.AddScoped<ExcelService>();
+builder.Services.AddScoped<UniswapExcelService>();
 builder.Services.AddScoped<PoolHistorySyncService>();
 
 builder.Services.AddCoinGeckoClient(provider => provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
@@ -87,13 +87,13 @@ var app = builder.Build();
 app.UseTickerQ();
 
 app.MapGet("/report",
-    async (ExcelService excelService, HyperliquidExcelService hyperliquidExcelService,
+    async (UniswapExcelService uniswapExcelService, HyperliquidExcelService hyperliquidExcelService,
         [FromQuery] bool poolReport,
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? to) =>
     {
         var repot = poolReport
-            ? await excelService.ExportPoolInfoToExcelAsync(from, to)
+            ? await uniswapExcelService.ExportPoolInfoToExcelAsync(from, to)
             : await hyperliquidExcelService.CreateReportAsync(from, to);
 
         return TypedResults.File(repot, fileDownloadName: "report.xlsx");

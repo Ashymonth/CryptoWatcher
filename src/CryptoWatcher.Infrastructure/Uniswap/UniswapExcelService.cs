@@ -6,11 +6,11 @@ using SpreadCheetah.SourceGeneration;
 
 namespace CryptoWatcher.Host.Services;
 
-public class ExcelService
+public class UniswapExcelService
 {
     private readonly CryptoWatcherDbContext _dbContext;
 
-    public ExcelService(CryptoWatcherDbContext dbContext)
+    public UniswapExcelService(CryptoWatcherDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -143,5 +143,5 @@ public class ExcelService
     }
 }
 
-[WorksheetRow(typeof(ExcelService.PoolInfoExcel))]
+[WorksheetRow(typeof(UniswapExcelService.PoolInfoExcel))]
 public partial class PoolInfoExcelRowContext : WorksheetRowContext;
