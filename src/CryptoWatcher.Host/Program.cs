@@ -67,7 +67,7 @@ builder.Services.AddSingleton<CoinNormalizer>();
 
 builder.Services.AddAaveClient();
 builder.Services.AddHyperLiquidClient();
-builder.Services.AddScoped<IHyperliquidProvider, HyperliquidProvider>();
+builder.Services.AddScoped<IHyperliquidProvider, HyperliquidApiProvider>();
 builder.Services.AddScoped<HyperliquidExcelService>();
 
 builder.Services.AddSingleton<AaveProvider>();

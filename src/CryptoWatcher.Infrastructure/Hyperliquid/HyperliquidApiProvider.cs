@@ -4,13 +4,13 @@ using CryptoWatcher.Shared.Entities;
 using HyperliquidClient;
 using HyperliquidClient.UserNonFundingLedgerUpdates.Contracts;
 
-namespace CryptoWatcher.Host.Integrations;
+namespace CryptoWatcher.Infrastructure.Hyperliquid;
 
-public class HyperliquidProvider : IHyperliquidProvider
+public class HyperliquidApiProvider : IHyperliquidProvider
 {
     private readonly HyperliquidApiClient _client;
 
-    public HyperliquidProvider(HyperliquidApiClient client)
+    public HyperliquidApiProvider(HyperliquidApiClient client)
     {
         _client = client;
     }
