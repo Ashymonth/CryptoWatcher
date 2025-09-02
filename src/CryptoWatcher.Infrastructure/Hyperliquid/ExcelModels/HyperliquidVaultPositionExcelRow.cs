@@ -6,7 +6,7 @@ namespace CryptoWatcher.Infrastructure.Hyperliquid.ExcelModels;
 
 internal class HyperliquidVaultPositionExcelRow
 {
-    [ColumnHeader("Адрес хранилища")] public string Vault { get; init; } = null!;
+    [ColumnHeader("Адрес хранилища")] public string VaultAddress { get; init; } = null!;
     [ColumnHeader("День")] 
     [ColumnWidth(15)]
     [CellValueConverter(typeof(DateOnlyExcelConverter))]

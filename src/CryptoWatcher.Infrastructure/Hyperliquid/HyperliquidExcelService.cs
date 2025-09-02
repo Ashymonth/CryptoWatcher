@@ -1,7 +1,7 @@
-using CryptoWatcher.Extensions;
 using CryptoWatcher.HyperliquidModule.Services;
 using CryptoWatcher.Infrastructure.Excel;
 using CryptoWatcher.Infrastructure.Hyperliquid.ExcelModels;
+using CryptoWatcher.Infrastructure.Hyperliquid.Mappers;
 using SpreadCheetah;
 using SpreadCheetah.SourceGeneration;
 using SpreadCheetah.Styling;
@@ -10,9 +10,9 @@ namespace CryptoWatcher.Infrastructure.Hyperliquid;
 
 public class HyperliquidExcelService
 {
+    private const string ReportSheetName = "Hyperliquid";
     private const string TotalName = "Итого:";
     private const string EmptyValue = "-";
-    private const string ReportSheetName = "Hyperliquid";
 
     private readonly IHyperliquidReportService _hyperliquidReportService;
 
@@ -63,29 +63,11 @@ public class HyperliquidExcelService
         {
             foreach (var vaultReportItem in vaultReport.ReportItems)
             {
-                var row = new HyperliquidVaultPositionExcelRow
-                {
-                    Vault = vaultReportItem.VaultAddress,
-                    Balance = vaultReportItem.Balance,
-                    Day = vaultReportItem.Day,
-                    DailyProfit = vaultReportItem.DailyProfit,
-                    DailyPercentProfit = vaultReportItem.DailyPercentProfit
-                };
-
-                await sheet.AddAsRowAsync(row,
+                await sheet.AddAsRowAsync(vaultReportItem.MapToExcelModel(),
                     HyperliquidVaultPositionExcelContext.Default.HyperliquidVaultPositionExcelRow, ct);
             }
 
-            var totalRow = new HyperliquidVaultPositionExcelTotalRow
-            {
-                TotalName = TotalName,
-                Day = EmptyValue,
-                TotalBalance = vaultReport.TotalBalance,
-                TotalAbsolutDailyProfit = vaultReport.TotalAbsoluteProfit,
-                TotalDailyPercentProfit = vaultReport.TotalPercentProfit
-            };
-
-            await sheet.AddAsRowAsync(totalRow,
+            await sheet.AddAsRowAsync(vaultReport.MapToExcelModel(TotalName, EmptyValue),
                 HyperliquidVaultPositionExcelContext.Default.HyperliquidVaultPositionExcelTotalRow, ct);
 
             await sheet.AddRowAsync([], ct);

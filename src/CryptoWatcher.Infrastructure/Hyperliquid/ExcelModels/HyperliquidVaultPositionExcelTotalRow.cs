@@ -25,10 +25,10 @@ public class HyperliquidVaultPositionExcelTotalRow
     [ColumnHeader("Изменение за день")]
     [CellStyle(ExcelStyleRegistry.TwoDecimalPlaces)]
     [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Money>))]
-    public Money TotalAbsolutDailyProfit { get; init; }
+    public Money TotalAbsoluteProfit { get; init; }
 
     [ColumnHeader("Изменение за день в процентах")]
     [CellStyle(ExcelStyleRegistry.Percent)]
     [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Percent>))]
-    public Percent TotalDailyPercentProfit { get; init; }
+    public Percent TotalPercentProfit { get; init; }
 }
