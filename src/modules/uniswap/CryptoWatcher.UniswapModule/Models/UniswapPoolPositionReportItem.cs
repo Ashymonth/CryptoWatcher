@@ -14,5 +14,5 @@ public class UniswapPoolPositionReportItem
 
     public required Money FeeInUsd { get; init; }
 
-    public required string TokenPairSymbols { get; set; } = null!;
+    public required string TokenPairSymbols { get; init; } = null!;
 }

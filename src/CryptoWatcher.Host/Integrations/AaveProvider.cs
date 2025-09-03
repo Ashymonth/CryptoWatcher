@@ -1,11 +1,7 @@
 using AaveClient;
 using CryptoWatcher.Entities.Aave;
-using CryptoWatcher.Host.Services;
 using CryptoWatcher.Infrastructure.Services;
-using CryptoWatcher.Models;
 using CryptoWatcher.Shared.Entities;
-using CryptoWatcher.UniswapModule.Models;
-using Nethereum.Web3;
 
 namespace CryptoWatcher.Host.Integrations;
 

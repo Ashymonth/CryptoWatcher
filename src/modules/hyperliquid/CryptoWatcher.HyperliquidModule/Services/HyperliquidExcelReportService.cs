@@ -7,11 +7,18 @@ namespace CryptoWatcher.HyperliquidModule.Services;
 
 public interface IHyperliquidReportService
 {
+    /// <summary>
+    /// Generates a report based on the specified date range.
+    /// </summary>
+    /// <param name="from">The start date of the report.</param>
+    /// <param name="to">The end date of the report.</param>
+    /// <param name="ct">An optional cancellation token to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous operation. Returns a list of <see cref="HyperliquidVaultReport"/> objects containing the report data.</returns>
     Task<List<HyperliquidVaultReport>> CreateReportAsync(DateOnly from, DateOnly to,
         CancellationToken ct = default);
 }
 
-public class HyperliquidReportService : IHyperliquidReportService
+internal class HyperliquidReportService : IHyperliquidReportService
 {
     private readonly IRepository<HyperliquidVaultPosition> _repository;
 

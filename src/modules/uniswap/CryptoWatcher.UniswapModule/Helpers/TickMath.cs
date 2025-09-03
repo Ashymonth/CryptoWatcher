@@ -6,7 +6,7 @@ namespace CryptoWatcher.UniswapModule.Helpers;
 /// <summary>
 /// Tick math prot from uniswap TickMath.sol
 /// </summary>
-public static class TickMath
+internal static class TickMath
 {
     private const int MinTick = -887272;
     private const int MaxTick = 887272;

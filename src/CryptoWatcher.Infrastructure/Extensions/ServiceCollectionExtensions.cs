@@ -10,7 +10,6 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddScoped<IUniswapPositionsSyncService, UniswapPositionsSyncService>();
         
         services.AddScoped<ITokenEnricher, TokenEnricher>();
         services.AddScoped<TokenService>();

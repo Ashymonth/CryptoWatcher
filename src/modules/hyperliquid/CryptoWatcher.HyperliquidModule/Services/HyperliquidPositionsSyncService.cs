@@ -7,10 +7,17 @@ namespace CryptoWatcher.HyperliquidModule.Services;
 
 public interface IHyperliquidPositionsSyncService
 {
+    /// <summary>
+    /// Synchronizes the positions of the given wallet for the specified day.
+    /// </summary>
+    /// <param name="wallet">The cryptocurrency wallet whose positions are to be synchronized.</param>
+    /// <param name="syncDay">The specific day for which positions are being synchronized.</param>
+    /// <param name="ct">The cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>A task representing the asynchronous synchronization operation.</returns>
     Task SyncPositionsAsync(Wallet wallet, DateTime syncDay, CancellationToken ct = default);
 }
 
-public class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncService
+internal class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncService
 {
     private readonly IHyperliquidProvider _hyperliquidProvider;
     private readonly IRepository<HyperliquidVaultPosition> _repository;

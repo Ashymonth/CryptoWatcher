@@ -24,7 +24,7 @@ public interface IUniswapPositionsSyncService
         CancellationToken ct = default);
 }
 
-public class UniswapPositionsSyncService : IUniswapPositionsSyncService
+internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
 {
     private readonly record struct PositionKey(ulong PositionId, string NetworkName);
 

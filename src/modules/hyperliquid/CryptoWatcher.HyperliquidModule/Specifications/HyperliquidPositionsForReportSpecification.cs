@@ -3,7 +3,7 @@ using CryptoWatcher.HyperliquidModule.Entities;
 
 namespace CryptoWatcher.HyperliquidModule.Specifications;
 
-public sealed class HyperliquidPositionsForReportSpecification : Specification<HyperliquidVaultPosition>
+internal sealed class HyperliquidPositionsForReportSpecification : Specification<HyperliquidVaultPosition>
 {
     public HyperliquidPositionsForReportSpecification(DateOnly from, DateOnly to)
     {
