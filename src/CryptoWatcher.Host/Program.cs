@@ -1,17 +1,16 @@
-using System.Linq.Expressions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AaveClient.Extensions;
 using CoinGeckoClient.Extensions;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Application;
-using CryptoWatcher.Infrastructure;
 using CryptoWatcher.Host.Configs;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Host.Integrations;
-using CryptoWatcher.Host.Services;
 using CryptoWatcher.HyperliquidModule.Abstractions;
 using CryptoWatcher.HyperliquidModule.Extensions;
+using CryptoWatcher.Infrastructure;
+using CryptoWatcher.Infrastructure.Extensions;
 using CryptoWatcher.Infrastructure.Hyperliquid;
 using CryptoWatcher.Infrastructure.Services;
 using CryptoWatcher.Infrastructure.Uniswap;
@@ -59,13 +58,11 @@ builder.Services.AddSingleton<IUniswapProvider, UniswapProvider>();
 
 builder.Services.AddScoped<IPoolHistorySyncRepositoryFacade, PoolHistorySyncRepositoryFacade>();
 builder.Services.AddScoped<UniswapExcelReportService>();
-builder.Services.AddScoped<PoolHistorySyncService>();
 
 builder.Services.AddCoinGeckoClient(provider => provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
 builder.Services.AddTransient<ICoinPriceProvider, CoinGeckoCoinPriceProvider>();
 
 builder.Services.AddSingleton<CoinPriceService>();
-builder.Services.AddSingleton<CoinNormalizer>();
 
 builder.Services.AddAaveClient();
 builder.Services.AddHyperLiquidClient();
@@ -75,6 +72,7 @@ builder.Services.AddScoped<HyperliquidExcelService>();
 builder.Services.AddSingleton<AaveProvider>();
 
 builder.Services
+    .AddInfrastructure()
     .AddUniswapModule()
     .AddHyperliquidModule();
 

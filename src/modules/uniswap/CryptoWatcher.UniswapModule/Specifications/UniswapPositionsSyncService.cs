@@ -2,13 +2,29 @@ using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.UniswapModule.Abstractions;
 using CryptoWatcher.UniswapModule.Entities;
 using CryptoWatcher.UniswapModule.Models;
-using CryptoWatcher.UniswapModule.Services;
 using Microsoft.Extensions.Logging;
 using UniswapClient.Models;
 
 namespace CryptoWatcher.UniswapModule.Specifications;
 
-public class UniswapPositionsSyncService
+/// <summary>
+/// Defines a contract for synchronizing Uniswap positions for a given wallet, network, and date.
+/// </summary>
+public interface IUniswapPositionsSyncService
+{
+    /// <summary>
+    /// Synchronizes Uniswap positions for a specified wallet and network on a given day.
+    /// </summary>
+    /// <param name="wallet">The cryptocurrency wallet for which to synchronize Uniswap positions.</param>
+    /// <param name="network">The Uniswap network to connect to for synchronization.</param>
+    /// <param name="syncDay">The date for which the Uniswap positions should be synchronized.</param>
+    /// <param name="ct">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task SyncUniswapPositionsAsync(Wallet wallet, UniswapNetwork network, DateOnly syncDay,
+        CancellationToken ct = default);
+}
+
+public class UniswapPositionsSyncService : IUniswapPositionsSyncService
 {
     private readonly record struct PositionKey(ulong PositionId, string NetworkName);
 
@@ -32,7 +48,8 @@ public class UniswapPositionsSyncService
         _repositoryFacade = repositoryFacade;
     }
 
-    public async Task SyncUniswapPositionsAsync(Wallet wallet, UniswapNetwork network, CancellationToken ct = default)
+    public async Task SyncUniswapPositionsAsync(Wallet wallet, UniswapNetwork network, DateOnly syncDay,
+        CancellationToken ct = default)
     {
         var uniswapPositions = await _providerFactory.GetPositionsAsync(network, wallet);
 
@@ -83,7 +100,7 @@ public class UniswapPositionsSyncService
                 var feeEnriched = await CalculateFeeAsync(network, pool, uniswapPosition, ct);
 
                 var snapshotEntity = MapToLiquidityPoolPositionSnapshot(dbPoolPosition.PositionId,
-                    dbPoolPosition.NetworkName, tokensEnriched, feeEnriched, positionInPool.IsInRange);
+                    dbPoolPosition.NetworkName, tokensEnriched, feeEnriched, positionInPool.IsInRange, syncDay);
 
                 poolPositionSnapshots.Add(snapshotEntity);
 
@@ -136,13 +153,14 @@ public class UniswapPositionsSyncService
         string networkName,
         TokenInfoPair poolPosition,
         TokenInfoPair feeInfo,
-        bool isInRange)
+        bool isInRange,
+        DateOnly day)
     {
         return new PoolPositionSnapshot
         {
             PoolPositionId = positionId,
             NetworkName = networkName,
-            Day = DateOnly.FromDateTime(DateTime.Now),
+            Day = day,
             Token0 = TokenInfoWithFee.Create(poolPosition.Token0, feeInfo.Token0.Amount, feeInfo.Token0.PriceInUsd),
             Token1 = TokenInfoWithFee.Create(poolPosition.Token1, feeInfo.Token1.Amount, feeInfo.Token1.PriceInUsd),
             IsInRange = isInRange,
