@@ -54,7 +54,7 @@ public class UniswapExcelReportService
                 // pool can contain data only for 1 network and 1 token pair, 
                 // so we can take just the first item
                 var item = poolPosition.ReportItems.First();
-                var totalExcelRow = poolPosition.MapToExcelTotalRowModel(TotalName, item.TokenPairSymbols, item.Network);
+                var totalExcelRow = poolPosition.MapToExcelModel(TotalName, item.TokenPairSymbols, item.Network);
 
                 await sheet.AddAsRowAsync(totalExcelRow,
                     PoolInfoExcelRowContext.Default.UniswapPoolPositionExcelTotalRow, ct);
