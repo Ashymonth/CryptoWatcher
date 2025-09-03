@@ -90,8 +90,8 @@ public class UniswapMath : IUniswapMath
             Token1 = earnedToken1
         };
     }
-    
-    public (BigInteger amount0, BigInteger amount1) CalculateTokenAmounts(
+
+    private static (BigInteger amount0, BigInteger amount1) CalculateTokenAmounts(
         BigInteger sqrtRatioX96,
         BigInteger sqrtRatioAX96,
         BigInteger sqrtRatioBX96,

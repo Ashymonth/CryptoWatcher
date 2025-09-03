@@ -78,4 +78,12 @@ public class PoolPositionSnapshot
     /// of the fees collected within the snapshot timeframe.
     /// </remarks>
     public decimal FeeInUsd => Token0.FeeAmount * Token0.PriceInUsd + Token1.FeeAmount * Token1.PriceInUsd;
+
+    /// <summary>
+    /// Calculates the total sum in USD of tokens held within the position snapshot by combining the USD values of token0 and token1.
+    /// </summary>
+    /// <returns>
+    /// A decimal value representing the total USD value of token0 and token1 for the position snapshot.
+    /// </returns>
+    public decimal TokenSumInUsd() => Token0.AmountInUsd + Token1.AmountInUsd;
 }

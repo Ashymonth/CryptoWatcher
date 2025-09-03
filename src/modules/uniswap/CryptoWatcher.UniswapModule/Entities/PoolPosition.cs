@@ -88,5 +88,5 @@ public class PoolPosition
     /// </remarks>
     public UniswapNetwork UniswapNetwork { get; init; } = null!;
 
-    public List<PoolPositionSnapshot> PoolPositionSnapshots { get; set; } = [];
+    public List<PoolPositionSnapshot> PoolPositionSnapshots { get; init; } = [];
 }

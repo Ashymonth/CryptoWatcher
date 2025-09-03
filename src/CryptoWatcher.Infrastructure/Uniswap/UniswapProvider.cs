@@ -1,18 +1,15 @@
-using CryptoWatcher.Host.Mappers;
-using CryptoWatcher.Integrations;
-using CryptoWatcher.Models;
+using CryptoWatcher.Infrastructure.Uniswap.Mappers;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.UniswapModule;
 using CryptoWatcher.UniswapModule.Abstractions;
 using CryptoWatcher.UniswapModule.Entities;
 using CryptoWatcher.UniswapModule.Models;
-using CryptoWatcher.UniswapModule.Services;
 using Nethereum.Web3;
 using UniswapClient.Models;
 using UniswapClient.UniswapV3;
 using UniswapClient.UniswapV4;
 
-namespace CryptoWatcher.Host.Integrations;
+namespace CryptoWatcher.Infrastructure.Uniswap;
 
 public class UniswapProvider : IUniswapProvider
 {
@@ -71,10 +68,12 @@ public class UniswapProvider : IUniswapProvider
 
     private async Task<LiquidityPoolInfo> GetV3PoolAsync(UniswapNetwork uniswapNetwork, IUniswapPosition position)
     {
-        var poolAddress = await _uniswapV3Client.PoolFactory.GetPoolAddressAsync(new Web3(uniswapNetwork.RpcUrl),
+        var web3 = new Web3(uniswapNetwork.RpcUrl);
+        
+        var poolAddress = await _uniswapV3Client.PoolFactory.GetPoolAddressAsync(web3,
             uniswapNetwork.PoolFactoryAddress, position.Token0, position.Token1);
 
-        var poolInfoV3 = await _uniswapV3Client.LiquidityPool.GetPoolInfoAsync(new Web3(uniswapNetwork.RpcUrl),
+        var poolInfoV3 = await _uniswapV3Client.LiquidityPool.GetPoolInfoAsync(web3,
             poolAddress,
             uniswapNetwork.MultiCallAddress,
             position.TickLower, position.TickUpper);
