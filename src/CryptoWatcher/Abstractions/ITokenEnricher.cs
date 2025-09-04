@@ -1,17 +1,16 @@
-using CryptoWatcher.UniswapModule.Entities;
-using CryptoWatcher.UniswapModule.Models;
+using CryptoWatcher.Shared.ValueObjects;
 
-namespace CryptoWatcher.UniswapModule.Abstractions;
+namespace CryptoWatcher.Abstractions;
 
 public interface ITokenEnricher
 {
     /// <summary>
     /// Enriches the specified token pair with additional metadata, such as symbol and price, for the given Uniswap network.
     /// </summary>
-    /// <param name="network">The Uniswap network associated with the token pair.</param>
+    /// <param name="rpcAddress">Address of the token network</param>
     /// <param name="tokenPair">The pair of tokens to be enriched.</param>
     /// <param name="ct">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task representing the asynchronous operation, containing a TokenInfoPair with enriched metadata.</returns>
-    ValueTask<TokenInfoPair> EnrichAsync(UniswapNetwork network, TokenPair tokenPair,
+    ValueTask<TokenInfoPair> EnrichAsync(string rpcAddress, TokenPair tokenPair,
         CancellationToken ct = default);
 }

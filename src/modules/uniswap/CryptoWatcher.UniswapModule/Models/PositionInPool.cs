@@ -1,3 +1,5 @@
+using CryptoWatcher.Shared.ValueObjects;
+
 namespace CryptoWatcher.UniswapModule.Models;
 
 /// <summary>

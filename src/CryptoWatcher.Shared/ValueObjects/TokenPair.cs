@@ -1,4 +1,4 @@
-namespace CryptoWatcher.UniswapModule.Models;
+namespace CryptoWatcher.Shared.ValueObjects;
 
 /// <summary>
 /// Represents a pair of tokens with raw balances (e.g., liquidity or fees).

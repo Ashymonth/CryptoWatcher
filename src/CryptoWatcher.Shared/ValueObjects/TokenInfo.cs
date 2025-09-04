@@ -1,4 +1,4 @@
-namespace CryptoWatcher.UniswapModule.Entities;
+namespace CryptoWatcher.Shared.ValueObjects;
 
 public record TokenInfo  
 {
