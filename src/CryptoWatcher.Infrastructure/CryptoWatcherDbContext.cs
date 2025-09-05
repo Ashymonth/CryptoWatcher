@@ -1,3 +1,4 @@
+using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.HyperliquidModule.Entities;
 using CryptoWatcher.Shared.Entities;
@@ -18,6 +19,27 @@ namespace CryptoWatcher.Infrastructure;
 public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(options), IUnitOfWork
 {
     private IDbContextTransaction? _activeTransaction;
+
+    /// <summary>
+    /// Provides access to the set of Aave positions within the application's database context.
+    /// </summary>
+    /// <remarks>
+    /// This property facilitates querying and managing Aave liquidity position data,
+    /// which includes details such as the associated network, wallet information, token address,
+    /// position type, and relevant timestamps. It serves as the primary interface for interacting
+    /// with Aave-specific entities in the database.
+    /// </remarks>
+    public DbSet<AavePosition> AavePositions => Set<AavePosition>();
+
+    /// <summary>
+    /// Represents a collection of historical snapshots for Aave positions in the application's database context.
+    /// </summary>
+    /// <remarks>
+    /// AavePositionSnapshots facilitates querying and managing time-series data related to Aave positions,
+    /// such as daily snapshots of token details, position identifiers, and associated metadata.
+    /// This property allows for tracking the historical states and changes in Aave positions over time.
+    /// </remarks>
+    public DbSet<AavePositionSnapshot> AavePositionSnapshots => Set<AavePositionSnapshot>();
 
     /// <summary>
     /// Represents the collection of blockchain networks as part of the database context in the CryptoWatcher application.
@@ -57,7 +79,7 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     public DbSet<HyperliquidVaultPosition> HyperliquidVaultPositions => Set<HyperliquidVaultPosition>();
 
     public DbSet<HyperliquidVaultEvent> HyperliquidVaultEvents => Set<HyperliquidVaultEvent>();
-    
+
     public DbSet<HyperliquidVaultPositionSnapshot> HyperliquidVaultPositionSnapshots =>
         Set<HyperliquidVaultPositionSnapshot>();
 

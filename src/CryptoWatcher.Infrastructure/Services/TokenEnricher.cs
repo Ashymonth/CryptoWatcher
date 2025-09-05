@@ -2,9 +2,6 @@ using CryptoWatcher.Abstractions;
 using CryptoWatcher.Application;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.ValueObjects;
-using CryptoWatcher.UniswapModule.Abstractions;
-using CryptoWatcher.UniswapModule.Entities;
-using CryptoWatcher.UniswapModule.Models;
 using Nethereum.Web3;
 
 namespace CryptoWatcher.Infrastructure.Services;
@@ -36,7 +33,7 @@ public class TokenEnricher : ITokenEnricher
         };
     }
 
-    private async ValueTask<TokenInfoWithAddress> EnrichTokenAsync(string rpcAddress, Token token,
+    public async ValueTask<TokenInfoWithAddress> EnrichTokenAsync(string rpcAddress, Token token,
         CancellationToken ct)
     {
         var web3 = new Web3(rpcAddress);

@@ -3,14 +3,18 @@ namespace AaveClient;
 /// <summary>
 /// https://aave.com/docs/resources/addresses
 /// </summary>
-internal static class NetworkRegistry
+public static class NetworkRegistry
 {
-    internal record NetworkInfo(string RpcAddress, string PoolAddress, string ProviderAddress);
+    public record NetworkInfo(string RpcAddress, string UiPoolDataProviderAddress, string PoolAddressesProviderAddress);
 
-    public static readonly Dictionary<AaveNetwork, NetworkInfo> NetworkToRpcUrl = new()
+    public static readonly Dictionary<AaveNetworkType, NetworkInfo> NetworkToRpcUrl = new()
     {
-        [AaveNetwork.Sonic] =
+        [AaveNetworkType.Sonic] =
             new NetworkInfo("https://rpc.soniclabs.com", "0x9005A69fE088680827f292e8aE885Be4BE1beb2f",
                 "0x5C2e738F6E27bCE0F7558051Bf90605dD6176900"),
+        
+        [AaveNetworkType.Celo] =
+            new NetworkInfo("https://forno.celo.org", "0xf07fFd12b119b921C4a2ce8d4A13C5d1E3000d6e",
+                "0x9F7Cf9417D5251C59fE94fB9147feEe1aAd9Cea5"),
     };
 }

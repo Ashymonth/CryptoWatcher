@@ -13,4 +13,7 @@ public interface ITokenEnricher
     /// <returns>A task representing the asynchronous operation, containing a TokenInfoPair with enriched metadata.</returns>
     ValueTask<TokenInfoPair> EnrichAsync(string rpcAddress, TokenPair tokenPair,
         CancellationToken ct = default);
+
+    ValueTask<TokenInfoWithAddress> EnrichTokenAsync(string rpcAddress, Token token,
+        CancellationToken ct);
 }
