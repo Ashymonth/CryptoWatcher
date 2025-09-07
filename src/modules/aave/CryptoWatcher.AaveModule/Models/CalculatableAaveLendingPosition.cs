@@ -1,4 +1,5 @@
 using System.Numerics;
+using CryptoWatcher.AaveModule.Entities;
 
 namespace CryptoWatcher.AaveModule.Models;
 
@@ -19,4 +20,11 @@ public abstract class CalculatableAaveLendingPosition : AaveLendingPosition
 
     public BigInteger CalculateAmountWithInterest() =>
         ScaleAmount * AccrualIndex / BigInteger.Pow(RaiseToNormalize, ExponentToNormalize);
+
+    public AavePositionType DeterminePositionType() => this switch
+    {
+        BorrowedAaveLendingPosition _ => AavePositionType.Borrowed,
+        SuppliedAaveLendingPosition _ => AavePositionType.Supplied,
+        _ => throw new InvalidOperationException()
+    };
 }

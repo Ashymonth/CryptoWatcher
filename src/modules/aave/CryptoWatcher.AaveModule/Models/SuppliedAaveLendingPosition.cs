@@ -1,6 +1,4 @@
 using System.Numerics;
-using CryptoWatcher.AaveModule.Entities;
-using Org.BouncyCastle.Crypto.Paddings;
 
 namespace CryptoWatcher.AaveModule.Models;
 

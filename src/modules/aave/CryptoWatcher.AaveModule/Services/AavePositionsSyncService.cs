@@ -66,19 +66,14 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
                     continue;
                 }
 
-                var positionType = lendingPosition switch
-                {
-                    SuppliedAaveLendingPosition _ => AavePositionType.Supplied,
-                    BorrowedAaveLendingPosition _ => AavePositionType.Borrowed,
-                    _ => throw new InvalidOperationException("Unknown lending position type")
-                };
-
-                var currentPosition = existedPositions.FirstOrDefault(position =>
-                    position.TokenAddress == lendingPosition.TokenAddress && position.PositionType == positionType);
-
                 var calculatableAaveLendingPosition = lendingPosition as CalculatableAaveLendingPosition ??
                                                       throw new InvalidOperationException(
                                                           "To calculate position amount, lending position must inherit from CalculatableAaveLendingPosition class");
+
+                var positionType = calculatableAaveLendingPosition.DeterminePositionType();
+
+                var currentPosition = existedPositions.FirstOrDefault(position =>
+                    position.TokenAddress == lendingPosition.TokenAddress && position.PositionType == positionType);
 
                 if (currentPosition is not null && calculatableAaveLendingPosition.ScaleAmount == 0)
                 {
@@ -94,7 +89,6 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
 
                     _aavePositionRepository.Insert(currentPosition);
                 }
-
 
                 currentPosition.AddOrUpdateSnapshot(tokenInfo, syncDay);
             }
