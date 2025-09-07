@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.AaveModule.Services;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Infrastructure;
@@ -55,10 +56,9 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-  
     var service = scope.ServiceProvider.GetRequiredService<IAavePositionsSyncService>();
 
-    await service.SyncPositionsAsync(new Wallet { Address = "0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f" },
+    await service.SyncPositionsAsync(AaveNetwork.CeloNetwork, new Wallet { Address = "0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f" },
         DateOnly.FromDateTime(DateTime.Now));
 }
 

@@ -8,7 +8,7 @@ namespace CryptoWatcher.Infrastructure.Aave;
 
 internal class AaveMainnetProvider : IAaveMainnetProvider
 {
-    private readonly AaveConfig  _aaveConfig;
+    private readonly AaveConfig _aaveConfig;
 
     public AaveMainnetProvider(AaveConfig aaveConfig)
     {
@@ -17,7 +17,7 @@ internal class AaveMainnetProvider : IAaveMainnetProvider
 
     public string GetMainnetAddressByNetworkName(AaveNetwork aaveNetwork)
     {
-        if (!Enum.TryParse<AaveNetworkType>(aaveNetwork.Name, out var network))
+        if (!Enum.TryParse<AaveNetworkType>(aaveNetwork.Name, true, out var network))
         {
             throw new ArgumentException(
                 $"Network {aaveNetwork.Name} is not supported. Supported networks: {string.Join(", ", Enum.GetNames<AaveNetworkType>())}");

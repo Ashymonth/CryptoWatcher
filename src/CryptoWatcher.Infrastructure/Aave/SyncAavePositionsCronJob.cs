@@ -1,3 +1,4 @@
+using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.AaveModule.Services;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Shared.Entities;
@@ -32,7 +33,11 @@ internal class SyncAavePositionsCronJob
         var now = DateOnly.FromDateTime(DateTime.Now);
         foreach (var wallet in wallets)
         {
-            await _positionsSyncService.SyncPositionsAsync(wallet, now, ct);
+            foreach (var aaveNetwork in AaveNetwork.All)
+            {
+                await _positionsSyncService.SyncPositionsAsync(aaveNetwork, wallet, now, ct);    
+            }
+            
         }
 
         _logger.SynchronizationCompleted();

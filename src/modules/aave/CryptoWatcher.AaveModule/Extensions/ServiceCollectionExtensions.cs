@@ -8,6 +8,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddAaveModule(this IServiceCollection services)
     {
         services.AddScoped<IAavePositionsSyncService, AavePositionsSyncService>();
+        services.AddScoped<IAaveTokenEnricher, AaveTokenEnricher>();
         return services;
     }
 }

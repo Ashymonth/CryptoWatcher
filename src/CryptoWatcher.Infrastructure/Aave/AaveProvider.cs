@@ -79,11 +79,10 @@ internal class AaveProvider : IAaveProvider
             }
         }
 
-
         return result;
     }
 
-    private AaveRegistry.SmartContractAddresses GetNetworkInfo(AaveNetwork aaveNetwork)
+    private static AaveRegistry.SmartContractAddresses GetNetworkInfo(AaveNetwork aaveNetwork)
     {
         if (!Enum.TryParse<AaveNetworkType>(aaveNetwork.Name, out var network))
         {

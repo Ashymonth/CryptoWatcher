@@ -21,13 +21,14 @@ public class AavePosition
     {
     }
 
-    public AavePosition(AaveNetwork network, Wallet wallet, AavePositionType positionType, string tokenAddress)
+    public AavePosition(AaveNetwork network, Wallet wallet, AavePositionType positionType, string tokenAddress,
+        DateOnly createdAtDay)
     {
         Network = network.Name;
         WalletAddress = wallet.Address;
         PositionType = positionType;
         TokenAddress = tokenAddress;
-        CreatedAtDay = DateOnly.FromDateTime(DateTime.UtcNow);
+        CreatedAtDay = createdAtDay;
         Id = GeneratePositionId();
     }
 
@@ -110,7 +111,7 @@ public class AavePosition
     // public BigInteger? PreviousScaledATokenBalance { get; set; }
     //
     // public BigInteger? PreviousScaledVariableDebt { get; set; }
-    
+
     /// <summary>
     /// Holds a collection of snapshots representing the state of a position over time.
     /// </summary>
@@ -119,7 +120,7 @@ public class AavePosition
     /// This property provides a historical view of the position's evolution in the Aave protocol.
     /// </remarks>
     public List<AavePositionSnapshot> PositionSnapshots { get; private set; } = [];
- 
+
     /// <summary>
     /// 
     /// </summary>
@@ -131,7 +132,7 @@ public class AavePosition
         {
             throw new InvalidOperationException("Position is already closed");
         }
-        
+
         ClosedAtDay = day;
     }
 
@@ -146,14 +147,14 @@ public class AavePosition
         {
             throw new InvalidOperationException("Snapshot can't be added to closed position");
         }
-        
+
         var existingSnapshot = PositionSnapshots.FirstOrDefault(s => s.Day == day);
         if (existingSnapshot != null)
         {
             existingSnapshot.SetToken(token);
             return;
         }
-        
+
         PositionSnapshots.Add(new AavePositionSnapshot(Id, day, token));
     }
 

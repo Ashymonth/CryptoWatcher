@@ -14,6 +14,7 @@
   </Folder>
   <Folder Name="/src/modules/" />
   <Folder Name="/src/modules/aave/">
+    <Project Path="src\modules\aave\CryptoWatcher.AaveModule.Tests\CryptoWatcher.AaveModule.Tests.csproj" Type="Classic C#" />
     <Project Path="src\modules\aave\CryptoWatcher.AaveModule\CryptoWatcher.AaveModule.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/src/modules/hyperliquid/">
