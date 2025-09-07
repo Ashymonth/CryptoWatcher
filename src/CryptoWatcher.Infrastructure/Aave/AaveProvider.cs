@@ -39,7 +39,10 @@ internal class AaveProvider : IAaveProvider
         {
             if (userReserveData.ScaledATokenBalance == 0 && userReserveData.ScaledVariableDebt == 0)
             {
-                result.Add(AaveLendingPosition.CreateEmpty(aaveNetwork, userReserveData.UnderlyingAsset));
+                result.Add(new EmptyAaveLendingPosition
+                {
+                    TokenAddress = userReserveData.UnderlyingAsset
+                });
 
                 continue;
             }
@@ -51,13 +54,11 @@ internal class AaveProvider : IAaveProvider
 
             if (userReserveData.ScaledATokenBalance > 0)
             {
-                var suppliedPosition = new AaveLendingPosition
+                var suppliedPosition = new SuppliedAaveLendingPosition
                 {
                     ScaleAmount = userReserveData.ScaledATokenBalance,
                     TokenAddress = userReserveData.UnderlyingAsset,
-                    PositionType = AavePositionType.Supplied,
-                    PoolIndex = reserveData.LiquidityIndex,
-                    Network = aaveNetwork,
+                    LiquidityIndex = reserveData.LiquidityIndex,
                     TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(8)
                 };
 
@@ -66,13 +67,11 @@ internal class AaveProvider : IAaveProvider
 
             if (userReserveData.ScaledVariableDebt > 0)
             {
-                var borrowedPosition = new AaveLendingPosition
+                var borrowedPosition = new BorrowedAaveLendingPosition
                 {
                     ScaleAmount = userReserveData.ScaledVariableDebt,
                     TokenAddress = userReserveData.UnderlyingAsset,
-                    PositionType = AavePositionType.Borrowed,
-                    PoolIndex = reserveData.VariableBorrowIndex,
-                    Network = aaveNetwork,
+                    VariableBorrowIndex = reserveData.VariableBorrowIndex,
                     TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(8)
                 };
 

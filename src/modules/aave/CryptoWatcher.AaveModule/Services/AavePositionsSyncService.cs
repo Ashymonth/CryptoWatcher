@@ -55,28 +55,42 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
 
             foreach (var lendingPosition in lendingPositions)
             {
-                var currentPosition = existedPositions.FirstOrDefault(position =>
-                    position.TokenAddress == lendingPosition.TokenAddress &&
-                    position.PositionType == lendingPosition.PositionType);
-
-                // position is not borrowed and not supplied
-                if (currentPosition is null && lendingPosition.PositionType is null)
+                if (lendingPosition is EmptyAaveLendingPosition)
                 {
+                    foreach (var position in existedPositions.Where(position =>
+                                 position.TokenAddress == lendingPosition.TokenAddress))
+                    {
+                        position.ClosePosition(syncDay);
+                    }
+
                     continue;
                 }
-                
-                if (currentPosition is not null && lendingPosition.ScaleAmount == 0)
+
+                var positionType = lendingPosition switch
+                {
+                    SuppliedAaveLendingPosition _ => AavePositionType.Supplied,
+                    BorrowedAaveLendingPosition _ => AavePositionType.Borrowed,
+                    _ => throw new InvalidOperationException("Unknown lending position type")
+                };
+
+                var currentPosition = existedPositions.FirstOrDefault(position =>
+                    position.TokenAddress == lendingPosition.TokenAddress && position.PositionType == positionType);
+
+                var calculatableAaveLendingPosition = lendingPosition as CalculatableAaveLendingPosition ??
+                                                      throw new InvalidOperationException(
+                                                          "To calculate position amount, lending position must inherit from CalculatableAaveLendingPosition class");
+
+                if (currentPosition is not null && calculatableAaveLendingPosition.ScaleAmount == 0)
                 {
                     currentPosition.ClosePosition(syncDay);
                     continue;
                 }
-                
-                var tokenInfo = await FetchTokenInfoAsync(network, lendingPosition, ct);
+
+                var tokenInfo = await FetchTokenInfoAsync(network, calculatableAaveLendingPosition, ct);
 
                 if (currentPosition is null)
                 {
-                    currentPosition = new AavePosition(network, wallet, lendingPosition.PositionType!.Value,
-                        lendingPosition.TokenAddress);
+                    currentPosition = new AavePosition(network, wallet, positionType, lendingPosition.TokenAddress);
 
                     _aavePositionRepository.Insert(currentPosition);
                 }
@@ -89,13 +103,14 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
         await _aavePositionRepository.UnitOfWork.SaveChangesAsync(ct);
     }
 
-    private async Task<TokenInfoWithAddress> FetchTokenInfoAsync(AaveNetwork network, AaveLendingPosition position,
+    private async Task<TokenInfoWithAddress> FetchTokenInfoAsync(AaveNetwork network,
+        CalculatableAaveLendingPosition position,
         CancellationToken ct = default)
     {
-        var token = new Token { Address = position.TokenAddress, Balance = position.CalculateAmountWithDebtOrFee() };
+        var token = new Token { Address = position.TokenAddress, Balance = position.CalculateAmountWithInterest() };
 
         var mainnetAddress = _aaveMainnetProvider.GetMainnetAddressByNetworkName(network);
-        
+
         return await _tokenEnricher.EnrichTokenAsync(mainnetAddress, token, position.TokenPriceInUsd, ct);
     }
 }
