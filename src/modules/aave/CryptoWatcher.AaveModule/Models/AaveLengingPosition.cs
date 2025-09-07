@@ -61,6 +61,8 @@ public class AaveLendingPosition
 
     public BigInteger? PoolIndex { get; init; }
 
+    public required decimal TokenPriceInUsd { get; init; }
+
     public required string TokenAddress { get; init; } = null!;
 
     public AavePositionType? PositionType { get; init; }
@@ -83,7 +85,8 @@ public class AaveLendingPosition
             Network = network,
             ScaleAmount = 0,
             PositionType = null,
-            PoolIndex = null
+            PoolIndex = null,
+            TokenPriceInUsd = 0
         };
     }
 }

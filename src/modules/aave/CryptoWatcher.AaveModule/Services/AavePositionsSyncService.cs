@@ -1,10 +1,8 @@
-using System.Numerics;
 using CryptoWatcher.AaveModule.Abstractions;
 using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.AaveModule.Specifications;
 using CryptoWatcher.Abstractions;
-using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
 
@@ -97,9 +95,7 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
         var token = new Token { Address = position.TokenAddress, Balance = position.CalculateAmountWithDebtOrFee() };
 
         var mainnetAddress = _aaveMainnetProvider.GetMainnetAddressByNetworkName(network);
-
-        var price = await _aaveProvider.GetAssetPriceAsync(network, position.TokenAddress);
-
-        return await _tokenEnricher.EnrichTokenAsync(mainnetAddress, token, price.ToDecimal(8), ct);
+        
+        return await _tokenEnricher.EnrichTokenAsync(mainnetAddress, token, position.TokenPriceInUsd, ct);
     }
 }

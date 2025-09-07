@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AaveClient.Pool;
 using CryptoWatcher.AaveModule.Services;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Infrastructure;

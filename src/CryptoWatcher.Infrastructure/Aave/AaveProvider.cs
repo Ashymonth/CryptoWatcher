@@ -1,10 +1,9 @@
-using System.Numerics;
 using AaveClient;
 using CryptoWatcher.AaveModule.Abstractions;
 using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.AaveModule.Models;
+using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
-using AaveNetwork = CryptoWatcher.AaveModule.Models.AaveNetwork;
 
 namespace CryptoWatcher.Infrastructure.Aave;
 
@@ -19,34 +18,6 @@ internal class AaveProvider : IAaveProvider
         _aaveMainnetProvider = aaveMainnetProvider;
     }
 
-    public async Task<BigInteger> GetAssetPriceAsync(AaveNetwork aaveNetwork, string assetAddress)
-    {
-        var mainnet = _aaveMainnetProvider.GetMainnetAddressByNetworkName(aaveNetwork);
-
-        var networkInfo = GetNetworkInfo(aaveNetwork);
-
-        return await _aaveApiClient.OracleFetcher.GetAssetPriceAsync(mainnet, networkInfo.OracleAddress, assetAddress);
-    }
-
-    public async Task<AaveReserveData> GetLiquidityIndex(AaveNetwork aaveNetwork, string assetAddress)
-    {
-        var mainnet = _aaveMainnetProvider.GetMainnetAddressByNetworkName(aaveNetwork);
-
-        var networkInfo = GetNetworkInfo(aaveNetwork);
-
-        var reserveData =
-            await _aaveApiClient.PoolFetcher.GetReserveDataAsync(mainnet, networkInfo.PoolAddress, assetAddress);
-
-        // Преобразуем полученные данные в доменную модель
-        return new AaveReserveData
-        {
-            Network = aaveNetwork,
-            AssetAddress = assetAddress,
-            LiquidityIndex = reserveData.LiquidityIndex,
-            VariableBorrowIndex = reserveData.VariableBorrowIndex,
-        };
-    }
-
     public async Task<List<AaveLendingPosition>> GetLendingPositionAsync(AaveNetwork aaveNetwork, Wallet wallet,
         CancellationToken ct = default)
     {
@@ -54,62 +25,66 @@ internal class AaveProvider : IAaveProvider
 
         var networkInfo = GetNetworkInfo(aaveNetwork);
 
-        var positions =
+        var userReserves =
             await _aaveApiClient.UiPoolDataProviderFetcher.GetUserReservesDataAsync(mainnet, networkInfo,
                 wallet.Address);
 
+        var reserveDataDictionary =
+            (await _aaveApiClient.UiPoolDataProviderFetcher.GetReservesDataAsync(mainnet, networkInfo)).ReservesData
+            .ToDictionary(data => data.UnderlyingAsset);
+
         var result = new List<AaveLendingPosition>();
-        
-        foreach (var positionsChunk in positions.Chunk(3))
+
+        foreach (var userReserveData in userReserves)
         {
-            var tasksToGetLiquidityIndex = positionsChunk.Select(position => GetLiquidityIndex(aaveNetwork, position.UnderlyingAsset));
-            var liquidityIndexes = await Task.WhenAll(tasksToGetLiquidityIndex);
-
-            foreach (var userReserveData in positionsChunk)    
+            if (userReserveData.ScaledATokenBalance == 0 && userReserveData.ScaledVariableDebt == 0)
             {
-                if (userReserveData.ScaledATokenBalance == 0 && userReserveData.ScaledVariableDebt == 0)
+                result.Add(AaveLendingPosition.CreateEmpty(aaveNetwork, userReserveData.UnderlyingAsset));
+
+                continue;
+            }
+
+            if (!reserveDataDictionary.TryGetValue(userReserveData.UnderlyingAsset, out var reserveData))
+            {
+                throw new Exception("Can't find reserve data");
+            }
+
+            if (userReserveData.ScaledATokenBalance > 0)
+            {
+                var suppliedPosition = new AaveLendingPosition
                 {
-                    result.Add(AaveLendingPosition.CreateEmpty(aaveNetwork, userReserveData.UnderlyingAsset));
+                    ScaleAmount = userReserveData.ScaledATokenBalance,
+                    TokenAddress = userReserveData.UnderlyingAsset,
+                    PositionType = AavePositionType.Supplied,
+                    PoolIndex = reserveData.LiquidityIndex,
+                    Network = aaveNetwork,
+                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(8)
+                };
 
-                    continue;
-                }
+                result.Add(suppliedPosition);
+            }
 
-                var reserveData = liquidityIndexes.First(index => index.AssetAddress == userReserveData.UnderlyingAsset);
-
-                if (userReserveData.ScaledATokenBalance > 0)
+            if (userReserveData.ScaledVariableDebt > 0)
+            {
+                var borrowedPosition = new AaveLendingPosition
                 {
-                    var suppliedPosition = new AaveLendingPosition
-                    {
-                        ScaleAmount = userReserveData.ScaledATokenBalance,
-                        TokenAddress = userReserveData.UnderlyingAsset,
-                        PositionType = AavePositionType.Supplied,
-                        PoolIndex = reserveData.LiquidityIndex,
-                        Network = aaveNetwork,
-                    };
+                    ScaleAmount = userReserveData.ScaledVariableDebt,
+                    TokenAddress = userReserveData.UnderlyingAsset,
+                    PositionType = AavePositionType.Borrowed,
+                    PoolIndex = reserveData.VariableBorrowIndex,
+                    Network = aaveNetwork,
+                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(8)
+                };
 
-                    result.Add(suppliedPosition);
-                }
-
-                if (userReserveData.ScaledVariableDebt > 0)
-                {
-                    var borrowedPosition = new AaveLendingPosition
-                    {
-                        ScaleAmount = userReserveData.ScaledVariableDebt,
-                        TokenAddress = userReserveData.UnderlyingAsset,
-                        PositionType = AavePositionType.Borrowed,
-                        PoolIndex = reserveData.VariableBorrowIndex,
-                        Network = aaveNetwork,
-                    };
-
-                    result.Add(borrowedPosition);
-                }
+                result.Add(borrowedPosition);
             }
         }
-        
+
+
         return result;
     }
 
-    private NetworkRegistry.NetworkInfo GetNetworkInfo(AaveNetwork aaveNetwork)
+    private AaveRegistry.SmartContractAddresses GetNetworkInfo(AaveNetwork aaveNetwork)
     {
         if (!Enum.TryParse<AaveNetworkType>(aaveNetwork.Name, out var network))
         {
@@ -117,6 +92,6 @@ internal class AaveProvider : IAaveProvider
                 $"Network {aaveNetwork.Name} is not supported. Supported networks: {string.Join(", ", Enum.GetNames<AaveNetworkType>())}");
         }
 
-        return NetworkRegistry.NetworkToRpcUrl[network];
+        return AaveRegistry.NetworkToRpcUrl[network];
     }
 }
