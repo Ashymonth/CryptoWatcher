@@ -77,12 +77,6 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
             var currentPosition = existedPositions.FirstOrDefault(position =>
                 position.TokenAddress == lendingPosition.TokenAddress && position.PositionType == positionType);
 
-            if (currentPosition is not null && calculatableAaveLendingPosition.ScaleAmount == 0)
-            {
-                currentPosition.ClosePosition(syncDay);
-                continue;
-            }
-
             var tokenInfo =
                 await _aaveTokenEnricher.GetEnrichedTokenInfoAsync(network, calculatableAaveLendingPosition, ct);
 
