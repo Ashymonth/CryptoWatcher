@@ -1,4 +1,7 @@
+using System.Numerics;
 using AaveClient;
+using AaveClient.UiPoolDataProvider.Contracts;
+using AaveClient.UiPoolDataProvider.Contracts.ReservesData;
 using CryptoWatcher.AaveModule.Abstractions;
 using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.AaveModule.Models;
@@ -29,9 +32,8 @@ internal class AaveProvider : IAaveProvider
             await _aaveApiClient.UiPoolDataProviderFetcher.GetUserReservesDataAsync(mainnet, networkInfo,
                 wallet.Address);
 
-        var reserveDataDictionary =
-            (await _aaveApiClient.UiPoolDataProviderFetcher.GetReservesDataAsync(mainnet, networkInfo)).ReservesData
-            .ToDictionary(data => data.UnderlyingAsset);
+        var reserveOutput = await _aaveApiClient.UiPoolDataProviderFetcher.GetReservesDataAsync(mainnet, networkInfo);
+        var reserveDataDictionary = reserveOutput.ReservesData.ToDictionary(data => data.UnderlyingAsset);
 
         var result = new List<AaveLendingPosition>();
 
@@ -52,6 +54,8 @@ internal class AaveProvider : IAaveProvider
                 throw new Exception("Can't find reserve data");
             }
 
+            var decimals = reserveOutput.BaseCurrencyInfo.NetworkBaseTokenPriceDecimals;
+
             if (userReserveData.ScaledATokenBalance > 0)
             {
                 var suppliedPosition = new SuppliedAaveLendingPosition
@@ -59,7 +63,7 @@ internal class AaveProvider : IAaveProvider
                     ScaleAmount = userReserveData.ScaledATokenBalance,
                     TokenAddress = userReserveData.UnderlyingAsset,
                     LiquidityIndex = reserveData.LiquidityIndex,
-                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(8)
+                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(decimals)
                 };
 
                 result.Add(suppliedPosition);
@@ -72,7 +76,7 @@ internal class AaveProvider : IAaveProvider
                     ScaleAmount = userReserveData.ScaledVariableDebt,
                     TokenAddress = userReserveData.UnderlyingAsset,
                     VariableBorrowIndex = reserveData.VariableBorrowIndex,
-                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(8)
+                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(decimals)
                 };
 
                 result.Add(borrowedPosition);

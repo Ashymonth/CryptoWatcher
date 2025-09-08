@@ -108,9 +108,7 @@ public class AavePosition
     /// </remarks>
     public string TokenAddress { get; private set; } = null!;
 
-    // public BigInteger? PreviousScaledATokenBalance { get; set; }
-    //
-    // public BigInteger? PreviousScaledVariableDebt { get; set; }
+    public decimal? PreviousScaledAmount { get; set; }
 
     /// <summary>
     /// Holds a collection of snapshots representing the state of a position over time.
@@ -120,6 +118,8 @@ public class AavePosition
     /// This property provides a historical view of the position's evolution in the Aave protocol.
     /// </remarks>
     public List<AavePositionSnapshot> PositionSnapshots { get; private set; } = [];
+
+    public List<AavePositionEvent> PositionEvents { get; private set; } = [];
 
     /// <summary>
     /// 
@@ -137,11 +137,13 @@ public class AavePosition
     }
 
     /// <summary>
-    /// Adds or updates a snapshot for the current position based on the provided token information and date.
+    /// Adds or updates a snapshot for the current position.
     /// </summary>
-    /// <param name="token">The token information containing details such as symbol, amount, and price in USD.</param>
-    /// <param name="day">The date for which the snapshot is to be added or updated.</param>
-    public void AddOrUpdateSnapshot(TokenInfo token, DateOnly day)
+    /// <param name="token">The token information associated with the snapshot.</param>
+    /// <param name="positionScale">The scaled position amount to record.</param>
+    /// <param name="day">The day associated with the snapshot.</param>
+    /// <exception cref="InvalidOperationException">Thrown if the position is already closed.</exception>
+    public void AddOrUpdateSnapshot(TokenInfo token, decimal positionScale, DateOnly day)
     {
         if (ClosedAtDay.HasValue)
         {
@@ -151,11 +153,53 @@ public class AavePosition
         var existingSnapshot = PositionSnapshots.FirstOrDefault(s => s.Day == day);
         if (existingSnapshot != null)
         {
-            existingSnapshot.SetToken(token);
+            existingSnapshot.UpdateToken(token.Amount, token.PriceInUsd);
             return;
         }
 
         PositionSnapshots.Add(new AavePositionSnapshot(Id, day, token));
+
+        if (PreviousScaledAmount is null)
+        {
+            PositionEvents.Add(new AavePositionEvent
+            {
+                PositionId = Id,
+                Date = day,
+                Amount = positionScale,
+                EventType = AavePositionEventType.Deposit,
+            });
+
+            PreviousScaledAmount = positionScale;
+            return;
+        }
+
+        if (PreviousScaledAmount == positionScale)
+        {
+            return;
+        }
+
+        if (PreviousScaledAmount < positionScale)
+        {
+            PositionEvents.Add(new AavePositionEvent
+            {
+                PositionId = Id,
+                Date = day,
+                Amount = (decimal)(positionScale - PreviousScaledAmount),
+                EventType = AavePositionEventType.Deposit
+            });
+        }
+        else
+        {
+            PositionEvents.Add(new AavePositionEvent
+            {
+                PositionId = Id,
+                Date = day,
+                Amount = (decimal)(PreviousScaledAmount - positionScale),
+                EventType = AavePositionEventType.Withdrawal
+            });
+        }
+
+        PreviousScaledAmount = positionScale;
     }
 
     private Guid GeneratePositionId()

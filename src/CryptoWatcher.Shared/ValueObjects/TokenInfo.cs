@@ -1,6 +1,6 @@
 namespace CryptoWatcher.Shared.ValueObjects;
 
-public record TokenInfo  
+public record TokenInfo
 {
     /// <summary>
     /// Token symbol (e.g., "ETH", "USDC").

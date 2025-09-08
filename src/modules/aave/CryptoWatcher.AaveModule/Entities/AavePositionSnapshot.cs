@@ -10,21 +10,20 @@ namespace CryptoWatcher.AaveModule.Entities;
 /// This snapshot includes the unique identifier for the associated position, the date the snapshot was taken,
 /// and comprehensive token-related details such as its symbol, amount, and valuation.
 /// </remarks>
-public class AavePositionSnapshot
+public class AavePositionSnapshot 
 {
     [UsedImplicitly] // for ef core
     private AavePositionSnapshot()
     {
-        
     }
-    
+
     public AavePositionSnapshot(Guid positionId, DateOnly day, TokenInfo token)
     {
         PositionId = positionId;
         Day = day;
         Token = token;
     }
-    
+
     /// <summary>
     /// Gets the unique identifier of the Aave position associated with this snapshot.
     /// </summary>
@@ -54,9 +53,9 @@ public class AavePositionSnapshot
     /// state and performance of the associated Aave position at the time of the snapshot.
     /// </remarks>
     public TokenInfo Token { get; private set; } = null!;
-    
-    public void SetToken(TokenInfo token)
+ 
+    public void UpdateToken(decimal amount, decimal priceInUsd)
     {
-        Token = token;
+        Token = Token with { Amount = amount, PriceInUsd = priceInUsd };
     }
-}   
+}

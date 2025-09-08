@@ -1,5 +1,6 @@
 using System.Numerics;
 using CryptoWatcher.AaveModule.Entities;
+using CryptoWatcher.Extensions;
 
 namespace CryptoWatcher.AaveModule.Models;
 
@@ -11,13 +12,17 @@ public abstract class CalculatableAaveLendingPosition : AaveLendingPosition
     private const int RaiseToNormalize = 10;
 
     private const int ExponentToNormalize = 27;
-
+    
+    private const int Decimals = 8;
+    
     public required BigInteger ScaleAmount { get; init; }
-
+    
     public required decimal TokenPriceInUsd { get; init; }
-
+    
     protected abstract BigInteger AccrualIndex { get; }
 
+    public decimal CalculateAmount() => ScaleAmount.ToDecimal(Decimals);
+    
     public BigInteger CalculateAmountWithInterest() =>
         ScaleAmount * AccrualIndex / BigInteger.Pow(RaiseToNormalize, ExponentToNormalize);
 

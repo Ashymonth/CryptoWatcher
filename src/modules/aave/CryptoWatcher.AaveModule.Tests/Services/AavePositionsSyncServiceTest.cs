@@ -1,9 +1,11 @@
+using System.Numerics;
 using AutoFixture;
 using CryptoWatcher.AaveModule.Abstractions;
 using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.AaveModule.Services;
 using CryptoWatcher.AaveModule.Specifications;
+using CryptoWatcher.AaveModule.Tests.Customizations;
 using CryptoWatcher.AaveModule.Tests.Extensions;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Shared.Entities;
@@ -34,6 +36,7 @@ public class AavePositionsSyncServiceTest
     public async Task SyncPositionsAsyncTest_WhenAllPositionsEmpty_ShouldReturnEmptyList()
     {
         var fixture = new Fixture();
+        fixture.Customize(new PositiveBigIntegerCustomization());
 
         var randomSyncDay = DateOnly.FromDateTime(fixture.Create<DateTime>());
 
@@ -58,6 +61,7 @@ public class AavePositionsSyncServiceTest
         AavePositionType expectedPositionType)
     {
         var fixture = new Fixture();
+        fixture.Customize(new PositiveBigIntegerCustomization());
 
         var expectedPositions = expectedPositionType switch
         {
@@ -92,7 +96,6 @@ public class AavePositionsSyncServiceTest
             var actualSnapshot = actualPosition.PositionSnapshots.First();
 
             AssertThatSnapshotValid(expectedSnapshot, actualSnapshot, actualPosition.Id);
-            ;
         }
     }
 
@@ -100,6 +103,7 @@ public class AavePositionsSyncServiceTest
     public async Task SyncPositionsAsyncTest_WhenExistAllTypePositions_ShouldReturnNotEmptyPositions()
     {
         var fixture = new Fixture();
+        fixture.Customize(new PositiveBigIntegerCustomization());
 
         AaveLendingPosition emptyPosition = fixture.Create<EmptyAaveLendingPosition>();
         AaveLendingPosition suppliedPosition = fixture.Create<SuppliedAaveLendingPosition>();
@@ -142,6 +146,7 @@ public class AavePositionsSyncServiceTest
     public async Task SyncPositionsAsyncTest_WhenPositionInDbExist_AndInAaveClosed_ShouldClosePosition()
     {
         var fixture = new Fixture();
+        fixture.Customize(new PositiveBigIntegerCustomization());
 
         var dbPosition = new AavePosition(TestNetwork, TestWallet, AavePositionType.Borrowed, fixture.Create<string>(),
             SyncDay.AddDays(-1));

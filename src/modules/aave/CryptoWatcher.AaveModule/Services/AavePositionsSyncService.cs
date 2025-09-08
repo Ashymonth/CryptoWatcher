@@ -3,6 +3,7 @@ using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.AaveModule.Specifications;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.AaveModule.Services;
@@ -72,6 +73,7 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
                                                   throw new InvalidOperationException(
                                                       "To calculate position amount, lending position must inherit from CalculatableAaveLendingPosition class");
 
+
             var positionType = calculatableAaveLendingPosition.DeterminePositionType();
 
             var currentPosition = existedPositions.FirstOrDefault(position =>
@@ -89,7 +91,7 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
                 result.Add(currentPosition);
             }
 
-            currentPosition.AddOrUpdateSnapshot(tokenInfo, syncDay);
+            currentPosition.AddOrUpdateSnapshot(tokenInfo, calculatableAaveLendingPosition.CalculateAmount(), syncDay);
         }
 
         await _aavePositionRepository.UnitOfWork.SaveChangesAsync(ct);
