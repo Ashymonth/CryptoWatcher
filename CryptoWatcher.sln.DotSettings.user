@@ -93,6 +93,7 @@
     &lt;TestId&gt;xUnit::E618DD96-ADE4-8734-2245-9492E728A1DB::net9.0::CryptoWatcher.AaveModule.Tests.Services.AavePositionsSyncServiceTest&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::E618DD96-ADE4-8734-2245-9492E728A1DB::net9.0::CryptoWatcher.AaveModule.Tests.Entities.AavePositionTest.AddOrUpdateSnapshotTest_WhenPositionClosed_ShouldThrowException&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::E618DD96-ADE4-8734-2245-9492E728A1DB::net9.0::CryptoWatcher.AaveModule.Tests.Entities.AavePositionTest.AddOrUpdateSnapshotTest_WhenSnapshotForDayExist_ShouldUpdateSnapshot&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::E618DD96-ADE4-8734-2245-9492E728A1DB::net9.0::CryptoWatcher.AaveModule.Tests.Entities.AavePositionTest.AddOrUpdateSnapshotTest_WhenSnapshotForDayNotExist_ShouldUpdateSnapshot&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	

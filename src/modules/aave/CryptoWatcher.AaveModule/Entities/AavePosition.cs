@@ -154,11 +154,18 @@ public class AavePosition
         if (existingSnapshot != null)
         {
             existingSnapshot.UpdateToken(token.Amount, token.PriceInUsd);
+             
+        }
+        else
+        {
+            PositionSnapshots.Add(new AavePositionSnapshot(Id, day, token));    
+        }
+        
+        if (PreviousScaledAmount == positionScale)
+        {
             return;
         }
-
-        PositionSnapshots.Add(new AavePositionSnapshot(Id, day, token));
-
+        
         if (PreviousScaledAmount is null)
         {
             PositionEvents.Add(new AavePositionEvent
@@ -170,11 +177,6 @@ public class AavePosition
             });
 
             PreviousScaledAmount = positionScale;
-            return;
-        }
-
-        if (PreviousScaledAmount == positionScale)
-        {
             return;
         }
 
