@@ -5,6 +5,7 @@ using CryptoWatcher.AaveModule.Tests.Customizations;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
 using JetBrains.Annotations;
+using Moq;
 
 namespace CryptoWatcher.AaveModule.Tests.Entities;
 
@@ -13,12 +14,18 @@ public class AavePositionTest
 {
     private static readonly Wallet TestWallet = new() { Address = Guid.CreateVersion7().ToString() };
     private static readonly DateOnly TestDate = DateOnly.FromDateTime(DateTime.Now);
+    private static readonly DateTimeOffset TestTime = DateTimeOffset.Now;
     private readonly Fixture _fixture;
+    private readonly Mock<TimeProvider> _timeProviderMock = new();
 
     public AavePositionTest()
     {
         _fixture = new Fixture();
         _fixture.Customize(new PositiveBigIntegerCustomization());
+
+        _timeProviderMock.Setup(provider => provider.LocalTimeZone).Returns(TimeZoneInfo.Utc);
+
+        _timeProviderMock.Setup(provider => provider.GetUtcNow()).Returns(TestTime);
     }
 
     [Theory]
@@ -26,11 +33,13 @@ public class AavePositionTest
     [InlineData(AavePositionType.Borrowed)]
     public void AddOrUpdateSnapshotTest_WhenPositionClosed_ShouldThrowException(AavePositionType positionType)
     {
+        var fixture = new Fixture();
         var position = CreatePosition(positionType);
         position.ClosePosition(DateOnly.MaxValue);
 
         Assert.Throws<InvalidOperationException>(() =>
-            position.AddOrUpdateSnapshot(_fixture.Create<TokenInfo>(), 1, TestDate));
+            position.AddOrUpdateSnapshot(_fixture.Create<TokenInfo>(), fixture.Create<decimal>(), TestDate,
+                _timeProviderMock.Object));
     }
 
     [Theory]
@@ -42,7 +51,7 @@ public class AavePositionTest
         var token = _fixture.Create<TokenInfo>();
 
         var existedTokenAmount = _fixture.Create<decimal>();
-        position.AddOrUpdateSnapshot(token, existedTokenAmount, TestDate);
+        position.AddOrUpdateSnapshot(token, existedTokenAmount, TestDate, _timeProviderMock.Object);
 
         var expectedTokenAmount = _fixture.Create<decimal>();
         var expectedToken = token with
@@ -51,7 +60,7 @@ public class AavePositionTest
             Amount = _fixture.Create<decimal>()
         };
 
-        position.AddOrUpdateSnapshot(expectedToken, expectedTokenAmount, TestDate);
+        position.AddOrUpdateSnapshot(expectedToken, expectedTokenAmount, TestDate, _timeProviderMock.Object);
 
         var actualSnapshot = position.PositionSnapshots.First();
 
@@ -69,7 +78,7 @@ public class AavePositionTest
         var position = CreatePosition(type);
         var token = _fixture.Create<TokenInfo>();
 
-        position.AddOrUpdateSnapshot(token, 1, syncDate);
+        position.AddOrUpdateSnapshot(token, 1, syncDate, _timeProviderMock.Object);
 
         var actualSnapshot = position.PositionSnapshots.First();
         var expectedSnapshot = new AavePositionSnapshot(position.Id, syncDate, token);
@@ -88,8 +97,9 @@ public class AavePositionTest
         var position = CreatePosition(type);
         var token = _fixture.Create<TokenInfo>();
 
-        position.AddOrUpdateSnapshot(token, expectedScaledAmount, syncDate);
-        position.AddOrUpdateSnapshot(_fixture.Create<TokenInfo>(), expectedScaledAmount, syncDate.AddDays(1));
+        position.AddOrUpdateSnapshot(token, expectedScaledAmount, syncDate, _timeProviderMock.Object);
+        position.AddOrUpdateSnapshot(token, expectedScaledAmount, syncDate.AddDays(1),
+            _timeProviderMock.Object);
 
         Assert.Single(position.PositionEvents);
         AssertThatAaveEventCorrect(
@@ -110,8 +120,8 @@ public class AavePositionTest
         var position = CreatePosition(AavePositionType.Borrowed);
         var token = _fixture.Create<TokenInfo>();
 
-        position.AddOrUpdateSnapshot(token, oldScaleAmount, TestDate);
-        position.AddOrUpdateSnapshot(token, newScaleAmount, TestDate);
+        position.AddOrUpdateSnapshot(token, oldScaleAmount, TestDate, _timeProviderMock.Object);
+        position.AddOrUpdateSnapshot(token, newScaleAmount, TestDate, _timeProviderMock.Object);
 
         var expectedAmount = eventType == AavePositionEventType.Deposit
             ? newScaleAmount - oldScaleAmount
@@ -142,7 +152,7 @@ public class AavePositionTest
         AavePositionEventType type)
     {
         Assert.Equal(positionId, @event.PositionId);
-        Assert.Equal(TestDate, @event.Date);
+        Assert.Equal(TestTime, @event.Date);
         Assert.Equal(amount, @event.Amount);
         Assert.Equal(type, @event.EventType);
     }

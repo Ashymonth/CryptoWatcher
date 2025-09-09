@@ -6,7 +6,7 @@ public class AavePositionEvent
     
     public decimal Amount { get; set; }
 
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
     
     public AavePositionEventType EventType { get; set; }
 }

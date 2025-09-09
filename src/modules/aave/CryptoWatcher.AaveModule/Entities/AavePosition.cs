@@ -1,4 +1,5 @@
-using System.Numerics;
+using System.Security.Cryptography;
+using System.Text;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
@@ -16,6 +17,9 @@ namespace CryptoWatcher.AaveModule.Entities;
 /// </remarks>
 public class AavePosition
 {
+    private readonly List<AavePositionSnapshot> _positionSnapshots = [];
+    private readonly List<AavePositionEvent> _positionEvents = [];
+    
     [UsedImplicitly] // for ef core
     private AavePosition()
     {
@@ -117,15 +121,24 @@ public class AavePosition
     /// Each snapshot captures token-specific metrics, such as balance or interactions, for a particular day.
     /// This property provides a historical view of the position's evolution in the Aave protocol.
     /// </remarks>
-    public List<AavePositionSnapshot> PositionSnapshots { get; private set; } = [];
-
-    public List<AavePositionEvent> PositionEvents { get; private set; } = [];
+    public IReadOnlyCollection<AavePositionSnapshot> PositionSnapshots => _positionSnapshots;
 
     /// <summary>
-    /// 
+    /// Provides a readonly collection of events associated with the Aave position.
     /// </summary>
-    /// <param name="day"></param>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <remarks>
+    /// This property contains a list of <see cref="AavePositionEvent"/> objects detailing
+    /// the sequence of events, such as deposits, withdrawals, and other updates, that
+    /// have occurred within the lifecycle of the Aave position. These events reflect
+    /// transactional or state changes tied to the position over time.
+    /// </remarks>
+    public IReadOnlyCollection<AavePositionEvent> PositionEvents => _positionEvents;
+
+    /// <summary>
+    /// Closes the position by setting the closure date.
+    /// </summary>
+    /// <param name="day">The date when the position is closed.</param>
+    /// <exception cref="InvalidOperationException">Thrown if the position is already closed.</exception>
     public void ClosePosition(DateOnly day)
     {
         if (ClosedAtDay.HasValue)
@@ -143,7 +156,7 @@ public class AavePosition
     /// <param name="positionScale">The scaled position amount to record.</param>
     /// <param name="day">The day associated with the snapshot.</param>
     /// <exception cref="InvalidOperationException">Thrown if the position is already closed.</exception>
-    public void AddOrUpdateSnapshot(TokenInfo token, decimal positionScale, DateOnly day)
+    public void AddOrUpdateSnapshot(TokenInfo token, decimal positionScale, DateOnly day, TimeProvider provider)
     {
         if (ClosedAtDay.HasValue)
         {
@@ -154,24 +167,24 @@ public class AavePosition
         if (existingSnapshot != null)
         {
             existingSnapshot.UpdateToken(token.Amount, token.PriceInUsd);
-             
         }
         else
         {
-            PositionSnapshots.Add(new AavePositionSnapshot(Id, day, token));    
+            _positionSnapshots.Add(new AavePositionSnapshot(Id, day, token));    
         }
         
         if (PreviousScaledAmount == positionScale)
         {
             return;
         }
-        
+
+        var eventDateTime = day.ToDateTime(TimeOnly.FromDateTime(provider.GetLocalNow().DateTime));
         if (PreviousScaledAmount is null)
         {
-            PositionEvents.Add(new AavePositionEvent
+            _positionEvents.Add(new AavePositionEvent
             {
                 PositionId = Id,
-                Date = day,
+                Date = eventDateTime,
                 Amount = positionScale,
                 EventType = AavePositionEventType.Deposit,
             });
@@ -182,20 +195,20 @@ public class AavePosition
 
         if (PreviousScaledAmount < positionScale)
         {
-            PositionEvents.Add(new AavePositionEvent
+            _positionEvents.Add(new AavePositionEvent
             {
                 PositionId = Id,
-                Date = day,
+                Date = eventDateTime,
                 Amount = (decimal)(positionScale - PreviousScaledAmount),
                 EventType = AavePositionEventType.Deposit
             });
         }
         else
         {
-            PositionEvents.Add(new AavePositionEvent
+            _positionEvents.Add(new AavePositionEvent
             {
                 PositionId = Id,
-                Date = day,
+                Date = eventDateTime,
                 Amount = (decimal)(PreviousScaledAmount - positionScale),
                 EventType = AavePositionEventType.Withdrawal
             });
@@ -211,7 +224,7 @@ public class AavePosition
         ArgumentException.ThrowIfNullOrWhiteSpace(TokenAddress);
 
         var keyData = $"{Network}:{WalletAddress}:{TokenAddress}:{PositionType}";
-        var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(keyData));
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(keyData));
 
         return new Guid(hash.Take(16).ToArray());
     }

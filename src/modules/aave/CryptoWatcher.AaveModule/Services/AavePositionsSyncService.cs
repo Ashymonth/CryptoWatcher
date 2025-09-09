@@ -34,13 +34,15 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
     private readonly IAaveProvider _aaveProvider;
     private readonly IAaveTokenEnricher _aaveTokenEnricher;
     private readonly IRepository<AavePosition> _aavePositionRepository;
+    private readonly TimeProvider _timeProvider;
 
     public AavePositionsSyncService(IAaveProvider aaveProvider, IAaveTokenEnricher aaveTokenEnricher,
-        IRepository<AavePosition> aavePositionRepository)
+        IRepository<AavePosition> aavePositionRepository, TimeProvider timeProvider)
     {
         _aaveProvider = aaveProvider;
         _aaveTokenEnricher = aaveTokenEnricher;
         _aavePositionRepository = aavePositionRepository;
+        _timeProvider = timeProvider;
     }
 
     public async Task<List<AavePosition>> SyncPositionsAsync(
@@ -91,7 +93,8 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
                 result.Add(currentPosition);
             }
 
-            currentPosition.AddOrUpdateSnapshot(tokenInfo, calculatableAaveLendingPosition.CalculateAmount(), syncDay);
+            currentPosition.AddOrUpdateSnapshot(tokenInfo, calculatableAaveLendingPosition.CalculateAmount(), syncDay,
+                _timeProvider);
         }
 
         await _aavePositionRepository.UnitOfWork.SaveChangesAsync(ct);

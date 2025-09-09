@@ -21,15 +21,20 @@ public class AavePositionsSyncServiceTest
     private static readonly AaveNetwork TestNetwork = AaveNetwork.CeloNetwork;
     private static readonly Wallet TestWallet = new() { Address = Guid.CreateVersion7().ToString() };
     private static readonly DateOnly SyncDay = DateOnly.FromDateTime(DateTime.Now);
+    private static readonly DateTimeOffset TestTime = DateTimeOffset.Now;
 
     private readonly Mock<IAaveProvider> _aaveProviderMock = new();
     private readonly Mock<IAaveTokenEnricher> _tokenEnricherMock = new();
     private readonly Mock<IRepository<AavePosition>> _aavePositionRepositoryMock = new();
+    private readonly Mock<TimeProvider> _timeProviderMock = new();
 
     public AavePositionsSyncServiceTest()
     {
         _aavePositionRepositoryMock.Setup(repository => repository.UnitOfWork)
             .Returns(new Mock<IUnitOfWork>().Object);
+        
+        _timeProviderMock.Setup(provider => provider.LocalTimeZone).Returns(TimeZoneInfo.Utc);
+        _timeProviderMock.Setup(provider => provider.GetUtcNow()).Returns(TestTime);
     }
 
     [Fact]
@@ -173,7 +178,7 @@ public class AavePositionsSyncServiceTest
     private AavePositionsSyncService CreateService()
     {
         return new AavePositionsSyncService(_aaveProviderMock.Object, _tokenEnricherMock.Object,
-            _aavePositionRepositoryMock.Object);
+            _aavePositionRepositoryMock.Object, _timeProviderMock.Object);
     }
 
     private static void AssertThatAavePositionValid(AavePosition actualPosition, AavePositionType expectedPositionType)
