@@ -32,7 +32,7 @@ public class AavePositionsSyncServiceTest
     {
         _aavePositionRepositoryMock.Setup(repository => repository.UnitOfWork)
             .Returns(new Mock<IUnitOfWork>().Object);
-        
+
         _timeProviderMock.Setup(provider => provider.LocalTimeZone).Returns(TimeZoneInfo.Utc);
         _timeProviderMock.Setup(provider => provider.GetUtcNow()).Returns(TestTime);
     }
@@ -60,10 +60,12 @@ public class AavePositionsSyncServiceTest
     }
 
     [Theory]
-    [InlineData(AavePositionType.Borrowed)]
-    [InlineData(AavePositionType.Supplied)]
+    [InlineData(AavePositionType.Borrowed, false)]
+    [InlineData(AavePositionType.Supplied, false)]
+    [InlineData(AavePositionType.Borrowed, true)]
+    [InlineData(AavePositionType.Supplied, true)]
     public async Task SyncPositionsAsyncTest_WhenOnlyBorrowedOrSuppliedPositions_ShouldReturnAllPositions(
-        AavePositionType expectedPositionType)
+        AavePositionType expectedPositionType, bool positionsExists)
     {
         var fixture = new Fixture();
         fixture.Customize(new PositiveBigIntegerCustomization());
@@ -80,8 +82,21 @@ public class AavePositionsSyncServiceTest
         _aaveProviderMock.Setup(provider =>
                 provider.GetLendingPositionAsync(TestNetwork, TestWallet, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedPositions);
+        
+        if (positionsExists)
+        {
+            var existedPositions = expectedPositions.Select(position =>
+                new AavePosition(TestNetwork, TestWallet, expectedPositionType, position.TokenAddress, SyncDay));
 
-        _aavePositionRepositoryMock.SetupEmptyListFromRepo();
+            _aavePositionRepositoryMock.Setup(repository =>
+                    repository.ListAsync(It.IsAny<AavePositionsWithSnapshotsSpecification>(),
+                        It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existedPositions.ToList);
+        }
+        else
+        {
+            _aavePositionRepositoryMock.SetupEmptyListFromRepo();
+        }
 
         var expectedSnapshotTokens = _tokenEnricherMock.SetupAaveTokenEnricher(fixture, TestNetwork, expectedPositions);
 

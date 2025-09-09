@@ -21,7 +21,7 @@ public abstract class CalculatableAaveLendingPosition : AaveLendingPosition
     
     protected abstract BigInteger AccrualIndex { get; }
 
-    public decimal CalculateAmount() => ScaleAmount.ToDecimal(Decimals);
+    public decimal CalculatePositionScaleAmount() => ScaleAmount.ToDecimal(Decimals);
     
     public BigInteger CalculateAmountWithInterest() =>
         ScaleAmount * AccrualIndex / BigInteger.Pow(RaiseToNormalize, ExponentToNormalize);
