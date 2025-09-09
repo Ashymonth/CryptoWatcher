@@ -155,6 +155,7 @@ public class AavePosition
     /// <param name="token">The token information associated with the snapshot.</param>
     /// <param name="positionScale">The scaled position amount to record.</param>
     /// <param name="day">The day associated with the snapshot.</param>
+    /// <param name="provider"></param>
     /// <exception cref="InvalidOperationException">Thrown if the position is already closed.</exception>
     public void AddOrUpdateSnapshot(TokenInfo token, decimal positionScale, DateOnly day, TimeProvider provider)
     {
@@ -178,7 +179,7 @@ public class AavePosition
             return;
         }
 
-        var eventDateTime = day.ToDateTime(TimeOnly.FromDateTime(provider.GetLocalNow().DateTime));
+        var eventDateTime = day.ToDateTime(TimeOnly.FromDateTime(provider.GetUtcNow().DateTime), DateTimeKind.Utc);
         if (PreviousScaledAmount is null)
         {
             _positionEvents.Add(new AavePositionEvent

@@ -90,11 +90,12 @@ internal class AavePositionsSyncService : IAavePositionsSyncService
                     new AavePosition(network, wallet, positionType, lendingPosition.TokenAddress, syncDay);
 
                 _aavePositionRepository.Insert(currentPosition);
-                result.Add(currentPosition);
             }
 
             currentPosition.AddOrUpdateSnapshot(tokenInfo, calculatableAaveLendingPosition.CalculateAmount(), syncDay,
                 _timeProvider);
+            
+            result.Add(currentPosition);
         }
 
         await _aavePositionRepository.UnitOfWork.SaveChangesAsync(ct);

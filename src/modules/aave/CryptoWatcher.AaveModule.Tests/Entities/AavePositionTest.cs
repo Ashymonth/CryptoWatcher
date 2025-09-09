@@ -2,6 +2,7 @@ using AutoFixture;
 using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.AaveModule.Tests.Customizations;
+using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
 using JetBrains.Annotations;
@@ -13,8 +14,8 @@ namespace CryptoWatcher.AaveModule.Tests.Entities;
 public class AavePositionTest
 {
     private static readonly Wallet TestWallet = new() { Address = Guid.CreateVersion7().ToString() };
-    private static readonly DateOnly TestDate = DateOnly.FromDateTime(DateTime.Now);
-    private static readonly DateTimeOffset TestTime = DateTimeOffset.Now;
+    private static readonly DateTimeOffset TestTime = DateTimeOffset.UtcNow;
+    private static readonly DateOnly TestDate = TestTime.DateTime.ToDateOnly();
     private readonly Fixture _fixture;
     private readonly Mock<TimeProvider> _timeProviderMock = new();
 
