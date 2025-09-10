@@ -9,22 +9,21 @@ namespace CryptoWatcher.AaveModule.Models;
 /// </summary>
 public abstract class CalculatableAaveLendingPosition : AaveLendingPosition
 {
-    private const int RaiseToNormalize = 10;
-
-    private const int ExponentToNormalize = 27;
+    private const int AaveIndexDecimals = 27;
     
-    private const int Decimals = 8;
-    
+    private static readonly BigInteger AaveIndexNormalizationFactor = BigInteger.Pow(10, AaveIndexDecimals);
+     
     public required BigInteger ScaleAmount { get; init; }
     
     public required decimal TokenPriceInUsd { get; init; }
     
+    public required byte TokenDecimals { get; init; }
+    
     protected abstract BigInteger AccrualIndex { get; }
 
-    public decimal CalculatePositionScaleAmount() => ScaleAmount.ToDecimal(Decimals);
+    public decimal CalculatePositionScaleInToken() => ScaleAmount.ToDecimal(TokenDecimals);
     
-    public BigInteger CalculateAmountWithInterest() =>
-        ScaleAmount * AccrualIndex / BigInteger.Pow(RaiseToNormalize, ExponentToNormalize);
+    public BigInteger CalculateAmountWithInterest() => ScaleAmount * AccrualIndex / AaveIndexNormalizationFactor;
 
     public AavePositionType DeterminePositionType() => this switch
     {

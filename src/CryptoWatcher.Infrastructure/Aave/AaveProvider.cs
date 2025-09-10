@@ -63,7 +63,8 @@ internal class AaveProvider : IAaveProvider
                     ScaleAmount = userReserveData.ScaledATokenBalance,
                     TokenAddress = userReserveData.UnderlyingAsset,
                     LiquidityIndex = reserveData.LiquidityIndex,
-                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(decimals)
+                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(decimals),
+                    TokenDecimals = (byte)reserveData.Decimals
                 };
 
                 result.Add(suppliedPosition);
@@ -76,7 +77,8 @@ internal class AaveProvider : IAaveProvider
                     ScaleAmount = userReserveData.ScaledVariableDebt,
                     TokenAddress = userReserveData.UnderlyingAsset,
                     VariableBorrowIndex = reserveData.VariableBorrowIndex,
-                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(decimals)
+                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(decimals),
+                    TokenDecimals = (byte)reserveData.Decimals
                 };
 
                 result.Add(borrowedPosition);
