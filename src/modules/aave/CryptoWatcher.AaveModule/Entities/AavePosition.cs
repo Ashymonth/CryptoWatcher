@@ -152,7 +152,7 @@ public class AavePosition
 
         if (PositionType == AavePositionType.Borrowed)
         {
-         return   startSnapshot.Token.AmountInUsd - endSnapshot.Token.AmountInUsd - netCashFlow;
+            return startSnapshot.Token.AmountInUsd - endSnapshot.Token.AmountInUsd - netCashFlow;
         }
         
         return endSnapshot.Token.AmountInUsd - startSnapshot.Token.AmountInUsd - netCashFlow;

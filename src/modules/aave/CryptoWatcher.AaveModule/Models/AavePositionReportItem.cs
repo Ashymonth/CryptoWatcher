@@ -20,32 +20,11 @@ public class AavePositionReportItem
     /// This property encapsulates the token's details, including its symbol, amount, and valuation in USD,
     /// providing comprehensive context about the specific asset in the position.
     /// </remarks>
-    public required TokenInfo Token { get; init; }
+    public required TokenInfo Position { get; init; }
 
-    /// <summary>
-    /// Gets the usd profit earned within a single day for the Aave position report.
-    /// </summary>
-    /// <remarks>
-    /// This property represents the monetary gain achieved over the specified day,
-    /// reflecting the performance of the position for that time period.
-    /// </remarks>
-    public required Percent DailyProfitInUsd { get; init; }
-    
-    /// <summary>
-    /// Gets the token profit earned within a single day for the Aave position report.
-    /// </summary>
-    /// <remarks>
-    /// This property represents the monetary gain achieved over the specified day,
-    /// reflecting the performance of the position for that time period.
-    /// </remarks>
-    public required decimal DailyTokenInProfit { get; init; }
+    public required Money PositionChange { get; init; }
 
-    /// <summary>
-    /// Gets the daily percentage profit for the Aave position.
-    /// </summary>
-    /// <remarks>
-    /// This property represents the profit expressed as a percentage of the total balance
-    /// for a specific day, offering insight into the daily performance of the position.
-    /// </remarks>
-    public required Percent DailyPercentProfitInUsd { get; init; }
+    public required decimal CommissionInToken { get; init; }
+
+    public Money CommissionInUsd => CommissionInToken * Position.PriceInUsd; 
 }

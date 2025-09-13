@@ -9,11 +9,11 @@ public static class DateTimeExtensions
 
     public static DateTime ToMinDateTime(this DateOnly date)
     {
-        return date.ToDateTime(TimeOnly.MinValue);
+        return date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
     }
     
     public static DateTime ToMaxDateTime(this DateOnly date)
     {
-        return date.ToDateTime(TimeOnly.MaxValue);
+        return date.ToDateTime(TimeOnly.MaxValue,  DateTimeKind.Utc);
     }
 }

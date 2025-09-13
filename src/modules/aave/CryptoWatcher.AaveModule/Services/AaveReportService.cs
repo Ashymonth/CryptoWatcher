@@ -6,7 +6,7 @@ using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.AaveModule.Services;
 
-internal interface IAaveReportService
+public interface IAaveReportService
 {
     Task<List<AavePositionReport>> CreateReport(Wallet wallet, DateOnly from, DateOnly to,
         CancellationToken ct = default);
@@ -33,13 +33,16 @@ internal class AaveReportService : IAaveReportService
             var positionReport = new AavePositionReport
             {
                 ReportItems = position.PositionSnapshots.OrderBy(snapshot => snapshot.Day)
-                    .Select(snapshot => new AavePositionReportItem
+                    .Select(snapshot =>
                     {
-                        Day = snapshot.Day,
-                        Token = snapshot.Token,
-                        DailyProfitInUsd = position.CalculateAbsoluteProfitInUsd(from, snapshot.Day),
-                        DailyPercentProfitInUsd = position.CalculatePercentageProfit(from, snapshot.Day),
-                        DailyTokenInProfit = position.CalculateAbsoluteProfitInToken(from, snapshot.Day)
+                        return new AavePositionReportItem
+                        {
+                            Day = snapshot.Day,
+                            Position = snapshot.Token,
+                            PositionChange = position.CalculateAbsoluteProfitInUsd(snapshot.Day.AddDays(-1), snapshot.Day),
+                            CommissionInToken =
+                                position.CalculateAbsoluteProfitInToken(snapshot.Day.AddDays(-1), snapshot.Day)
+                        };
                     })
                     .ToArray()
             };

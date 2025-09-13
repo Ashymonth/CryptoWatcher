@@ -4,6 +4,7 @@ using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.AaveModule.Services;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Infrastructure;
+using CryptoWatcher.Infrastructure.Aave;
 using CryptoWatcher.Infrastructure.Configs;
 using CryptoWatcher.Infrastructure.Extensions;
 using CryptoWatcher.Infrastructure.Hyperliquid;
@@ -53,7 +54,24 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 var app = builder.Build();
- 
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider.GetRequiredService<IAavePositionsSyncService>();
+    await services.SyncPositionsAsync(AaveNetwork.CeloNetwork, new Wallet { Address = "0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f" },
+        DateOnly.FromDateTime(DateTime.Now));
+
+    
+    var service = scope.ServiceProvider.GetRequiredService<AaveReportExcelService>();
+
+    await service.CreateReportAsync(null, null);
+    
+    // var reportService = scope.ServiceProvider.GetRequiredService<AaveReportService>();
+    //
+    // await reportService.CreateReport(new Wallet { Address = "0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f" },
+    //     DateOnly.MinValue, DateOnly.MaxValue);
+}
+
 app.UseTickerQ();
 
 app.MapGet("/report",

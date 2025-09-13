@@ -58,7 +58,8 @@ public static class ServiceCollectionExtensions
         services
             .AddAaveModule()
             .AddSingleton<IAaveMainnetProvider, AaveMainnetProvider>()
-            .AddScoped<IAaveProvider, AaveProvider>();
+            .AddScoped<IAaveProvider, AaveProvider>()
+            .AddScoped<AaveReportExcelService>();
       
         return services;
     }
