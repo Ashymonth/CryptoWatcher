@@ -1,6 +1,8 @@
+using CryptoWatcher.Abstractions;
+
 namespace CryptoWatcher.UniswapModule.Entities;
 
-public class PoolPositionSnapshot
+public class PoolPositionSnapshot : IPositionSnapshot
 {
     /// <summary>
     /// Represents the unique identifier for a liquidity pool position from NFT manager.

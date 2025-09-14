@@ -1,3 +1,4 @@
+using CryptoWatcher.Abstractions;
 using CryptoWatcher.Shared.ValueObjects;
 using JetBrains.Annotations;
 
@@ -10,7 +11,7 @@ namespace CryptoWatcher.AaveModule.Entities;
 /// This snapshot includes the unique identifier for the associated position, the date the snapshot was taken,
 /// and comprehensive token-related details such as its symbol, amount, and valuation.
 /// </remarks>
-public class AavePositionSnapshot 
+public class AavePositionSnapshot : IPositionSnapshot
 {
     [UsedImplicitly] // for ef core
     private AavePositionSnapshot()

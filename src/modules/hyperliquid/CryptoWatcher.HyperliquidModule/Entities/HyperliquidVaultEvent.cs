@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using CryptoWatcher.Abstractions;
 using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.HyperliquidModule.Entities;
@@ -7,7 +8,7 @@ namespace CryptoWatcher.HyperliquidModule.Entities;
 /// Represents an event associated with a Hyperliquid vault. These events track interactions such as deposits or withdrawals on specific vaults
 /// and are linked to a specific wallet within the Hyperliquid module.
 /// </summary>
-public class HyperliquidVaultEvent
+public class HyperliquidVaultEvent : IUsdCacheFlow
 {
     /// <summary>
     /// Represents the monetary value in USD associated with a vault-related activity.
@@ -28,7 +29,7 @@ public class HyperliquidVaultEvent
     /// enabling chronological tracking and data management of vault-related activities.
     /// </remarks>
     public DateTime Date { get; init; }
-
+    
     /// <summary>
     /// Indicates the type of event associated with a Hyperliquid vault activity.
     /// </summary>
@@ -37,7 +38,7 @@ public class HyperliquidVaultEvent
     /// within the Hyperliquid platform. It is used to classify and track the different types of interactions
     /// occurring in the context of vault operations.
     /// </remarks>
-    public HyperliquidVaultVaultEventType EventType { get; init; }
+    public CacheFlowEvent Event { get; init; }
 
     /// <summary>
     /// Represents the unique address identifier for a Hyperliquid vault.

@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
 using CryptoWatcher.AaveModule.Models;
+using CryptoWatcher.Abstractions;
+using CryptoWatcher.Entities;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
@@ -143,18 +145,18 @@ public class AavePosition
     /// <returns>The absolute profit as a decimal value. Returns 0 if the date range is invalid or no data is available.</returns>
     public decimal CalculateAbsoluteProfitInUsd(DateOnly startDate, DateOnly endDate)
     {
-        var startSnapshot = GetNearestSnapshot(startDate, false);
-        var endSnapshot = GetNearestSnapshot(endDate, true);
+        var startSnapshot = PositionSnapshots.GetNearestSnapshot(startDate, false);
+        var endSnapshot = PositionSnapshots.GetNearestSnapshot(endDate, true);
 
         if (startSnapshot == null || endSnapshot == null) return 0;
 
-        var netCashFlow = CalculateNetCashFlowInUsd(startSnapshot.Day, endSnapshot.Day);
+        var netCashFlow = PositionEvents.CalculateNetCashFlowInUsd(startSnapshot.Day, endSnapshot.Day);
 
         if (startSnapshot.Day == endSnapshot.Day)
         {
             return endSnapshot.Token.AmountInUsd - netCashFlow;
         }
-        
+
         if (PositionType == AavePositionType.Borrowed)
         {
             return startSnapshot.Token.AmountInUsd - endSnapshot.Token.AmountInUsd - netCashFlow;
@@ -171,18 +173,18 @@ public class AavePosition
     /// <returns>The absolute profit as a decimal value. Returns 0 if the date range is invalid or no data is available.</returns>
     public decimal CalculateAbsoluteProfitInToken(DateOnly startDate, DateOnly endDate)
     {
-        var startSnapshot = GetNearestSnapshot(startDate, false);
-        var endSnapshot = GetNearestSnapshot(endDate, true);
+        var startSnapshot = PositionSnapshots.GetNearestSnapshot(startDate, false);
+        var endSnapshot = PositionSnapshots.GetNearestSnapshot(endDate, true);
 
         if (startSnapshot == null || endSnapshot == null) return 0;
 
-        var netCashFlow = CalculateNetCashFlowInToken(startSnapshot.Day, endSnapshot.Day);
+        var netCashFlow = PositionEvents.CalculateNetCashFlowInToken(startSnapshot.Day, endSnapshot.Day);
 
         if (startSnapshot.Day == endSnapshot.Day)
         {
             return endSnapshot.Token.Amount - netCashFlow;
         }
-        
+
         return endSnapshot.Token.Amount - startSnapshot.Token.Amount - netCashFlow;
     }
 
@@ -194,13 +196,13 @@ public class AavePosition
     /// <returns>The percentage profit as a decimal value. Returns 0 if the date range is invalid or no data is available.</returns>
     public Percent CalculatePositionPercentageProfit(DateOnly startDate, DateOnly endDate)
     {
-        var startSnapshot = GetNearestSnapshot(startDate, false);
-        var endSnapshot = GetNearestSnapshot(endDate, true);
+        var startSnapshot = PositionSnapshots.GetNearestSnapshot(startDate, false);
+        var endSnapshot = PositionSnapshots.GetNearestSnapshot(endDate, true);
 
         if (startSnapshot == null || endSnapshot == null || startSnapshot.Day >= endSnapshot.Day)
             return 0;
 
-        var netCashFlow = CalculateNetCashFlowInUsd(startSnapshot.Day, endSnapshot.Day);
+        var netCashFlow = PositionEvents.CalculateNetCashFlowInUsd(startSnapshot.Day, endSnapshot.Day);
         var initialValue = startSnapshot.Token.AmountInUsd;
 
         if (initialValue == 0)
@@ -219,13 +221,13 @@ public class AavePosition
     /// <returns>The percentage profit as a decimal value. Returns 0 if the date range is invalid or no data is available.</returns>
     public Percent CalculatePercentageProfitInToken(DateOnly startDate, DateOnly endDate)
     {
-        var startSnapshot = GetNearestSnapshot(startDate, false);
-        var endSnapshot = GetNearestSnapshot(endDate, true);
+        var startSnapshot = PositionSnapshots.GetNearestSnapshot(startDate, false);
+        var endSnapshot = PositionSnapshots.GetNearestSnapshot(endDate, true);
 
         if (startSnapshot == null || endSnapshot == null || startSnapshot.Day >= endSnapshot.Day)
             return 0;
 
-        var netCashFlow = CalculateNetCashFlowInToken(startSnapshot.Day, endSnapshot.Day);
+        var netCashFlow = PositionEvents.CalculateNetCashFlowInToken(startSnapshot.Day, endSnapshot.Day);
         var initialValue = startSnapshot.Token.Amount;
 
         if (initialValue == 0)
@@ -296,7 +298,7 @@ public class AavePosition
                 PositionId = Id,
                 Date = eventDateTime,
                 Token = token with { Amount = (decimal)(positionScale - PreviousScaledAmount) },
-                EventType = AavePositionEventType.Deposit
+                Event = CacheFlowEvent.Deposit
             });
         }
         else
@@ -306,58 +308,13 @@ public class AavePosition
                 PositionId = Id,
                 Date = eventDateTime,
                 Token = token with { Amount = (decimal)(PreviousScaledAmount - positionScale) },
-                EventType = AavePositionEventType.Withdrawal
+                Event = CacheFlowEvent.Withdraw
             });
         }
 
         PreviousScaledAmount = positionScale;
     }
 
-    /// <summary>
-    /// Calculates the net cash flow (deposits minus withdrawals) for the specified period
-    /// </summary>
-    private decimal CalculateNetCashFlowInUsd(DateOnly from, DateOnly to)
-    {
-        return PositionEvents
-            .Where(e => e.Date >= from.ToMinDateTime() && e.Date <= to.ToMaxDateTime())
-            .Sum(e => e.EventType switch
-            {
-                AavePositionEventType.Deposit => e.Token.AmountInUsd,
-                AavePositionEventType.Withdrawal => -e.Token.AmountInUsd,
-                _ => 0
-            });
-    }
-
-    /// <summary>
-    /// Calculates the net cash flow (deposits minus withdrawals) for the specified period
-    /// </summary>
-    private decimal CalculateNetCashFlowInToken(DateOnly from, DateOnly to)
-    {
-        return PositionEvents
-            .Where(e => e.Date >= from.ToMinDateTime() && e.Date <= to.ToMaxDateTime())
-            .Sum(e => e.EventType switch
-            {
-                AavePositionEventType.Deposit => e.Token.Amount,
-                AavePositionEventType.Withdrawal => -e.Token.Amount,
-                _ => throw new ArgumentOutOfRangeException(nameof(e))
-            });
-    }
-
-    private AavePositionSnapshot? GetNearestSnapshot(DateOnly date, bool findPrevious)
-    {
-        if (findPrevious)
-        {
-            return PositionSnapshots
-                .Where(s => s.Day <= date)
-                .OrderByDescending(s => s.Day)
-                .FirstOrDefault();
-        }
-
-        return PositionSnapshots
-            .Where(s => s.Day >= date)
-            .OrderBy(s => s.Day)
-            .FirstOrDefault();
-    }
 
     private Guid GeneratePositionId()
     {
