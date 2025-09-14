@@ -67,14 +67,19 @@ public class AavePositionsSyncServiceTest
     public async Task SyncPositionsAsyncTest_WhenOnlyBorrowedOrSuppliedPositions_ShouldReturnAllPositions(
         AavePositionType expectedPositionType, bool positionsExists)
     {
-        var fixture = new Fixture();
+        var fixture = new Fixture().WithTokenDecimalsRange();
         fixture.Customize(new PositiveBigIntegerCustomization());
 
         var expectedPositions = expectedPositionType switch
         {
-            AavePositionType.Borrowed => fixture.CreateMany<BorrowedAaveLendingPosition>().Cast<AaveLendingPosition>()
+            AavePositionType.Borrowed => fixture
+                .CreateMany<BorrowedAaveLendingPosition>()
+                .Cast<AaveLendingPosition>()
                 .ToList(),
-            AavePositionType.Supplied => fixture.CreateMany<SuppliedAaveLendingPosition>().Cast<AaveLendingPosition>()
+
+            AavePositionType.Supplied => fixture
+                .CreateMany<SuppliedAaveLendingPosition>()
+                .Cast<AaveLendingPosition>()
                 .ToList(),
             _ => throw new ArgumentOutOfRangeException(nameof(expectedPositionType), expectedPositionType, null)
         };
@@ -82,7 +87,7 @@ public class AavePositionsSyncServiceTest
         _aaveProviderMock.Setup(provider =>
                 provider.GetLendingPositionAsync(TestNetwork, TestWallet, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedPositions);
-        
+
         if (positionsExists)
         {
             var existedPositions = expectedPositions.Select(position =>
@@ -122,7 +127,7 @@ public class AavePositionsSyncServiceTest
     [Fact]
     public async Task SyncPositionsAsyncTest_WhenExistAllTypePositions_ShouldReturnNotEmptyPositions()
     {
-        var fixture = new Fixture();
+        var fixture = new Fixture().WithTokenDecimalsRange();
         fixture.Customize(new PositiveBigIntegerCustomization());
 
         AaveLendingPosition emptyPosition = fixture.Create<EmptyAaveLendingPosition>();

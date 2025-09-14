@@ -137,8 +137,8 @@ public class AavePositionTest
     }
 
     [Theory]
-    [InlineData(100, 100, CacheFlowEvent.Deposit)]
-    [InlineData(100, 100, CacheFlowEvent.Withdraw)]
+    [InlineData(100, 150, CacheFlowEvent.Deposit)]
+    [InlineData(100, 50, CacheFlowEvent.Withdraw)]
     public void AddOrUpdateSnapshotTest_WhenScaleChange_ShouldUpdateSnapshot(
         decimal oldScaleAmount,
         decimal newScaleAmount,
