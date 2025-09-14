@@ -2,9 +2,7 @@ using CryptoWatcher.Infrastructure.Excel;
 using CryptoWatcher.Infrastructure.Uniswap.ExcelModels;
 using CryptoWatcher.Infrastructure.Uniswap.Mappers;
 using CryptoWatcher.UniswapModule.Services;
-using SpreadCheetah;
 using SpreadCheetah.SourceGeneration;
-using SpreadCheetah.Styling;
 
 namespace CryptoWatcher.Infrastructure.Uniswap;
 
@@ -13,21 +11,10 @@ public interface IUniswapExcelReportService
     Task<Stream> ExportPoolInfoToExcelAsync(DateOnly? from, DateOnly? to, CancellationToken ct = default);
 }
 
-internal class UniswapExcelReportService : IUniswapExcelReportService
+internal class UniswapExcelReportService : BaseExcelReportService, IUniswapExcelReportService
 {
     private const string ReportName = "Uniswap";
-    private const string TotalName = "Итого:";
 
-    private static readonly Dictionary<string, Style> StyleNameToStyleMap = new()
-    {
-        [ExcelStyleRegistry.Number] =
-            new Style { Format = NumberFormat.Standard(StandardNumberFormat.NoDecimalPlaces) },
-        [ExcelStyleRegistry.TwoDecimalPlaces] = new Style
-            { Format = NumberFormat.Standard(StandardNumberFormat.TwoDecimalPlaces) },
-        [ExcelStyleRegistry.Percent] = new Style { Format = NumberFormat.Standard(StandardNumberFormat.Percent) },
-    };
-
-    
     private readonly IUniswapReportService _uniswapReportService;
 
     public UniswapExcelReportService(IUniswapReportService uniswapReportService)
@@ -37,53 +24,41 @@ internal class UniswapExcelReportService : IUniswapExcelReportService
 
     public async Task<Stream> ExportPoolInfoToExcelAsync(DateOnly? from, DateOnly? to, CancellationToken ct = default)
     {
-        var now = DateTime.Now;
-        var monthStart = new DateTime(now.Year, now.Month, 1);
-        var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+        var (fromDate, toDate) = GetDefaultDatesIfNull(from, to);
 
-        if (!from.HasValue || !to.HasValue)
+        var poolPositions = await _uniswapReportService.CreateReportAsync(fromDate, toDate, ct);
+
+        var ms = await CreateExcelWorkbookAsync(async sheet =>
         {
-            from = DateOnly.FromDateTime(monthStart);
-            to = DateOnly.FromDateTime(monthEnd);
-        }
+            var rowContext = PoolInfoExcelRowContext.Default.UniswapPoolPositionExcelRow;
+            var totalContext = PoolInfoExcelRowContext.Default.UniswapPoolPositionExcelTotalRow;
+            await sheet.StartWorksheetAsync(ReportName, rowContext, ct);
 
-        var poolPositions = await _uniswapReportService.CreateReportAsync(from.Value, to.Value, ct);
+            await sheet.AddHeaderRowAsync(rowContext, token: ct);
 
-        var ms = new MemoryStream();
-        var sheet = await Spreadsheet.CreateNewAsync(ms, cancellationToken: ct);
-        ExcelStyleRegistry.AddNamedStyles(sheet);
-
-        await sheet.StartWorksheetAsync(ReportName, PoolInfoExcelRowContext.Default.UniswapPoolPositionExcelRow,
-            token: ct);
-
-        await sheet.AddHeaderRowAsync(PoolInfoExcelRowContext.Default.UniswapPoolPositionExcelRow, token: ct);
-
-        foreach (var poolPosition in poolPositions)
-        {
-            foreach (var positionSnapshot in poolPosition.ReportItems)
+            foreach (var poolPosition in poolPositions)
             {
-                var excelRow = positionSnapshot.MapToExcelRowModel();
+                foreach (var positionSnapshot in poolPosition.ReportItems)
+                {
+                    var excelRow = positionSnapshot.MapToExcelRowModel();
 
-                await sheet.AddAsRowAsync(excelRow, PoolInfoExcelRowContext.Default.UniswapPoolPositionExcelRow, ct);
+                    await sheet.AddAsRowAsync(excelRow, rowContext, ct);
+                }
+
+                if (poolPosition.ReportItems.Count != 0)
+                {
+                    // pool can contain data only for 1 network and 1 token pair, 
+                    // so we can take just the first item
+                    var item = poolPosition.ReportItems.First();
+                    var totalExcelRow = poolPosition.MapToExcelModel(TotalName, item.TokenPairSymbols, item.Network);
+
+                    await sheet.AddAsRowAsync(totalExcelRow, totalContext, ct);
+                }
+
+                await sheet.AddRowAsync([], ct);
             }
+        }, ct);
 
-            if (poolPosition.ReportItems.Count != 0)
-            {
-                // pool can contain data only for 1 network and 1 token pair, 
-                // so we can take just the first item
-                var item = poolPosition.ReportItems.First();
-                var totalExcelRow = poolPosition.MapToExcelModel(TotalName, item.TokenPairSymbols, item.Network);
-
-                await sheet.AddAsRowAsync(totalExcelRow,
-                    PoolInfoExcelRowContext.Default.UniswapPoolPositionExcelTotalRow, ct);
-            }
-
-            await sheet.AddRowAsync([], ct);
-        }
-
-        await sheet.FinishAsync(ct);
-
-        ms.Seek(0, SeekOrigin.Begin);
 
         return ms;
     }
