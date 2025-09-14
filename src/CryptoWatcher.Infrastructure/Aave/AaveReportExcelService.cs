@@ -70,10 +70,10 @@ public class AaveReportExcelService
                     await workbook.AddAsRowAsync(row, AaveExcelReportContext.Default.AavePositionExcelRow, ct);
                 }
 
-                // var totalRow = positionReport.MapToExcelModel("Итого:");
-                //
-                // await workbook.AddAsRowAsync(totalRow, AaveExcelReportContext.Default.AavePositionExcelTotalRow, ct);
-                //
+                var totalRow = positionReport.MapToExcelModel("Итого:");
+                
+                await workbook.AddAsRowAsync(totalRow, AaveExcelReportContext.Default.AavePositionExcelTotalRow, ct);
+                
                 await workbook.AddRowAsync([], ct);
             }
         }

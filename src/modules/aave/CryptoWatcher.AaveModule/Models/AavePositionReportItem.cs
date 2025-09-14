@@ -26,5 +26,9 @@ public class AavePositionReportItem
 
     public required decimal CommissionInToken { get; init; }
 
-    public Money CommissionInUsd => CommissionInToken * Position.PriceInUsd; 
+    public required Percent CommissionInTokenPercent { get; init; }
+
+    public Money CommissionInUsd => CommissionInToken * Position.PriceInUsd;
+    
+    public required Percent CommissionInUsdPercent { get; init; }
 }

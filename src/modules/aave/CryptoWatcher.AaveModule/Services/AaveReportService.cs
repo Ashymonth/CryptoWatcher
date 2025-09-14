@@ -32,16 +32,24 @@ internal class AaveReportService : IAaveReportService
         {
             var positionReport = new AavePositionReport
             {
+                TotalCommissionInTokenPercent = position.CalculatePercentageProfitInToken(from, to),
+                TotalCommissionInUsdPercent = position.CalculatePositionPercentageProfit(from, to),
                 ReportItems = position.PositionSnapshots.OrderBy(snapshot => snapshot.Day)
                     .Select(snapshot =>
                     {
+                        var previousDay = snapshot.Day.AddDays(-1);
                         return new AavePositionReportItem
                         {
                             Day = snapshot.Day,
                             Position = snapshot.Token,
-                            PositionChange = position.CalculateAbsoluteProfitInUsd(snapshot.Day.AddDays(-1), snapshot.Day),
+                            PositionChange =
+                                position.CalculateAbsoluteProfitInUsd(previousDay, snapshot.Day),
                             CommissionInToken =
-                                position.CalculateAbsoluteProfitInToken(snapshot.Day.AddDays(-1), snapshot.Day)
+                                position.CalculateAbsoluteProfitInToken(previousDay, snapshot.Day),
+                            CommissionInTokenPercent =
+                                position.CalculatePercentageProfitInToken(previousDay, snapshot.Day),
+                            CommissionInUsdPercent =
+                                position.CalculatePositionPercentageProfit(previousDay, snapshot.Day)
                         };
                     })
                     .ToArray()

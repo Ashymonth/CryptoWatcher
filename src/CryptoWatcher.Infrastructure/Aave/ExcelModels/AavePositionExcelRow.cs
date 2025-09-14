@@ -26,7 +26,17 @@ internal class AavePositionExcelRow
     [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Money>))]
     [CellStyle(ExcelStyleRegistry.TwoDecimalPlaces)]
     public required Money CommissionInUsd { get; init; }
+    
+    [ColumnHeader("Комиссия в $/%")]
+    [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Percent>))]
+    [CellStyle(ExcelStyleRegistry.TwoDecimalPlaces)]
+    public required Percent CommissionInUsdPercent { get; init; }
 
     [ColumnHeader("Комиссия в токена")]
     public required decimal CommissionInToken { get; init; }
+    
+    [ColumnHeader("Комиссия в $/%")]
+    [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Percent>))]
+    [CellStyle(ExcelStyleRegistry.Percent)]
+    public required Percent CommissionInTokenPercent { get; init; }
 }

@@ -7,13 +7,20 @@ namespace CryptoWatcher.AaveModule.Models;
 /// </summary>
 public class AavePositionReport
 {
-    public string TokenSymbol => ReportItems?.FirstOrDefault()?.Position.Symbol ?? string.Empty;
+    public string TokenSymbol => ReportItems.FirstOrDefault()?.Position.Symbol ?? string.Empty;
 
     public Money Balance => ReportItems.LastOrDefault()?.Position.AmountInUsd ?? 0;
 
+    public Money TotalPositionChange => Balance - ReportItems.FirstOrDefault()?.Position.AmountInUsd ?? 0;
+
     public Money TotalCommissionInUsd => ReportItems.Sum(item => item.CommissionInUsd);
 
-    public decimal TotalCommissionInToken => ReportItems.Sum(item => item.CommissionInToken);
+    public required Percent TotalCommissionInUsdPercent { get; init; }
+
+    public decimal TotalCommissionInToken => ReportItems.LastOrDefault()?.Position.Amount -
+        ReportItems.FirstOrDefault()?.Position.Amount ?? 0;
+
+    public required Percent TotalCommissionInTokenPercent { get; init; }
 
     public IReadOnlyCollection<AavePositionReportItem> ReportItems { get; init; } = [];
 }

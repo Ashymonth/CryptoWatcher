@@ -154,7 +154,7 @@ public class AavePosition
         {
             return startSnapshot.Token.AmountInUsd - endSnapshot.Token.AmountInUsd - netCashFlow;
         }
-        
+
         return endSnapshot.Token.AmountInUsd - startSnapshot.Token.AmountInUsd - netCashFlow;
     }
 
@@ -182,64 +182,50 @@ public class AavePosition
     /// <param name="startDate">The start date of the date range for the calculation.</param>
     /// <param name="endDate">The end date of the date range for the calculation.</param>
     /// <returns>The percentage profit as a decimal value. Returns 0 if the date range is invalid or no data is available.</returns>
-    public Percent CalculatePercentageProfit(DateOnly startDate, DateOnly endDate)
+    public Percent CalculatePositionPercentageProfit(DateOnly startDate, DateOnly endDate)
     {
-        // Находим первый и последний снимки за период
         var startSnapshot = GetNearestSnapshot(startDate, false);
-
         var endSnapshot = GetNearestSnapshot(endDate, true);
 
         if (startSnapshot == null || endSnapshot == null || startSnapshot.Day >= endSnapshot.Day)
-        {
             return 0;
-        }
 
         var netCashFlow = GetEventsSumInUsd(startSnapshot.Day, endSnapshot.Day);
+        var initialValue = startSnapshot.Token.AmountInUsd;
 
-        var positionChange = endSnapshot.Token.Amount - startSnapshot.Token.Amount - netCashFlow;
-
-        if (startSnapshot.Token.Amount == 0)
-        {
+        if (initialValue == 0)
             return 0;
-        }
 
-        var percentageChange = positionChange / startSnapshot.Token.Amount * 100;
+        var growthDecimal = (endSnapshot.Token.AmountInUsd - netCashFlow - initialValue) / initialValue;
 
-        return percentageChange;
+        return growthDecimal;
     }
-
+    
     /// <summary>
     /// Calculates the percentage profit of the vault position within the specified date range.
     /// </summary>
     /// <param name="startDate">The start date of the date range for the calculation.</param>
     /// <param name="endDate">The end date of the date range for the calculation.</param>
     /// <returns>The percentage profit as a decimal value. Returns 0 if the date range is invalid or no data is available.</returns>
-    public Percent CalculateTokenProfit(DateOnly startDate, DateOnly endDate)
+    public Percent CalculatePercentageProfitInToken(DateOnly startDate, DateOnly endDate)
     {
-        // Находим первый и последний снимки за период
         var startSnapshot = GetNearestSnapshot(startDate, false);
-
         var endSnapshot = GetNearestSnapshot(endDate, true);
 
         if (startSnapshot == null || endSnapshot == null || startSnapshot.Day >= endSnapshot.Day)
-        {
             return 0;
-        }
 
-        var netCashFlow = GetEventsSumInUsd(startSnapshot.Day, endSnapshot.Day);
+        var netCashFlow = GetEventsSumInToken(startSnapshot.Day, endSnapshot.Day);
+        var initialValue = startSnapshot.Token.Amount;
 
-        var positionChange = endSnapshot.Token.Amount - startSnapshot.Token.Amount - netCashFlow;
-
-        if (startSnapshot.Token.Amount == 0)
-        {
+        if (initialValue == 0)
             return 0;
-        }
 
-        var percentageChange = positionChange / startSnapshot.Token.Amount * 100;
+        var growthDecimal = (endSnapshot.Token.Amount - netCashFlow - initialValue) / initialValue;
 
-        return percentageChange;
+        return growthDecimal;
     }
-
+    
     /// <summary>
     /// Closes the position by setting the closure date.
     /// </summary>
@@ -284,7 +270,7 @@ public class AavePosition
         {
             return;
         }
-        
+
         if (PreviousScaledAmount is null) // we just start to track this positions and no events can occur 
         {
             PreviousScaledAmount = positionScale;
@@ -292,7 +278,7 @@ public class AavePosition
         }
 
         var eventDateTime = day.ToDateTime(TimeOnly.FromDateTime(provider.GetUtcNow().DateTime), DateTimeKind.Utc);
-        
+
         if (PreviousScaledAmount < positionScale)
         {
             _positionEvents.Add(new AavePositionEvent
