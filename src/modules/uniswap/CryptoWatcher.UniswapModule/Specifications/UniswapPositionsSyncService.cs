@@ -1,4 +1,6 @@
+using CryptoWatcher.Abstractions;
 using CryptoWatcher.Shared.Entities;
+using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.UniswapModule.Abstractions;
 using CryptoWatcher.UniswapModule.Entities;
 using CryptoWatcher.UniswapModule.Models;
@@ -81,7 +83,7 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
 
                 var positionInPool = _math.CalculatePosition(pool, uniswapPosition);
 
-                var tokensEnriched = await _enricher.EnrichAsync(network, positionInPool.TokenInfoPair, ct);
+                var tokensEnriched = await _enricher.EnrichAsync(network.RpcUrl, positionInPool.TokenInfoPair, ct);
 
                 var positionKey = new PositionKey((ulong)uniswapPosition.PositionId, network.Name);
                 if (!existedPositions.TryGetValue(positionKey, out var dbPoolPosition) ||
@@ -134,7 +136,7 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
     {
         var fee = _math.CalculateClaimableFee(pool, uniswapPosition);
 
-        return await _enricher.EnrichAsync(network, fee, ct);
+        return await _enricher.EnrichAsync(network.RpcUrl, fee, ct);
     }
 
     private static PoolPosition MapToLiquidityPoolPosition(UniswapNetwork uniswapNetwork, Wallet wallet,

@@ -1,5 +1,6 @@
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
+using CryptoWatcher.Shared.ValueObjects;
 
 namespace CryptoWatcher.HyperliquidModule.Entities;
 
@@ -54,7 +55,7 @@ public class HyperliquidVaultPosition
     /// <param name="startDate">The start date of the date range for the calculation.</param>
     /// <param name="endDate">The end date of the date range for the calculation.</param>
     /// <returns>The percentage profit as a decimal value. Returns 0 if the date range is invalid or no data is available.</returns>
-    public decimal CalculatePercentageProfit(DateOnly startDate, DateOnly endDate)
+    public Percent CalculatePercentageProfit(DateOnly startDate, DateOnly endDate)
     {
         // Находим первый и последний снимки за период
         var firstSnapshot = GetNearestSnapshot(startDate, false);

@@ -22,7 +22,76 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultEvent", b =>
+            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePosition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("ClosedAtDay")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("CreatedAtDay")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Network")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("PositionType")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("PreviousScaledAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("TokenAddress")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("WalletAddress")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WalletAddress");
+
+                    b.ToTable("AavePositions");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionEvent", b =>
+                {
+                    b.Property<Guid>("PositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PositionId", "Date", "EventType");
+
+                    b.ToTable("AavePositionEvent");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionSnapshot", b =>
+                {
+                    b.Property<Guid>("PositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date");
+
+                    b.HasKey("PositionId", "Day");
+
+                    b.ToTable("AavePositionSnapshots");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.HyperliquidModule.Entities.HyperliquidVaultEvent", b =>
                 {
                     b.Property<string>("VaultAddress")
                         .HasMaxLength(64)
@@ -48,7 +117,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("HyperliquidVaultEvents");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", b =>
+            modelBuilder.Entity("CryptoWatcher.HyperliquidModule.Entities.HyperliquidVaultPosition", b =>
                 {
                     b.Property<string>("VaultAddress")
                         .HasMaxLength(64)
@@ -65,7 +134,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("HyperliquidVaultPositions");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPositionSnapshot", b =>
+            modelBuilder.Entity("CryptoWatcher.HyperliquidModule.Entities.HyperliquidVaultPositionSnapshot", b =>
                 {
                     b.Property<string>("VaultAddress")
                         .HasMaxLength(64)
@@ -88,7 +157,18 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("HyperliquidVaultPositionSnapshots");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.PoolPosition", b =>
+            modelBuilder.Entity("CryptoWatcher.Shared.Entities.Wallet", b =>
+                {
+                    b.Property<string>("Address")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Address");
+
+                    b.ToTable("Wallets");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.UniswapModule.Entities.PoolPosition", b =>
                 {
                     b.Property<decimal>("PositionId")
                         .HasColumnType("numeric(20,0)");
@@ -114,7 +194,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("PoolPositions");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.PoolPositionSnapshot", b =>
+            modelBuilder.Entity("CryptoWatcher.UniswapModule.Entities.PoolPositionSnapshot", b =>
                 {
                     b.Property<decimal>("PoolPositionId")
                         .HasColumnType("numeric(20,0)");
@@ -134,7 +214,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("PoolPositionSnapshots");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.Uniswap.UniswapNetwork", b =>
+            modelBuilder.Entity("CryptoWatcher.UniswapModule.Entities.UniswapNetwork", b =>
                 {
                     b.Property<string>("Name")
                         .HasMaxLength(32)
@@ -166,17 +246,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.HasKey("Name");
 
                     b.ToTable("Networks");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Entities.Wallet", b =>
-                {
-                    b.Property<string>("Address")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.HasKey("Address");
-
-                    b.ToTable("Wallets");
                 });
 
             modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", b =>
@@ -345,15 +414,106 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("TimeTickers", "ticker");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultEvent", b =>
+            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePosition", b =>
                 {
-                    b.HasOne("CryptoWatcher.Entities.Wallet", "Wallet")
+                    b.HasOne("CryptoWatcher.Shared.Entities.Wallet", "Wallet")
                         .WithMany()
                         .HasForeignKey("WalletAddress")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", null)
+                    b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionEvent", b =>
+                {
+                    b.HasOne("CryptoWatcher.AaveModule.Entities.AavePosition", null)
+                        .WithMany("PositionEvents")
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("CryptoWatcher.Shared.ValueObjects.TokenInfo", "Token", b1 =>
+                        {
+                            b1.Property<Guid>("AavePositionEventPositionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTime>("AavePositionEventDate")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<int>("AavePositionEventEventType")
+                                .HasColumnType("integer");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal>("PriceInUsd")
+                                .HasColumnType("numeric");
+
+                            b1.Property<string>("Symbol")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("AavePositionEventPositionId", "AavePositionEventDate", "AavePositionEventEventType");
+
+                            b1.ToTable("AavePositionEvent");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AavePositionEventPositionId", "AavePositionEventDate", "AavePositionEventEventType");
+                        });
+
+                    b.Navigation("Token")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionSnapshot", b =>
+                {
+                    b.HasOne("CryptoWatcher.AaveModule.Entities.AavePosition", null)
+                        .WithMany("PositionSnapshots")
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("CryptoWatcher.Shared.ValueObjects.TokenInfo", "Token", b1 =>
+                        {
+                            b1.Property<Guid>("AavePositionSnapshotPositionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateOnly>("AavePositionSnapshotDay")
+                                .HasColumnType("date");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal>("PriceInUsd")
+                                .HasColumnType("numeric");
+
+                            b1.Property<string>("Symbol")
+                                .IsRequired()
+                                .HasMaxLength(16)
+                                .HasColumnType("character varying(16)");
+
+                            b1.HasKey("AavePositionSnapshotPositionId", "AavePositionSnapshotDay");
+
+                            b1.ToTable("AavePositionSnapshots");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AavePositionSnapshotPositionId", "AavePositionSnapshotDay");
+                        });
+
+                    b.Navigation("Token")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CryptoWatcher.HyperliquidModule.Entities.HyperliquidVaultEvent", b =>
+                {
+                    b.HasOne("CryptoWatcher.Shared.Entities.Wallet", "Wallet")
+                        .WithMany()
+                        .HasForeignKey("WalletAddress")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CryptoWatcher.HyperliquidModule.Entities.HyperliquidVaultPosition", null)
                         .WithMany("VaultEvents")
                         .HasForeignKey("VaultAddress", "WalletAddress")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -362,9 +522,9 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Navigation("Wallet");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", b =>
+            modelBuilder.Entity("CryptoWatcher.HyperliquidModule.Entities.HyperliquidVaultPosition", b =>
                 {
-                    b.HasOne("CryptoWatcher.Entities.Wallet", "Wallet")
+                    b.HasOne("CryptoWatcher.Shared.Entities.Wallet", "Wallet")
                         .WithMany()
                         .HasForeignKey("WalletAddress")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -373,40 +533,40 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Navigation("Wallet");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPositionSnapshot", b =>
+            modelBuilder.Entity("CryptoWatcher.HyperliquidModule.Entities.HyperliquidVaultPositionSnapshot", b =>
                 {
-                    b.HasOne("CryptoWatcher.Entities.Wallet", "Wallet")
+                    b.HasOne("CryptoWatcher.Shared.Entities.Wallet", "Wallet")
                         .WithMany()
                         .HasForeignKey("WalletAddress")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", "VaultPosition")
+                    b.HasOne("CryptoWatcher.HyperliquidModule.Entities.HyperliquidVaultPosition", "Vault")
                         .WithMany("PositionSnapshots")
                         .HasForeignKey("VaultAddress", "WalletAddress")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("VaultPosition");
+                    b.Navigation("Vault");
 
                     b.Navigation("Wallet");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.PoolPosition", b =>
+            modelBuilder.Entity("CryptoWatcher.UniswapModule.Entities.PoolPosition", b =>
                 {
-                    b.HasOne("CryptoWatcher.Entities.Uniswap.UniswapNetwork", "UniswapNetwork")
+                    b.HasOne("CryptoWatcher.UniswapModule.Entities.UniswapNetwork", "UniswapNetwork")
                         .WithMany("LiquidityPoolPositions")
                         .HasForeignKey("NetworkName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CryptoWatcher.Entities.Wallet", "Wallet")
-                        .WithMany("LiquidityPoolPositions")
+                    b.HasOne("CryptoWatcher.Shared.Entities.Wallet", "Wallet")
+                        .WithMany()
                         .HasForeignKey("WalletAddress")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("CryptoWatcher.Entities.TokenInfo", "Token0", b1 =>
+                    b.OwnsOne("CryptoWatcher.Shared.ValueObjects.TokenInfo", "Token0", b1 =>
                         {
                             b1.Property<decimal>("PoolPositionPositionId")
                                 .HasColumnType("numeric(20,0)");
@@ -432,7 +592,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                                 .HasForeignKey("PoolPositionPositionId", "PoolPositionNetworkName");
                         });
 
-                    b.OwnsOne("CryptoWatcher.Entities.TokenInfo", "Token1", b1 =>
+                    b.OwnsOne("CryptoWatcher.Shared.ValueObjects.TokenInfo", "Token1", b1 =>
                         {
                             b1.Property<decimal>("PoolPositionPositionId")
                                 .HasColumnType("numeric(20,0)");
@@ -469,15 +629,15 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Navigation("Wallet");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.PoolPositionSnapshot", b =>
+            modelBuilder.Entity("CryptoWatcher.UniswapModule.Entities.PoolPositionSnapshot", b =>
                 {
-                    b.HasOne("CryptoWatcher.Entities.PoolPosition", "PoolPosition")
+                    b.HasOne("CryptoWatcher.UniswapModule.Entities.PoolPosition", "PoolPosition")
                         .WithMany("PoolPositionSnapshots")
                         .HasForeignKey("PoolPositionId", "NetworkName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("CryptoWatcher.Entities.TokenInfoWithFee", "Token0", b1 =>
+                    b.OwnsOne("CryptoWatcher.UniswapModule.Entities.TokenInfoWithFee", "Token0", b1 =>
                         {
                             b1.Property<decimal>("PoolPositionSnapshotPoolPositionId")
                                 .HasColumnType("numeric(20,0)");
@@ -509,7 +669,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                                 .HasForeignKey("PoolPositionSnapshotPoolPositionId", "PoolPositionSnapshotNetworkName", "PoolPositionSnapshotDay");
                         });
 
-                    b.OwnsOne("CryptoWatcher.Entities.TokenInfoWithFee", "Token1", b1 =>
+                    b.OwnsOne("CryptoWatcher.UniswapModule.Entities.TokenInfoWithFee", "Token1", b1 =>
                         {
                             b1.Property<decimal>("PoolPositionSnapshotPoolPositionId")
                                 .HasColumnType("numeric(20,0)");
@@ -571,24 +731,26 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Navigation("ParentJob");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.Hyperliquid.HyperliquidVaultPosition", b =>
+            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePosition", b =>
+                {
+                    b.Navigation("PositionEvents");
+
+                    b.Navigation("PositionSnapshots");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.HyperliquidModule.Entities.HyperliquidVaultPosition", b =>
                 {
                     b.Navigation("PositionSnapshots");
 
                     b.Navigation("VaultEvents");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.PoolPosition", b =>
+            modelBuilder.Entity("CryptoWatcher.UniswapModule.Entities.PoolPosition", b =>
                 {
                     b.Navigation("PoolPositionSnapshots");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Entities.Uniswap.UniswapNetwork", b =>
-                {
-                    b.Navigation("LiquidityPoolPositions");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Entities.Wallet", b =>
+            modelBuilder.Entity("CryptoWatcher.UniswapModule.Entities.UniswapNetwork", b =>
                 {
                     b.Navigation("LiquidityPoolPositions");
                 });

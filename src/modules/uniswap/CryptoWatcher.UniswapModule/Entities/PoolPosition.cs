@@ -1,4 +1,5 @@
 using CryptoWatcher.Shared.Entities;
+using CryptoWatcher.Shared.ValueObjects;
 
 namespace CryptoWatcher.UniswapModule.Entities;
 

@@ -1,6 +1,4 @@
-using CryptoWatcher.UniswapModule.Entities;
-
-namespace CryptoWatcher.UniswapModule.Models;
+namespace CryptoWatcher.Shared.ValueObjects;
 
 /// <summary>
 /// Contains metadata and pricing information about a token.
