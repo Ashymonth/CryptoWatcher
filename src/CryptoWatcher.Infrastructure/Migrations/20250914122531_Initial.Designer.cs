@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CryptoWatcher.Infrastructure.Migrations
 {
     [DbContext(typeof(CryptoWatcherDbContext))]
-    [Migration("20250911133141_AavePositionEventsMigration")]
-    partial class AavePositionEventsMigration
+    [Migration("20250914122531_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -249,172 +249,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.HasKey("Name");
 
                     b.ToTable("Networks");
-                });
-
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Expression")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Function")
-                        .HasColumnType("text");
-
-                    b.Property<string>("InitIdentifier")
-                        .HasColumnType("text");
-
-                    b.Property<byte[]>("Request")
-                        .HasColumnType("bytea");
-
-                    b.Property<int>("Retries")
-                        .HasColumnType("integer");
-
-                    b.PrimitiveCollection<int[]>("RetryIntervals")
-                        .HasColumnType("integer[]");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Expression")
-                        .HasDatabaseName("IX_CronTickers_Expression");
-
-                    b.ToTable("CronTickers", "ticker");
-                });
-
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CronTickerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("ElapsedTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Exception")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ExecutedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ExecutionTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LockHolder")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("LockedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("RetryCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CronTickerId")
-                        .HasDatabaseName("IX_CronTickerOccurrence_CronTickerId");
-
-                    b.HasIndex("ExecutionTime")
-                        .HasDatabaseName("IX_CronTickerOccurrence_ExecutionTime");
-
-                    b.HasIndex("CronTickerId", "ExecutionTime")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_CronTickerId_ExecutionTime");
-
-                    b.HasIndex("Status", "ExecutionTime")
-                        .HasDatabaseName("IX_CronTickerOccurrence_Status_ExecutionTime");
-
-                    b.ToTable("CronTickerOccurrences", "ticker");
-                });
-
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("BatchParent")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("BatchRunCondition")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<long>("ElapsedTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Exception")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ExecutedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ExecutionTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Function")
-                        .HasColumnType("text");
-
-                    b.Property<string>("InitIdentifier")
-                        .HasColumnType("text");
-
-                    b.Property<string>("LockHolder")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("LockedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<byte[]>("Request")
-                        .HasColumnType("bytea");
-
-                    b.Property<int>("Retries")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RetryCount")
-                        .HasColumnType("integer");
-
-                    b.PrimitiveCollection<int[]>("RetryIntervals")
-                        .HasColumnType("integer[]");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BatchParent");
-
-                    b.HasIndex("ExecutionTime")
-                        .HasDatabaseName("IX_TimeTicker_ExecutionTime");
-
-                    b.HasIndex("Status", "ExecutionTime")
-                        .HasDatabaseName("IX_TimeTicker_Status_ExecutionTime");
-
-                    b.ToTable("TimeTickers", "ticker");
                 });
 
             modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePosition", b =>
@@ -713,27 +547,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>
-                {
-                    b.HasOne("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", "CronTicker")
-                        .WithMany()
-                        .HasForeignKey("CronTickerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CronTicker");
-                });
-
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
-                {
-                    b.HasOne("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", "ParentJob")
-                        .WithMany("ChildJobs")
-                        .HasForeignKey("BatchParent")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ParentJob");
-                });
-
             modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePosition", b =>
                 {
                     b.Navigation("PositionEvents");
@@ -756,11 +569,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
             modelBuilder.Entity("CryptoWatcher.UniswapModule.Entities.UniswapNetwork", b =>
                 {
                     b.Navigation("LiquidityPoolPositions");
-                });
-
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
-                {
-                    b.Navigation("ChildJobs");
                 });
 #pragma warning restore 612, 618
         }

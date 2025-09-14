@@ -7,25 +7,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" Version="9.1.0" />
-      <PackageReference Include="EFCore.BulkExtensions.PostgreSql" Version="9.0.1" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-      <PackageReference Include="Riok.Mapperly" Version="4.3.0-next.3" />
-        <PackageReference Include="SpreadCheetah" Version="1.21.1" />
+        <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" Version="9.1.0"/>
+        <PackageReference Include="EFCore.BulkExtensions.MIT.PostgreSql" Version="8.19.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4"/>
+        <PackageReference Include="Riok.Mapperly" Version="4.3.0-next.3"/>
+        <PackageReference Include="SpreadCheetah" Version="1.21.1"/>
         <PackageReference Include="TickerQ.EntityFrameworkCore" Version="2.4.4"/>
         <PackageReference Include="TickerQ" Version="2.4.4"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\clients\AaveClient\AaveClient.csproj" />
-      <ProjectReference Include="..\..\clients\CoinGeckoClient\CoinGeckoClient.csproj" />
-      <ProjectReference Include="..\..\clients\HyperliquidClient\HyperliquidClient.csproj" />
-      <ProjectReference Include="..\CryptoWatcher.Application\CryptoWatcher.Application.csproj" />
-      <ProjectReference Include="..\CryptoWatcher.Shared\CryptoWatcher.Shared.csproj" />
-      <ProjectReference Include="..\CryptoWatcher\CryptoWatcher.csproj" />
-      <ProjectReference Include="..\modules\aave\CryptoWatcher.AaveModule\CryptoWatcher.AaveModule.csproj" />
-      <ProjectReference Include="..\modules\hyperliquid\CryptoWatcher.HyperliquidModule\CryptoWatcher.HyperliquidModule.csproj" />
-      <ProjectReference Include="..\modules\uniswap\CryptoWatcher.UniswapModule\CryptoWatcher.UniswapModule.csproj" />
+        <ProjectReference Include="..\..\clients\AaveClient\AaveClient.csproj"/>
+        <ProjectReference Include="..\..\clients\CoinGeckoClient\CoinGeckoClient.csproj"/>
+        <ProjectReference Include="..\..\clients\HyperliquidClient\HyperliquidClient.csproj"/>
+        <ProjectReference Include="..\CryptoWatcher.Application\CryptoWatcher.Application.csproj"/>
+        <ProjectReference Include="..\CryptoWatcher.Shared\CryptoWatcher.Shared.csproj"/>
+        <ProjectReference Include="..\CryptoWatcher\CryptoWatcher.csproj"/>
+        <ProjectReference Include="..\modules\aave\CryptoWatcher.AaveModule\CryptoWatcher.AaveModule.csproj"/>
+        <ProjectReference Include="..\modules\hyperliquid\CryptoWatcher.HyperliquidModule\CryptoWatcher.HyperliquidModule.csproj"/>
+        <ProjectReference Include="..\modules\uniswap\CryptoWatcher.UniswapModule\CryptoWatcher.UniswapModule.csproj"/>
     </ItemGroup>
 
 </Project>

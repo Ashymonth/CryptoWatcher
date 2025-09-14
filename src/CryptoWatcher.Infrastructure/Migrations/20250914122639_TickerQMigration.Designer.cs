@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CryptoWatcher.Infrastructure.Migrations
 {
     [DbContext(typeof(CryptoWatcherDbContext))]
-    [Migration("20250905092743_AaveEntitiesMigration")]
-    partial class AaveEntitiesMigration
+    [Migration("20250914122639_TickerQMigration")]
+    partial class TickerQMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,9 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Property<int>("PositionType")
                         .HasColumnType("integer");
 
+                    b.Property<decimal?>("PreviousScaledAmount")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("TokenAddress")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -60,6 +63,22 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.HasIndex("WalletAddress");
 
                     b.ToTable("AavePositions");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionEvent", b =>
+                {
+                    b.Property<Guid>("PositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PositionId", "Date", "EventType");
+
+                    b.ToTable("AavePositionEvent");
                 });
 
             modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionSnapshot", b =>
@@ -409,6 +428,47 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Navigation("Wallet");
                 });
 
+            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionEvent", b =>
+                {
+                    b.HasOne("CryptoWatcher.AaveModule.Entities.AavePosition", null)
+                        .WithMany("PositionEvents")
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("CryptoWatcher.Shared.ValueObjects.TokenInfo", "Token", b1 =>
+                        {
+                            b1.Property<Guid>("AavePositionEventPositionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTime>("AavePositionEventDate")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<int>("AavePositionEventEventType")
+                                .HasColumnType("integer");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal>("PriceInUsd")
+                                .HasColumnType("numeric");
+
+                            b1.Property<string>("Symbol")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("AavePositionEventPositionId", "AavePositionEventDate", "AavePositionEventEventType");
+
+                            b1.ToTable("AavePositionEvent");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AavePositionEventPositionId", "AavePositionEventDate", "AavePositionEventEventType");
+                        });
+
+                    b.Navigation("Token")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionSnapshot", b =>
                 {
                     b.HasOne("CryptoWatcher.AaveModule.Entities.AavePosition", null)
@@ -676,6 +736,8 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
             modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePosition", b =>
                 {
+                    b.Navigation("PositionEvents");
+
                     b.Navigation("PositionSnapshots");
                 });
 

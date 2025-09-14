@@ -56,6 +56,11 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>().Database.Migrate();
+}
+
 app.UseTickerQ();
 
 app.MapGet("/report/{platform}",

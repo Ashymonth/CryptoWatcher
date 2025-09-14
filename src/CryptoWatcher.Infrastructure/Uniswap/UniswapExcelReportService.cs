@@ -1,8 +1,10 @@
+using CryptoWatcher.Infrastructure.Excel;
 using CryptoWatcher.Infrastructure.Uniswap.ExcelModels;
 using CryptoWatcher.Infrastructure.Uniswap.Mappers;
 using CryptoWatcher.UniswapModule.Services;
 using SpreadCheetah;
 using SpreadCheetah.SourceGeneration;
+using SpreadCheetah.Styling;
 
 namespace CryptoWatcher.Infrastructure.Uniswap;
 
@@ -16,6 +18,16 @@ internal class UniswapExcelReportService : IUniswapExcelReportService
     private const string ReportName = "Uniswap";
     private const string TotalName = "Итого:";
 
+    private static readonly Dictionary<string, Style> StyleNameToStyleMap = new()
+    {
+        [ExcelStyleRegistry.Number] =
+            new Style { Format = NumberFormat.Standard(StandardNumberFormat.NoDecimalPlaces) },
+        [ExcelStyleRegistry.TwoDecimalPlaces] = new Style
+            { Format = NumberFormat.Standard(StandardNumberFormat.TwoDecimalPlaces) },
+        [ExcelStyleRegistry.Percent] = new Style { Format = NumberFormat.Standard(StandardNumberFormat.Percent) },
+    };
+
+    
     private readonly IUniswapReportService _uniswapReportService;
 
     public UniswapExcelReportService(IUniswapReportService uniswapReportService)
@@ -39,6 +51,7 @@ internal class UniswapExcelReportService : IUniswapExcelReportService
 
         var ms = new MemoryStream();
         var sheet = await Spreadsheet.CreateNewAsync(ms, cancellationToken: ct);
+        ExcelStyleRegistry.AddNamedStyles(sheet);
 
         await sheet.StartWorksheetAsync(ReportName, PoolInfoExcelRowContext.Default.UniswapPoolPositionExcelRow,
             token: ct);
