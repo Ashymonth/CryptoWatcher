@@ -11,6 +11,7 @@ using CryptoWatcher.Infrastructure.Hyperliquid;
 using CryptoWatcher.Infrastructure.Uniswap;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.DependencyInjection;
@@ -55,36 +56,24 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider.GetRequiredService<IAavePositionsSyncService>();
-    await services.SyncPositionsAsync(AaveNetwork.CeloNetwork, new Wallet { Address = "0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f" },
-        DateOnly.FromDateTime(DateTime.Now));
-
-    
-    var service = scope.ServiceProvider.GetRequiredService<AaveReportExcelService>();
-
-    await service.CreateReportAsync(null, null);
-    
-    // var reportService = scope.ServiceProvider.GetRequiredService<AaveReportService>();
-    //
-    // await reportService.CreateReport(new Wallet { Address = "0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f" },
-    //     DateOnly.MinValue, DateOnly.MaxValue);
-}
-
 app.UseTickerQ();
 
-app.MapGet("/report",
+app.MapGet("/report/{platform}",
     async (IUniswapExcelReportService uniswapExcelReportService, IHyperliquidExcelService hyperliquidExcelService,
-        [FromQuery] bool poolReport,
+        IAaveReportExcelService aaveReportService,
+        string platform,
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? to) =>
     {
-        var repot = poolReport
-            ? await uniswapExcelReportService.ExportPoolInfoToExcelAsync(from, to)
-            : await hyperliquidExcelService.CreateReportAsync(from, to);
+        var reportStream = platform switch
+        {
+            "uniswap" => await uniswapExcelReportService.ExportPoolInfoToExcelAsync(from, to),
+            "hyperliquid" => await hyperliquidExcelService.CreateReportAsync(from, to),
+            "aave" => await aaveReportService.CreateReportAsync(from, to),
+            _ => throw new ArgumentOutOfRangeException(nameof(platform), platform, null)
+        };
 
-        return TypedResults.File(repot, fileDownloadName: "report.xlsx");
+        return TypedResults.File(reportStream, fileDownloadName: "report.xlsx");
     });
 
 app.Run();

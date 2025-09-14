@@ -36,16 +36,16 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<TokenService>();
         services.AddSingleton<TokenEnricher>();
         services.AddSingleton<CoinNormalizer>();
-        
+
         services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 
         services.AddScoped<IPoolHistorySyncRepositoryFacade, PoolHistorySyncRepositoryFacade>();
 
         services.AddCoinGeckoClient(provider => provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
         services.AddTransient<ICoinPriceProvider, CoinGeckoCoinPriceProvider>();
- 
+
         services.AddSingleton<AaveProvider>();
-        
+
         return services;
     }
 
@@ -57,11 +57,11 @@ public static class ServiceCollectionExtensions
             .AddAaveModule()
             .AddSingleton<IAaveMainnetProvider, AaveMainnetProvider>()
             .AddScoped<IAaveProvider, AaveProvider>()
-            .AddScoped<AaveReportExcelService>();
-      
+            .AddScoped<IAaveReportExcelService, AaveReportExcelService>();
+
         return services;
     }
-    
+
     private static IServiceCollection AddConfiguredHyperliquidModule(this IServiceCollection services)
     {
         services.AddHyperLiquidClient();

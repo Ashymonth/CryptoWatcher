@@ -10,7 +10,12 @@ using SpreadCheetah.Styling;
 
 namespace CryptoWatcher.Infrastructure.Aave;
 
-public class AaveReportExcelService
+public interface IAaveReportExcelService
+{
+    Task<Stream> CreateReportAsync(DateOnly? from, DateOnly? to, CancellationToken ct = default);
+}
+
+internal class AaveReportExcelService : IAaveReportExcelService
 {
     private static readonly Dictionary<string, Style> StyleNameToStyleMap = new()
     {
