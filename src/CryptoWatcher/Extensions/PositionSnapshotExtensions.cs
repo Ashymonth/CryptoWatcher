@@ -1,6 +1,6 @@
 using CryptoWatcher.Abstractions;
 
-namespace CryptoWatcher.Entities;
+namespace CryptoWatcher.Extensions;
 
 public static class PositionSnapshotExtensions
 {

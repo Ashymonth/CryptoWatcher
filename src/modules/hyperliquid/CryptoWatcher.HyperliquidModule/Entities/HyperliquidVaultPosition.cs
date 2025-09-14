@@ -1,4 +1,3 @@
-using CryptoWatcher.Entities;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;

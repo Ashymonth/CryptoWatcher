@@ -2,7 +2,6 @@ using System.Security.Cryptography;
 using System.Text;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.Abstractions;
-using CryptoWatcher.Entities;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
