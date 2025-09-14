@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\CryptoWatcher.Shared\CryptoWatcher.Shared.csproj"/>
         <ProjectReference Include="..\..\..\CryptoWatcher\CryptoWatcher.csproj"/>
     </ItemGroup>
 

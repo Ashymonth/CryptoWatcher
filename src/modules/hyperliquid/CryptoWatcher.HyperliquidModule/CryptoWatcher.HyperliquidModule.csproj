@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\clients\UniswapClient\UniswapClient.csproj" />
-      <ProjectReference Include="..\..\..\CryptoWatcher.Shared\CryptoWatcher.Shared.csproj" />
       <ProjectReference Include="..\..\..\CryptoWatcher\CryptoWatcher.csproj" />
     </ItemGroup>
 
