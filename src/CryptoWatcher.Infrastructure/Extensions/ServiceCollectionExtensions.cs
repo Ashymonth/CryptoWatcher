@@ -3,6 +3,7 @@ using CoinGeckoClient.Extensions;
 using CryptoWatcher.AaveModule.Abstractions;
 using CryptoWatcher.AaveModule.Extensions;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Application;
 using CryptoWatcher.Application.Reports;
 using CryptoWatcher.HyperliquidModule.Abstractions;

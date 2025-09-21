@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.PositionSnapshots;
 using CryptoWatcher.Shared.ValueObjects;
 using JetBrains.Annotations;
 

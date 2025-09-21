@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.UniswapModule.Services;
 using CryptoWatcher.UniswapModule.Specifications;
 using Microsoft.Extensions.DependencyInjection;

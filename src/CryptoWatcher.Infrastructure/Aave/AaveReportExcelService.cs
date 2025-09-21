@@ -1,6 +1,7 @@
 using CryptoWatcher.AaveModule.Extensions;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Infrastructure.Aave.ExcelModels;
 using CryptoWatcher.Infrastructure.Aave.Mappers;
 using CryptoWatcher.Infrastructure.Excel;

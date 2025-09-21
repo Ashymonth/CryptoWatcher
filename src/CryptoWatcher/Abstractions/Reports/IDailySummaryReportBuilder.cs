@@ -1,6 +1,6 @@
 using CryptoWatcher.Models;
 
-namespace CryptoWatcher.Abstractions;
+namespace CryptoWatcher.Abstractions.Reports;
 
 public interface IDailySummaryReportBuilder
 {

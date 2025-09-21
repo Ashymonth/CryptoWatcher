@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.HyperliquidModule.Services;
 using Microsoft.Extensions.DependencyInjection;
 

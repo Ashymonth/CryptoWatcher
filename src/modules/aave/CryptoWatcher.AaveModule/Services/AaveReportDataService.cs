@@ -2,6 +2,8 @@ using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.AaveModule.Specifications;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
+using CryptoWatcher.Extensions;
 using CryptoWatcher.Models;
 using CryptoWatcher.Shared.Entities;
 

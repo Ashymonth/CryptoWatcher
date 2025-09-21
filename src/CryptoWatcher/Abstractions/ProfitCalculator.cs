@@ -1,3 +1,5 @@
+using CryptoWatcher.Abstractions.CacheFlows;
+using CryptoWatcher.Abstractions.PositionSnapshots;
 using CryptoWatcher.Extensions;
 
 namespace CryptoWatcher.Abstractions;

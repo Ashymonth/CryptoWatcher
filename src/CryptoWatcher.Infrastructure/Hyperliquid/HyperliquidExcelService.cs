@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.HyperliquidModule.Extensions;
 using CryptoWatcher.HyperliquidModule.Models;
 using CryptoWatcher.Infrastructure.Aave;

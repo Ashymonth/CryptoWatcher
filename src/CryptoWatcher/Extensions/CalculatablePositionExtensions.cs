@@ -1,9 +1,11 @@
-using CryptoWatcher.Extensions;
+using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.CacheFlows;
+using CryptoWatcher.Abstractions.PositionSnapshots;
 using CryptoWatcher.Models;
 
-namespace CryptoWatcher.Abstractions;
+namespace CryptoWatcher.Extensions;
 
-public static class PositionProfitCalculator
+public static class CalculatablePositionExtensions
 {
     public static ProfitMetric CalculateProfitInUsd(
         this ICalculatablePosition<IUsdPositionSnapshot> position, DateOnly from, DateOnly to)

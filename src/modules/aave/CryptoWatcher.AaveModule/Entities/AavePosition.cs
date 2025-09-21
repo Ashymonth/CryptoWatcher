@@ -2,6 +2,8 @@ using System.Security.Cryptography;
 using System.Text;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.CacheFlows;
+using CryptoWatcher.Abstractions.PositionSnapshots;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
 using JetBrains.Annotations;

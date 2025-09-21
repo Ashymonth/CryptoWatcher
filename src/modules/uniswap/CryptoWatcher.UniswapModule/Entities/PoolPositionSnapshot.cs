@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.PositionSnapshots;
 
 namespace CryptoWatcher.UniswapModule.Entities;
 

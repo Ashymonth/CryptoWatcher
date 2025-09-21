@@ -1,5 +1,6 @@
 using CryptoWatcher.AaveModule.Services;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CryptoWatcher.AaveModule.Extensions;

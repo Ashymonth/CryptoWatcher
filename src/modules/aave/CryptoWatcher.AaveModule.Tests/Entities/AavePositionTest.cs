@@ -3,6 +3,7 @@ using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.AaveModule.Models;
 using CryptoWatcher.AaveModule.Tests.Customizations;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;

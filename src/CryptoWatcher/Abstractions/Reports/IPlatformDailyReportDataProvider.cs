@@ -1,7 +1,7 @@
 using CryptoWatcher.Models;
 using CryptoWatcher.Shared.Entities;
 
-namespace CryptoWatcher.Abstractions;
+namespace CryptoWatcher.Abstractions.Reports;
 
 public interface IPlatformDailyReportDataProvider
 {

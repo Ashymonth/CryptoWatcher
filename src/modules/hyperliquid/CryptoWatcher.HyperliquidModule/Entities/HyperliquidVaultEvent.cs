@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.HyperliquidModule.Entities;

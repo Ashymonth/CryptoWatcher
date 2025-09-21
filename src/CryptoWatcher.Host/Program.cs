@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Infrastructure;
 using CryptoWatcher.Infrastructure.Aave;
@@ -101,7 +102,7 @@ async Task<FileStreamHttpResult> TotalReportHandler(IDailySummaryReportProvider 
         to = DateOnly.FromDateTime(monthEnd);
     }
 
-    var result = await reportProvider.GetReportDataAsync(wallets, from.Value, to.Value);
+    var result = await reportProvider.CreateDailySummaryReportAsync(wallets, from.Value, to.Value);
 
     return TypedResults.File(result, fileDownloadName: "report.xlsx");
 }

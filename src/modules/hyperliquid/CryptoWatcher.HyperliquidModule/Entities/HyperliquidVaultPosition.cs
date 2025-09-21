@@ -1,4 +1,6 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.CacheFlows;
+using CryptoWatcher.Abstractions.PositionSnapshots;
 using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.HyperliquidModule.Entities;

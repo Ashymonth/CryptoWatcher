@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Shared.ValueObjects;
 
 namespace CryptoWatcher.AaveModule.Entities;

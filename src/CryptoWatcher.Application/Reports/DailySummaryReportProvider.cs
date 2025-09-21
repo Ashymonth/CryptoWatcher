@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Models;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ public class DailySummaryReportProvider : IDailySummaryReportProvider
         _dailySummaryReportBuilder = dailySummaryReportBuilder;
     }
 
-    public async Task<Stream> GetReportDataAsync(IReadOnlyCollection<Wallet> wallets, DateOnly from, DateOnly to,
+    public async Task<Stream> CreateDailySummaryReportAsync(IReadOnlyCollection<Wallet> wallets, DateOnly from, DateOnly to,
         CancellationToken ct = default)
     {
         var reports = new List<PlatformDailyReportData>();

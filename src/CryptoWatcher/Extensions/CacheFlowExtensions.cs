@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.CacheFlows;
 
 namespace CryptoWatcher.Extensions;
 

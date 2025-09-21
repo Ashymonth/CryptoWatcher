@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Infrastructure.Aave;
 using CryptoWatcher.Infrastructure.Excel;
 using CryptoWatcher.Infrastructure.Uniswap.ExcelModels;
