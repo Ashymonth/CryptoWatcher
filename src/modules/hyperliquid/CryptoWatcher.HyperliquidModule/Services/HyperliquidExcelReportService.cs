@@ -30,26 +30,26 @@ internal class HyperliquidReportDataService : IPlatformDailyReportDataProvider
         {
             foreach (var vaultPosition in vaultPositionByWallet)
             {
-                var vaultReportItems = new List<HyperliquidVaultReportItem>(vaultPosition.PositionSnapshots.Count);
-                foreach (var vaultPositionSnapshot in vaultPosition.PositionSnapshots)
-                {
-                    var profitInUsd = vaultPosition.CalculateProfitInUsd(from, vaultPositionSnapshot.Day);
-                    var reportItem = new HyperliquidVaultReportItem
+                var vaultReportItems = vaultPosition.PositionSnapshots.OrderBy(snapshot => snapshot.Day)
+                    .Select(vaultPositionSnapshot =>
                     {
-                        VaultAddress = vaultPosition.VaultAddress,
-                        Balance = vaultPositionSnapshot.Balance,
-                        Day = vaultPositionSnapshot.Day,
-                        DailyProfit = profitInUsd.Amount,
-                        DailyPercentProfit = profitInUsd.Percent,
-                    };
-
-                    vaultReportItems.Add(reportItem);
-                }
+                        var previousDay = vaultPositionSnapshot.Day.AddDays(-1);
+                        var profitInUsd = vaultPosition.CalculateProfitInUsd(previousDay, vaultPositionSnapshot.Day);
+                        return new HyperliquidVaultReportItem
+                        {
+                            VaultAddress = vaultPosition.VaultAddress,
+                            Balance = vaultPositionSnapshot.Balance,
+                            Day = vaultPositionSnapshot.Day,
+                            DailyProfit = profitInUsd.Amount,
+                            DailyPercentProfit = profitInUsd.Percent,
+                        };
+                    })
+                    .ToArray();
 
                 var totalProfit = vaultPosition.CalculateProfitInUsd(from, to);
                 var vaultReport = new HyperliquidDailyReport
                 {
-                    PositionInUsd = vaultReportItems.Count != 0 ? vaultReportItems[^1].Balance : 0,
+                    PositionInUsd = vaultReportItems.Length != 0 ? vaultReportItems[^1].Balance : 0,
                     ProfitInUsd = totalProfit.Amount,
                     ProfitInPercent = totalProfit.Percent,
                     ReportItems = vaultReportItems
