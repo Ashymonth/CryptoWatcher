@@ -15,17 +15,17 @@ internal class HyperliquidVaultPositionExcelRow
     [ColumnWidth(20)]
     [CellStyle(ExcelStyleRegistry.TwoDecimalPlaces)]
     [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Money>))]
-    public Money Balance { get; init; }
+    public Money PositionInUsd { get; init; }
 
     [ColumnHeader("Изменение за день")]
     [ColumnWidth(20)]
     [CellStyle(ExcelStyleRegistry.TwoDecimalPlaces)]
     [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Money>))]
-    public Money DailyProfit { get; init; }
+    public Money DailyProfitInUsd { get; init; }
 
     [ColumnHeader("Изменение за день в процентах")]
     [ColumnWidth(30)]
     [CellStyle(ExcelStyleRegistry.Percent)]
     [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Percent>))]
-    public Percent DailyPercentProfit { get; init; }
+    public Percent DailyProfitInUsdPercent { get; init; }
 }
