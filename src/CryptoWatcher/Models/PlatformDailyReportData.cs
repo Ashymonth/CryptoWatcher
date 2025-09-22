@@ -8,3 +8,4 @@ public class PlatformDailyReportData
     
     public required Dictionary<Wallet, List<PlatformDailyReport>> Reports { get; init; } = [];
 }
+
