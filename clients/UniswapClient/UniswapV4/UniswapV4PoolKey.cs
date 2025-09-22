@@ -10,5 +10,5 @@ public class UniswapV4PoolKey
 
     public int TickSpacing { get; init; }
 
-    public string Hooks { get; init; } = null!;
+    public string? Hooks { get; init; }
 }
