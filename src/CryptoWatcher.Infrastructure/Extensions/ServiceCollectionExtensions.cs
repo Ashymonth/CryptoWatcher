@@ -14,6 +14,7 @@ using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Aave;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Abstractions;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Hyperliquid;
+using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Total;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Uniswap;
 using CryptoWatcher.Infrastructure.Hyperliquid;
 using CryptoWatcher.Infrastructure.Integrations;
@@ -44,6 +45,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<TokenService>();
         services.AddSingleton<TokenEnricher>();
         services.AddSingleton<CoinNormalizer>();
+        services.AddSingleton<ITotalReportWorksheetBuilder, TotalReportWorksheetBuilder>();
 
         services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 
