@@ -1,0 +1,27 @@
+using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Abstractions;
+using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Uniswap.Models;
+using CryptoWatcher.Models;
+using CryptoWatcher.UniswapModule.Models;
+using SpreadCheetah;
+
+namespace CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Uniswap;
+
+internal class UniswapExcelSheetBuilder : IExcelSheetBuilder
+{
+    private readonly UniswapDailyReportExcelWorksheetWriter _worksheetWriter;
+
+    public UniswapExcelSheetBuilder(UniswapDailyReportExcelWorksheetWriter worksheetWriter)
+    {
+        _worksheetWriter = worksheetWriter;
+    }
+
+    public bool CanProcess(PlatformDailyReport dailyReport) => dailyReport is UniswapDailyReport;
+
+    public async Task CreateWorksheetAsync(Spreadsheet workbook, PlatformDailyReportData platformDailyReportData,
+        CancellationToken ct = default)
+    {
+        var rowContext = UniswapExcelRowContext.Default.UniswapPoolPositionExcelRow;
+
+        await _worksheetWriter.CreateWorksheetAsync(workbook, platformDailyReportData, rowContext, ct);
+    }
+}
