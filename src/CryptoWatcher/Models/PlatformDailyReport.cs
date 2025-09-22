@@ -10,3 +10,9 @@ public abstract class PlatformDailyReport
 
     public required Percent ProfitInPercent { get; init; }
 }
+
+public class PlatformDailyReportData<TReportItem> : PlatformDailyReport
+    where TReportItem : PlatformDailyReportItem
+{
+    protected IReadOnlyCollection<PlatformDailyReportItem> ReportItems { get; init; }
+}
