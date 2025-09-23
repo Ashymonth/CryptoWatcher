@@ -75,10 +75,10 @@ public static class CalculatablePositionExtensions
         var filteredCashFlows = cashFlows
             .Where(cashFlow => cashFlow.Date >= from.ToMinDateTime() && cashFlow.Date <= to.ToMaxDateTime())
             .Sum(getCashFlowAmount);
-
+        
         var startValue = getValue(startSnapshot);
         var endValue = getValue(endSnapshot);
-        var profitValue = endValue - startValue - filteredCashFlows;
+        var profitValue = endValue - startValue;
 
         if (profitValue == 0)
         {
