@@ -23,6 +23,11 @@ public static class AaveRegistry
         {
             UiPoolDataProviderAddress = "0xf07fFd12b119b921C4a2ce8d4A13C5d1E3000d6e",
             PoolAddressesProviderAddress = "0x9F7Cf9417D5251C59fE94fB9147feEe1aAd9Cea5"
+        },
+        [AaveNetworkType.Avalanche] = new SmartContractAddresses
+        {
+            UiPoolDataProviderAddress = "0x50B4a66bF4D41e6252540eA7427D7A933Bc3c088",
+            PoolAddressesProviderAddress = "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb"
         }
     };
 }

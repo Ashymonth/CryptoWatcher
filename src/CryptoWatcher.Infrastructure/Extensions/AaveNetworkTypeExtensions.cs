@@ -11,6 +11,7 @@ public static class AaveNetworkTypeExtensions
         {
             AaveNetworkType.Celo => _aaveConfig.CelloMainnetAddress,
             AaveNetworkType.Sonic => _aaveConfig.SonicMainnetAddress,
+            AaveNetworkType.Avalanche => _aaveConfig.AvalancheMainnetAddress,
             _ => throw new ArgumentOutOfRangeException(nameof(aaveNetworkType), aaveNetworkType, null)
         };
     }
