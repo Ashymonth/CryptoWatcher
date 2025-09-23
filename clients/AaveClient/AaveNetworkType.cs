@@ -3,5 +3,6 @@ namespace AaveClient;
 public enum AaveNetworkType
 {
     Sonic,
-    Celo
+    Celo,
+    Avalanche
 }

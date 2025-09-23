@@ -10,11 +10,13 @@ public class AaveNetwork
     private static readonly Dictionary<string, AaveNetwork> NetworkNameToAaveNetwork = new()
     {
         { Celo, new AaveNetwork(Celo) },
-        { Sonic, new AaveNetwork(Sonic) }
+        { Sonic, new AaveNetwork(Sonic) },
+        { Avalanche, new AaveNetwork(Avalanche) }
     };
 
     private const string Celo = nameof(Celo);
     private const string Sonic = nameof(Sonic);
+    private const string Avalanche = nameof(Avalanche);
 
     private AaveNetwork(string network)
     {
@@ -27,6 +29,8 @@ public class AaveNetwork
     public string Name { get; private set; }
 
     public static AaveNetwork CeloNetwork => NetworkNameToAaveNetwork[Celo];
+    
+    public static AaveNetwork AvalancheNetwork => NetworkNameToAaveNetwork[Celo];
 
     public static IEnumerable<AaveNetwork> All => NetworkNameToAaveNetwork.Values;
 }
