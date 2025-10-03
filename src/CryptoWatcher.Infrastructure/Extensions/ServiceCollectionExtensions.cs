@@ -56,6 +56,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IAaveProvider, AaveProvider>();
 
+        services.AddSingleton<IExcelReportGenerator, ExcelReportGenerator>();
+        services.AddScoped<IPlatformDailyReportFacade, PlatformDailyReportFacade>();
         return services;
     }
 

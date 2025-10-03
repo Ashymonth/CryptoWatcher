@@ -1,8 +1,6 @@
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Models;
-using CryptoWatcher.Shared.Entities;
 using SpreadCheetah;
-using SpreadCheetah.SourceGeneration;
 using SpreadCheetah.Styling;
 
 namespace CryptoWatcher.Infrastructure.Excel;
@@ -58,12 +56,7 @@ internal abstract class BaseExcelReportService
 
         return ms;
     }
-
-    protected static async Task WriteWalletRow(Spreadsheet workbook, Wallet wallet, CancellationToken ct = default)
-    {
-        await workbook.AddRowAsync([new DataCell("Кошелек:"), new DataCell(wallet.Address)], ct);
-    }
-
+ 
     protected static (DateOnly from, DateOnly to) GetDefaultDatesIfNull(DateOnly? from, DateOnly? to)
     {
         var now = DateTime.Now;

@@ -5,13 +5,21 @@ using SpreadCheetah.SourceGeneration;
 
 namespace CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 
-public abstract class ExcelSheetDataWriter<TExcelRowContext, TDailyReport, TDailyReportItem>
+public interface IExcelWorksheetWriter
+{
+    Task CreateWorksheetAsync(
+        Spreadsheet spreadsheet,
+        PlatformDailyReportData reportData,
+        CancellationToken ct = default);
+}
+
+public abstract class ExcelSheetDataWriter<TExcelRowContext, TDailyReport, TDailyReportItem> : IExcelWorksheetWriter
     where TDailyReport : PlatformDailyReport
 {
     protected const string TotalName = "Итого:";
 
     public async Task CreateWorksheetAsync(Spreadsheet workbook,
-        PlatformDailyReportData platformDailyReportData,  CancellationToken ct = default)
+        PlatformDailyReportData platformDailyReportData, CancellationToken ct = default)
     {
         var rowContext = GetWorksheetRow();
         await workbook.StartWorksheetAsync(platformDailyReportData.PlatformName, rowContext, ct);
