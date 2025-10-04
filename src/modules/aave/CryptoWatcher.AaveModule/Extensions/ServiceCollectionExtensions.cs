@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAavePositionsSyncService, AavePositionsSyncService>();
         services.AddScoped<IAaveTokenEnricher, AaveTokenEnricher>();
 
-        services.AddKeyedSingleton<IPlatformDailyReportDataProvider, AaveReportDataService>(AaveModuleKeyedService
+        services.AddKeyedScoped<IPlatformDailyReportDataProvider, AaveReportDataService>(AaveModuleKeyedService
             .DailyPlatformKeyService);
         
         services.AddSingleton<IPlatformDailyReportDataProvider>(provider =>

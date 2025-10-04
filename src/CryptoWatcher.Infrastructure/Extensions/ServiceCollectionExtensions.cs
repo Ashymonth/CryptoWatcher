@@ -63,7 +63,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddConfiguredApplication(this IServiceCollection services)
     {
-        services
+        services 
             .AddScoped<IEnumerable<IPlatformDailyReportDataProvider>>(GetPlatformReportProviders)
             .AddScoped<IDailySummaryReportProvider, DailySummaryReportProvider>()
             .AddSingleton<IDailySummaryReportBuilder, DailySummaryReportBuilder>();

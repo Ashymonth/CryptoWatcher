@@ -1,4 +1,3 @@
-using CryptoWatcher.Abstractions;
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.HyperliquidModule.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +14,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddHyperliquidModule(this IServiceCollection services)
     {
         services.AddScoped<IHyperliquidPositionsSyncService, HyperliquidPositionsSyncService>();
-        services.AddKeyedSingleton<IPlatformDailyReportDataProvider, HyperliquidReportDataService>(HyperliquidModuleKeyedService
+        services.AddKeyedScoped<IPlatformDailyReportDataProvider, HyperliquidReportDataService>(HyperliquidModuleKeyedService
             .DailyPlatformKeyService);
  
         return services;

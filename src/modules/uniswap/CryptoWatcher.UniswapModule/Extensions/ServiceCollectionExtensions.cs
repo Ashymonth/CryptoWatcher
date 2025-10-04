@@ -1,4 +1,3 @@
-using CryptoWatcher.Abstractions;
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.UniswapModule.Services;
 using CryptoWatcher.UniswapModule.Specifications;
@@ -15,7 +14,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddUniswapModule(this IServiceCollection services)
     {
-        services.AddKeyedSingleton<IPlatformDailyReportDataProvider, UniswapReportService>(UniswapModuleKeyedService
+        services.AddKeyedScoped<IPlatformDailyReportDataProvider, UniswapReportService>(UniswapModuleKeyedService
             .DailyPlatformKeyService);
         services.AddSingleton<IUniswapMath, UniswapMath>();
         services.AddScoped<IUniswapPositionsSyncService, UniswapPositionsSyncService>();
