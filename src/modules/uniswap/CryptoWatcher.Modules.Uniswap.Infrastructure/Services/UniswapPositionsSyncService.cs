@@ -1,8 +1,6 @@
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Modules.Uniswap.Infrastructure;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.UniswapModule.Entities;
@@ -10,7 +8,7 @@ using CryptoWatcher.UniswapModule.Models;
 using CryptoWatcher.ValueObjects;
 using Microsoft.Extensions.Logging;
 
-namespace CryptoWatcher.UniswapModule.Specifications;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 
 /// <summary>
 /// Defines a contract for synchronizing Uniswap positions for a given wallet, network, and date.
