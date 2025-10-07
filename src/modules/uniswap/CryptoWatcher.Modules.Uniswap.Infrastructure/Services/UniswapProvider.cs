@@ -17,11 +17,13 @@ internal class UniswapProvider : IUniswapProvider
 {
     private readonly UniswapV3Client _uniswapV3Client;
     private readonly UniswapV4Client _uniswapV4Client;
+    private readonly IWeb3Factory _web3Factory;
 
-    public UniswapProvider(UniswapV3Client uniswapV3Client, UniswapV4Client uniswapV4Client)
+    public UniswapProvider(UniswapV3Client uniswapV3Client, UniswapV4Client uniswapV4Client, IWeb3Factory web3Factory)
     {
         _uniswapV3Client = uniswapV3Client;
         _uniswapV4Client = uniswapV4Client;
+        _web3Factory = web3Factory;
     }
 
     public async Task<List<IUniswapPosition>> GetPositionsAsync(UniswapChainConfiguration chainConfiguration,
@@ -54,7 +56,7 @@ internal class UniswapProvider : IUniswapProvider
     private async Task<LiquidityPoolInfo> GetV3PoolAsync(UniswapChainConfiguration chainConfiguration,
         IUniswapPosition position)
     {
-        var web3 = new Web3(chainConfiguration.RpcUrl);
+        var web3 = _web3Factory.GetWeb3(chainConfiguration);
 
         var poolAddress = await _uniswapV3Client.PoolFactory.GetPoolAddressAsync(web3,
             chainConfiguration.SmartContractAddresses.PoolFactory, position.Token0, position.Token1);

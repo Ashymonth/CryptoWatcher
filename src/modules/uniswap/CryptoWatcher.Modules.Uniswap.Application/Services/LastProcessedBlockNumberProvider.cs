@@ -1,14 +1,12 @@
-namespace CryptoWatcher.UniswapModule.Services;
+using System.Numerics;
+using CryptoWatcher.Modules.Uniswap.Abstractions;
 
-public interface ILastProcessedBlockNumberProvider
-{
-    ValueTask<ulong> GetLastProcessedBlockNumberAsync(CancellationToken ct = default);
-}
+namespace CryptoWatcher.Modules.Uniswap.Application.Services;
 
 public class LastProcessedBlockNumberProvider : ILastProcessedBlockNumberProvider
 {
-    public ValueTask<ulong> GetLastProcessedBlockNumberAsync(CancellationToken ct = default)
+    public ValueTask<BigInteger> GetLastProcessedBlockNumberAsync(CancellationToken ct = default)
     {
-        return ValueTask.FromResult<ulong>(28813747);
+        return ValueTask.FromResult<BigInteger>(28813747);
     }
 }

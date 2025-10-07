@@ -23,7 +23,6 @@ using CryptoWatcher.Integrations;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Services;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
-using CryptoWatcher.UniswapModule.Services;
 using HyperliquidClient.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -12,9 +12,9 @@ using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.PositionsFet
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.StateView;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.UniswapAppApiClient;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
-using CryptoWatcher.UniswapModule.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Nethereum.ABI.ABIDeserialisation;
+using Nethereum.Web3;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
 
@@ -29,7 +29,11 @@ public static class ServiceCollectionExtensions
     {
         AbiDeserializationSettings.UseSystemTextJson = true;
 
+        services.AddMemoryCache();
+        
         services.AddSingleton<IUniswapProvider, UniswapProvider>();
+        services.AddSingleton<IBlockchainCurrentBlockProvider, BlockchainCurrentBlockProvider>();
+        services.AddSingleton<IWeb3Factory, Web3Factory>();
         //v3
         services.AddSingleton<UniswapV3Client>();
         services.AddSingleton<IUniswapV3LiquidityPool, UniswapV3LiquidityPool>();

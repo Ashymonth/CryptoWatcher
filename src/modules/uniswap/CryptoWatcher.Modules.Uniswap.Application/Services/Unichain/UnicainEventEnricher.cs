@@ -3,7 +3,6 @@ using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Extensions;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.UniswapModule.Services;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services.Unichain;
 

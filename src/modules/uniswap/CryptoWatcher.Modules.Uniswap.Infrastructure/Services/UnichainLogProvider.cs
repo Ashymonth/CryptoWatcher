@@ -1,33 +1,50 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
+using CryptoWatcher.Modules.Uniswap.Entities;
+using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
-using Nethereum.Web3;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 
-public interface IUnichainLogProvider
+internal interface IUnichainLogProvider
 {
-    IAsyncEnumerable<FilterLog[]> GetLogsAsync(Web3 web3, ulong fromBlock, ulong toBlock,
+    IAsyncEnumerable<FilterLog[]> GetLogsAsync(UniswapChainConfiguration chainConfiguration, BigInteger fromBlock,
+        BigInteger toBlock,
         CancellationToken ct = default);
 }
 
 internal class UnichainLogProvider : IUnichainLogProvider
 {
-    private const ulong ChunkSize = 100;
+    private static readonly BigInteger ChunkSize = new(1000);
+    private readonly IWeb3Factory  _web3Factory;
 
-    public async IAsyncEnumerable<FilterLog[]> GetLogsAsync(Web3 web3,
-        ulong fromBlock,
-        ulong toBlock, [EnumeratorCancellation] CancellationToken ct = default)
+    public UnichainLogProvider(IWeb3Factory web3Factory)
     {
-        for (var chunkStart = fromBlock; chunkStart <= toBlock; chunkStart += ChunkSize)
+        _web3Factory = web3Factory;
+    }
+
+    public async IAsyncEnumerable<FilterLog[]> GetLogsAsync(UniswapChainConfiguration chainConfiguration,
+        BigInteger fromBlock,
+        BigInteger toBlock, [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        var web3 = _web3Factory.GetWeb3(chainConfiguration);
+        
+        var currentChunkStart = fromBlock;
+
+        while (currentChunkStart <= toBlock)
         {
             ct.ThrowIfCancellationRequested();
 
-            var chunkEnd = Math.Min(chunkStart + ChunkSize - 1, toBlock);
+            var chunkEnd = currentChunkStart + ChunkSize - 1;
+            if (chunkEnd > toBlock)
+            {
+                chunkEnd = toBlock;
+            }
 
             var filter = new NewFilterInput
             {
-                FromBlock = new BlockParameter(chunkStart),
-                ToBlock = new BlockParameter(chunkEnd),
+                FromBlock = new BlockParameter(currentChunkStart.ToHexBigInteger()),
+                ToBlock = new BlockParameter(chunkEnd.ToHexBigInteger()),
                 Topics =
                 [
                     new[] { UnichainWellKnownField.V4ModifyLiquiditySignature },
@@ -37,8 +54,9 @@ internal class UnichainLogProvider : IUnichainLogProvider
             };
 
             var logs = await web3.Eth.Filters.GetLogs.SendRequestAsync(filter);
-
             yield return logs;
+
+            currentChunkStart = chunkEnd + 1;
         }
     }
 }

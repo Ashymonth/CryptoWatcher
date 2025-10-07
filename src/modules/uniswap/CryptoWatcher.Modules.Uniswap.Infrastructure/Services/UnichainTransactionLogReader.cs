@@ -5,7 +5,7 @@ using Nethereum.RPC.Eth.DTOs;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 
-public interface IUnichainLogReader
+internal interface IUnichainLogReader
 {
     Task<TokenPair> ReadTokenPairFromLogAsync(
         string transactionHash, FilterLog[] logs, CancellationToken ct = default);
