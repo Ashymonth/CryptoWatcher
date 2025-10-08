@@ -6,8 +6,6 @@ namespace CryptoWatcher.Modules.Uniswap.Entities;
 
 public class PoolPositionCashFlow : ITokenPairCashFlow
 {
-    public Guid Id { get; init; }
-
     public ulong PositionId { get; init; }
 
     public string NetworkName { get; init; } = null!;
@@ -15,6 +13,8 @@ public class PoolPositionCashFlow : ITokenPairCashFlow
     public DateTime Date { get; init; }
 
     public CacheFlowEvent Event { get; init; } = null!;
+
+    public int EventType => Event.Value;
 
     public TokenInfoWithFee Token0 { get; init; } = null!;
 
@@ -25,7 +25,6 @@ public class PoolPositionCashFlow : ITokenPairCashFlow
     {
         return new PoolPositionCashFlow
         {
-            Id = Guid.NewGuid(),
             PositionId = positionId,
             NetworkName = networkName,
             Date = DateTime.UtcNow,

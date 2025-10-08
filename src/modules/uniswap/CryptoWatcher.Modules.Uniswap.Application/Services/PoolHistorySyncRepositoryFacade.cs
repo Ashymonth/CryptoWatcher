@@ -4,7 +4,6 @@ using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Specifications;
 
-
 namespace CryptoWatcher.Modules.Uniswap.Application.Services;
 
 public class PoolHistorySyncRepositoryFacade : IPoolHistorySyncRepositoryFacade
@@ -31,7 +30,7 @@ public class PoolHistorySyncRepositoryFacade : IPoolHistorySyncRepositoryFacade
         IList<PoolPositionSnapshot> snapshots,
         CancellationToken ct = default)
     {
-        await using var tr = await _liquidityPoolPositionRepository.UnitOfWork.BeginTransactionAsync(ct);
+        await _liquidityPoolPositionRepository.UnitOfWork.BeginTransactionAsync(ct);
         try
         {
             await _liquidityPoolPositionRepository.BulkMergeAsync(positions, ct);
@@ -39,6 +38,8 @@ public class PoolHistorySyncRepositoryFacade : IPoolHistorySyncRepositoryFacade
             await _liquidityPoolPositionSnapshotRepository.BulkMergeAsync(snapshots, ct);
 
             await _liquidityPoolPositionRepository.UnitOfWork.SaveChangesAsync(ct);
+            
+            await _liquidityPoolPositionRepository.UnitOfWork.CommitTransactionAsync(ct);
         }
         catch
         {

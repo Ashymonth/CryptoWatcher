@@ -1,5 +1,6 @@
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
+using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Services;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Unichain;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3;
@@ -12,9 +13,10 @@ using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.PositionsFet
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.StateView;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.UniswapAppApiClient;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.EventsSynchronization;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.PositionsSynchronization;
 using Microsoft.Extensions.DependencyInjection;
 using Nethereum.ABI.ABIDeserialisation;
-using Nethereum.Web3;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
 
@@ -30,10 +32,20 @@ public static class ServiceCollectionExtensions
         AbiDeserializationSettings.UseSystemTextJson = true;
 
         services.AddMemoryCache();
-        
+
+        services.AddScoped<IUniswapChainSynchronizerOrchestrator, UniswapChainSynchronizationOrchestrator>();
+        services.AddScoped<IUniswapChainSynchronizer, UniswapChainSynchronizer>();
         services.AddSingleton<IUniswapProvider, UniswapProvider>();
-        services.AddSingleton<IBlockchainCurrentBlockProvider, BlockchainCurrentBlockProvider>();
+        services.AddSingleton<IChainLogChunkingStrategy, ChainLogChunkingStrategy>();
+        services.AddSingleton<ICashFlowEventMatcher, CashFlowEventMatcher>();
+        services.AddSingleton<ILiquidityEventsProvider, LiquidityEventsProvider>();
+        services.AddSingleton<ITransactionDataProvider, Web3TransactionDataProvider>();
+        services.AddSingleton<IUnichainInternalTransactionProvider, UnichainInternalTransactionProvider>();
+        services.AddSingleton<IBlockchainLogProvider, NethereumLogProvider>();
+        services.AddSingleton<IUnichainLogReader, UnichainLogReader>();
+        services.AddSingleton<ILiquidityPoolEventDecoder, LiquidityPoolEventDecoder>();
         services.AddSingleton<IWeb3Factory, Web3Factory>();
+        
         //v3
         services.AddSingleton<UniswapV3Client>();
         services.AddSingleton<IUniswapV3LiquidityPool, UniswapV3LiquidityPool>();
@@ -55,13 +67,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IUniswapMath, UniswapMath>();
         services.AddScoped<IUniswapPositionsSyncService, UniswapPositionsSyncService>();
 
-        services.AddSingleton<IUnichainInternalTransactionProvider, UnichainInternalTransactionProvider>();
-        services.AddSingleton<IUnichainLogProvider, UnichainLogProvider>();
-        services.AddSingleton<IUnichainLogReader, UnichainLogReader>();
-        services.AddSingleton<ILiquidityPoolEventDecoder, LiquidityPoolEventDecoder>();
-        services.AddScoped<ILastProcessedBlockNumberProvider, LastProcessedBlockNumberProvider>();
-        services.AddScoped<IUnichainEventFetcher, UnichainEventFetcher>();
-        services.AddScoped<UnichainEventEnricher>();
+
 
         return services;
     }

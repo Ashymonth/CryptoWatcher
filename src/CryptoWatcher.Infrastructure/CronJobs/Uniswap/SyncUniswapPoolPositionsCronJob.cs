@@ -1,6 +1,6 @@
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.PositionsSynchronization;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.Extensions.Logging;
 using TickerQ.Utilities.Base;

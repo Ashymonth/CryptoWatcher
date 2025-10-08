@@ -1,7 +1,7 @@
 using System.Numerics;
 using Microsoft.Extensions.Logging;
 
-namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services.PositionsSynchronization;
 
 internal static partial class UniswapPositionsSyncServiceLogs
 {

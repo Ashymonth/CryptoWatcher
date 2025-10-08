@@ -1,10 +1,10 @@
 using System.Numerics;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.UniswapModule.Models;
+using CryptoWatcher.Modules.Uniswap.Models;
 
-namespace CryptoWatcher.Modules.Uniswap.Abstractions;
+namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 
-public interface IUnichainEventFetcher
+public interface ILiquidityEventsProvider
 {
     IAsyncEnumerable<List<LiquidityPoolPositionEvent>> FetchLiquidityPoolEvents(UniswapChainConfiguration chain,
         BigInteger fromBlock,

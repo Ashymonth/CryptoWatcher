@@ -29,6 +29,7 @@ public static class DatabaseExtensions
                             PoolFactory = "0x1f98400000000000000000000000000000000004",
                             MultiCall = "0xb7610f9b733e7d45184be3a1bc966960ccc54f0b",
                         },
+                        LastProcessedBlock = 0,
                         ProtocolVersion = UniswapProtocolVersion.V4
                     });
                 }

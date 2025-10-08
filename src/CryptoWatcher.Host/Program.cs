@@ -7,6 +7,7 @@ using CryptoWatcher.Infrastructure;
 using CryptoWatcher.Infrastructure.Configs;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
+using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -57,6 +58,10 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    var orchestrator = scope.ServiceProvider.GetRequiredService<IUniswapChainSynchronizerOrchestrator>();
+    
+    await orchestrator.SynchronizeAllChainsAsync();
+    
     if (!app.Environment.IsDevelopment())
     {
         scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>().Database.Migrate();

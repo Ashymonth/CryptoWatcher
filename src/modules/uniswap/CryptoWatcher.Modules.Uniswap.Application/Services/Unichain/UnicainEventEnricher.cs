@@ -1,89 +1,74 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
+using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Extensions;
 using CryptoWatcher.Modules.Uniswap.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services.Unichain;
 
-public class UnichainEventEnricher
+public class CashFlowEventMatcher : ICashFlowEventMatcher
 {
-    private readonly IUnichainEventFetcher _unichainEventFetcher;
+    private readonly ILiquidityEventsProvider _liquidityEventsProvider;
     private readonly ITokenEnricher _tokenEnricher;
-    private readonly IRepository<PoolPosition> _poolPositionRepository;
-    private readonly ILastProcessedBlockNumberProvider _lastProcessedBlockNumberProvider;
+    private readonly ILogger<CashFlowEventMatcher> _logger;
 
-    public UnichainEventEnricher(IUnichainEventFetcher unichainEventFetcher,
-        ITokenEnricher tokenEnricher, IRepository<PoolPosition> poolPositionRepository,
-        ILastProcessedBlockNumberProvider lastProcessedBlockNumberProvider)
+    public CashFlowEventMatcher(ILiquidityEventsProvider liquidityEventsProvider, ITokenEnricher tokenEnricher,
+        ILogger<CashFlowEventMatcher> logger)
     {
-        _unichainEventFetcher = unichainEventFetcher;
+        _liquidityEventsProvider = liquidityEventsProvider;
         _tokenEnricher = tokenEnricher;
-        _poolPositionRepository = poolPositionRepository;
-        _lastProcessedBlockNumberProvider = lastProcessedBlockNumberProvider;
+        _logger = logger;
     }
 
     public async IAsyncEnumerable<List<PoolPositionCashFlow>> FetchCashFlowEvents(
-        UniswapChainConfiguration uniswapNetwork,
+        UniswapChainConfiguration chainConfiguration,
+        BigInteger fromBlock,
+        BigInteger toBlock,
         [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var lastBlock = await _lastProcessedBlockNumberProvider.GetLastProcessedBlockNumberAsync(ct);
-
-        var walletToPositions = (await _poolPositionRepository.ListAsync(ct))
-            .ToArray()
-            .GroupBy(position => position.WalletAddress)
-            .ToDictionary(position => position.Key,
-                position => position.ToArray(), StringComparer.OrdinalIgnoreCase);
-
-        await foreach (var events in _unichainEventFetcher.FetchLiquidityPoolEvents(uniswapNetwork, lastBlock, lastBlock,
-                           ct))
-        {
-            var result = new List<PoolPositionCashFlow>();
-
-            foreach (var poolPositionEvents in events.GroupBy(@event => @event.WalletAddress))
+         await foreach (var events in _liquidityEventsProvider.FetchLiquidityPoolEvents(chainConfiguration,
+                               fromBlock, toBlock, ct))
             {
-                if (!walletToPositions.TryGetValue(poolPositionEvents.Key, out var dbPoolPositions))
-                {
-                    continue;
-                }
+                var result = new List<PoolPositionCashFlow>();
 
-                foreach (var poolPositionEvent in poolPositionEvents)
+                // No wallet grouping: assume all events for single wallet (filter in fetcher if needed)
+                foreach (var poolPositionEvent in events)
                 {
                     var enrichedTokenPair =
-                        await _tokenEnricher.EnrichAsync(uniswapNetwork.RpcUrl, poolPositionEvent.TokenPair, ct);
+                        await _tokenEnricher.EnrichAsync(chainConfiguration.RpcUrl, poolPositionEvent.TokenPair, ct);
 
-                    var positionFromUniswap = dbPoolPositions.SingleOrDefault(position =>
+                    // Direct match on ticks/symbols (SingleOrDefault safe per comment: only 1 per ticks/wallet)
+                    var positionFromDb = chainConfiguration.LiquidityPoolPositions.SingleOrDefault(position =>
                     {
-                        // user can have in 1 wallet many positions with same tokens and tick but
-                        // for now, we support only 1 position wih same ticks boundaries per wallet
                         var isTickMatch = position.TickLower == poolPositionEvent.TickLower &&
                                           position.TickUpper == poolPositionEvent.TickUpper;
-                        if (!isTickMatch)
-                        {
-                            return false;
-                        }
+                        if (!isTickMatch) return false;
 
-                        // cuz we can't know witch token is token0 and with is token1 from logs 
-                        // we must swap them if they are not in the same order as in the db pool position
-                        var swappedTokens = enrichedTokenPair.NormalizeToPositionOrder(position);
+                        // Normalize token order (V4 log ambiguity)
+                        var normalizedPair = enrichedTokenPair.NormalizeToPositionOrder(position);
 
-                        return position.Token0.Symbol == swappedTokens.Token0.Symbol &&
-                               position.Token1.Symbol == swappedTokens.Token1.Symbol;
+                        return position.Token0.Symbol == normalizedPair.Token0.Symbol &&
+                               position.Token1.Symbol == normalizedPair.Token1.Symbol;
                     });
 
-                    if (positionFromUniswap is null)
+                    if (positionFromDb is null)
                     {
+                        _logger.LogDebug("No match for event ticks {TickLower}-{TickUpper}",
+                            poolPositionEvent.TickLower, poolPositionEvent.TickUpper);
                         continue;
                     }
 
-                    var @event = PoolPositionCashFlow.CreateFromEvent(poolPositionEvent.Event,
-                        positionFromUniswap.PositionId, uniswapNetwork.Name, enrichedTokenPair);
+                    var cashFlow = PoolPositionCashFlow.CreateFromEvent(poolPositionEvent.Event,
+                        positionFromDb.PositionId, chainConfiguration.Name, enrichedTokenPair);
+                    result.Add(cashFlow);
 
-                    result.Add(@event);
+                    _logger.LogInformation("Matched cash flow for position {PositionId}", positionFromDb.PositionId);
                 }
-            }
 
-            yield return result;
-        }
+                yield return result;
+            }
     }
 }

@@ -1,4 +1,5 @@
 using CryptoWatcher.Modules.Uniswap.Entities;
+using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.UniswapModule.Models;
 

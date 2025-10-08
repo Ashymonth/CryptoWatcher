@@ -2,7 +2,7 @@ using System.Numerics;
 using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Shared.ValueObjects;
 
-namespace CryptoWatcher.UniswapModule.Models;
+namespace CryptoWatcher.Modules.Uniswap.Models;
 
 public class LiquidityPoolPositionEvent
 {

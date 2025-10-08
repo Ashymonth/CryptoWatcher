@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
             .AddConfiguredUniswapModule()
             .AddConfiguredApplication();
 
-        services.AddScoped<ITokenEnricher, TokenEnricher>();
+        services.AddSingleton<ITokenEnricher, TokenEnricher>();
 
         services.AddSingleton<TokenService>();
         services.AddSingleton<TokenEnricher>();

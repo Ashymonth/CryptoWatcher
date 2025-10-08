@@ -21,7 +21,6 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
         [
             nameof(Wallet.Address)
         ],
-
         [typeof(PoolPosition)] =
         [
             nameof(PoolPosition.PositionId), nameof(PoolPosition.NetworkName)

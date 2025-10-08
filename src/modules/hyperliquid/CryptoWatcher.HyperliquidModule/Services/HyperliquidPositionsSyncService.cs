@@ -39,7 +39,7 @@ internal class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncServic
 
     public async Task SyncPositionsAsync(Wallet wallet, DateTime syncDay, CancellationToken ct = default)
     {
-        await using var transaction = await _repository.UnitOfWork.BeginTransactionAsync(ct);
+        await _repository.UnitOfWork.BeginTransactionAsync(ct);
 
         var fundingHistory = await _hyperliquidProvider.GetVaultsFundingHistory(wallet, ct);
 
@@ -78,7 +78,7 @@ internal class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncServic
         }).ToList();
 
         await _snapshotRepository.BulkMergeAsync(vaultPositionSnapshots, ct);
-
-        await _repository.UnitOfWork.SaveChangesAsync(ct);
+        
+        await _repository.UnitOfWork.CommitTransactionAsync(ct);
     }
 }

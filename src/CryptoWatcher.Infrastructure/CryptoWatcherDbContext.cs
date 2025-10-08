@@ -1,5 +1,6 @@
 using CryptoWatcher.AaveModule.Entities;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Exceptions;
 using CryptoWatcher.HyperliquidModule.Entities;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.Entities;
@@ -52,7 +53,7 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     /// critical for interacting with and monitoring blockchain states.
     /// </remarks>
     public DbSet<UniswapChainConfiguration> UniswapChainConfigurations => Set<UniswapChainConfiguration>();
-
+ 
     /// <summary>
     /// Represents the collection of user wallet entities within the application's database context.
     /// </summary>
@@ -91,9 +92,14 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     }
 
     /// <inheritdoc/>
-    public async Task<IAsyncDisposable> BeginTransactionAsync(CancellationToken ct)
+    public async Task BeginTransactionAsync(CancellationToken ct)
     {
-        return _activeTransaction = await Database.BeginTransactionAsync(ct);
+        if (_activeTransaction is not null)
+        {
+            throw new DomainException("Can't start a new transaction while another is active.");
+        }
+        
+        _activeTransaction = await Database.BeginTransactionAsync(ct);
     }
 
     /// <inheritdoc/>
@@ -103,14 +109,26 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
         await _activeTransaction.RollbackAsync(ct);
     }
 
+    public async Task CommitTransactionAsync(CancellationToken ct)
+    {
+        if (_activeTransaction is null)
+        {
+            throw new DomainException("Transaction is not started");
+        }
+
+        try
+        {
+            await _activeTransaction.CommitAsync(ct);
+        }
+        finally
+        {
+            _activeTransaction.Dispose();
+        }
+    }
+
     /// <inheritdoc/>
     public new async Task SaveChangesAsync(CancellationToken ct)
     {
         await base.SaveChangesAsync(ct);
-
-        if (_activeTransaction is not null)
-        {
-            await _activeTransaction.CommitAsync(ct);
-        }
     }
 }

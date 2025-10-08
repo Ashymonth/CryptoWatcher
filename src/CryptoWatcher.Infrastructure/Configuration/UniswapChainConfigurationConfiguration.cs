@@ -1,10 +1,11 @@
+using System.Numerics;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CryptoWatcher.Infrastructure.Configuration;
 
-public class NetworkConfiguration : IEntityTypeConfiguration<UniswapChainConfiguration>
+public class UniswapChainConfigurationConfiguration : IEntityTypeConfiguration<UniswapChainConfiguration>
 {
     private const int AddressMaxLength = 42;
 
@@ -14,6 +15,9 @@ public class NetworkConfiguration : IEntityTypeConfiguration<UniswapChainConfigu
 
         builder.Property(network => network.Name).HasMaxLength(32);
         builder.Property(network => network.RpcUrl).HasMaxLength(128);
+
+        builder.Property(configuration => configuration.LastProcessedBlock)
+            .HasConversion(integer => integer.ToString(), bigInterString => BigInteger.Parse(bigInterString));
 
         builder.OwnsOne(chain => chain.SmartContractAddresses, navigationBuilder =>
         {

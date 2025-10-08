@@ -39,7 +39,7 @@ public class HyperliquidVaultEvent : IUsdCacheFlow
     /// within the Hyperliquid platform. It is used to classify and track the different types of interactions
     /// occurring in the context of vault operations.
     /// </remarks>
-    public CacheFlowEvent Event { get; init; }
+    public CacheFlowEvent Event { get; init; } = null!;
 
     /// <summary>
     /// Represents the unique address identifier for a Hyperliquid vault.

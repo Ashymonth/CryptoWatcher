@@ -9,6 +9,8 @@ public class PoolPositionCashFlowConfiguration : IEntityTypeConfiguration<PoolPo
 {
     public void Configure(EntityTypeBuilder<PoolPositionCashFlow> builder)
     {
+        builder.HasKey(flow => new { flow.PositionId, flow.Date, flow.Event });
+        
         builder.OwnsOne<TokenInfoWithFee>(flow => flow.Token0);
         
         builder.OwnsOne<TokenInfoWithFee>(flow => flow.Token1);
