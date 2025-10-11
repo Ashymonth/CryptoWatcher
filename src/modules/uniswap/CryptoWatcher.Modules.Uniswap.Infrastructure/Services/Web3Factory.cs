@@ -4,12 +4,12 @@ using Nethereum.Web3;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 
-public interface IWeb3Factory
+internal interface IWeb3Factory
 {
     IWeb3 GetWeb3(UniswapChainConfiguration chain);
 }
 
-public class Web3Factory : IWeb3Factory
+internal class Web3Factory : IWeb3Factory
 {
     private readonly TimeSpan _web3CacheLifeTime = TimeSpan.FromMinutes(1);
     private readonly IMemoryCache _web3Cache;

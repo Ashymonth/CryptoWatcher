@@ -11,8 +11,10 @@ public class UniswapChainSynchronizationOrchestrator : IUniswapChainSynchronizer
     private readonly IUniswapChainSynchronizer _chainSynchronizer;
     private readonly IRepository<UniswapChainConfiguration> _chainConfigurationRepository;
     private readonly ILogger<UniswapChainSynchronizationOrchestrator> _logger;
-    
-    public UniswapChainSynchronizationOrchestrator(IUniswapChainSynchronizer chainSynchronizer, IRepository<UniswapChainConfiguration> chainConfigurationRepository, ILogger<UniswapChainSynchronizationOrchestrator> logger)
+
+    public UniswapChainSynchronizationOrchestrator(IUniswapChainSynchronizer chainSynchronizer,
+        IRepository<UniswapChainConfiguration> chainConfigurationRepository,
+        ILogger<UniswapChainSynchronizationOrchestrator> logger)
     {
         _chainSynchronizer = chainSynchronizer;
         _chainConfigurationRepository = chainConfigurationRepository;
@@ -23,7 +25,7 @@ public class UniswapChainSynchronizationOrchestrator : IUniswapChainSynchronizer
     {
         var chainsToSynchronize =
             await _chainConfigurationRepository.ListAsync(new GetUniswapChainWithStateAndActivePositions(), ct);
-        
+
         foreach (var uniswapChainConfiguration in chainsToSynchronize)
         {
             try

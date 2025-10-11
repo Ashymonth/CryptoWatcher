@@ -4,7 +4,7 @@ using CryptoWatcher.Modules.Uniswap.Entities;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 
-public class UniswapChainSynchronizer : IUniswapChainSynchronizer
+internal class UniswapChainSynchronizer : IUniswapChainSynchronizer
 {
     private readonly IWeb3Factory _web3Factory;
     private readonly IChainLogChunkingStrategy _chunkingStrategy;

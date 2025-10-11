@@ -18,7 +18,8 @@ public class PoolHistorySyncRepositoryFacade : IPoolHistorySyncRepositoryFacade
         _liquidityPoolPositionSnapshotRepository = liquidityPoolPositionSnapshotRepository;
     }
 
-    public async Task<List<UniswapLiquidityPosition>> GetLiquidityPoolPositionsAsync(UniswapChainConfiguration chainConfiguration,
+    public async Task<List<UniswapLiquidityPosition>> GetLiquidityPoolPositionsAsync(
+        UniswapChainConfiguration chainConfiguration,
         Wallet wallet,
         CancellationToken ct = default)
     {
@@ -38,7 +39,7 @@ public class PoolHistorySyncRepositoryFacade : IPoolHistorySyncRepositoryFacade
             await _liquidityPoolPositionSnapshotRepository.BulkMergeAsync(snapshots, ct);
 
             await _liquidityPoolPositionRepository.UnitOfWork.SaveChangesAsync(ct);
-            
+
             await _liquidityPoolPositionRepository.UnitOfWork.CommitTransactionAsync(ct);
         }
         catch
