@@ -5,6 +5,8 @@ using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Extensions;
 using CryptoWatcher.Modules.Uniswap.Entities;
+using CryptoWatcher.Modules.Uniswap.Models;
+using CryptoWatcher.Shared.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services.Unichain;
@@ -41,17 +43,15 @@ public class CashFlowEventMatcher : ICashFlowEventMatcher
 
                 var positionFromDb = chainConfiguration.LiquidityPoolPositions.SingleOrDefault(position =>
                 {
-                    var isTickMatch = position.TickLower == poolPositionEvent.TickLower &&
-                                      position.TickUpper == poolPositionEvent.TickUpper;
-                    if (!isTickMatch)
+                    if (!IsTickMatch(position, poolPositionEvent))
                     {
                         return false;
                     }
 
                     var normalizedPair = enrichedTokenPair.NormalizeToPositionOrder(position);
 
-                    return position.Token0.Symbol == normalizedPair.Token0.Symbol &&
-                           position.Token1.Symbol == normalizedPair.Token1.Symbol;
+                    return IsSymbolMatch(position.Token0, normalizedPair.Token0) &&
+                           IsSymbolMatch(position.Token1, normalizedPair.Token1);
                 });
 
                 if (positionFromDb is null)
@@ -64,7 +64,7 @@ public class CashFlowEventMatcher : ICashFlowEventMatcher
                 var cashFlow = UniswapLiquidityPositionCashFlow.CreateFromEvent(poolPositionEvent.Event,
                     positionFromDb.PositionId, chainConfiguration.Name, poolPositionEvent.TransactionHash,
                     enrichedTokenPair, poolPositionEvent.TimeStamp);
-                
+
                 result.Add(cashFlow);
 
                 _logger.LogInformation("Matched cash flow for position {PositionId}", positionFromDb.PositionId);
@@ -72,5 +72,16 @@ public class CashFlowEventMatcher : ICashFlowEventMatcher
 
             yield return result;
         }
+    }
+
+    private static bool IsTickMatch(UniswapLiquidityPosition position, LiquidityPoolPositionEvent positionEvent)
+    {
+        return position.TickLower == positionEvent.TickLower &&
+               position.TickUpper == positionEvent.TickUpper;
+    }
+
+    private static bool IsSymbolMatch(TokenInfo first, TokenInfo second)
+    {
+        return string.Equals(first.Symbol, second.Symbol, StringComparison.OrdinalIgnoreCase);
     }
 }
