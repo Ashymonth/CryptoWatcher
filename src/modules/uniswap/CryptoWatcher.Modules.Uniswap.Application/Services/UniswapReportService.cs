@@ -33,10 +33,11 @@ public class UniswapReportService : IPlatformDailyReportDataProvider
                 {
                     continue;
                 }
-                
+
                 var report = new UniswapDailyReport
                 {
                     PositionInUsd = poolPositions
+                        .Where(static position => position.PoolPositionSnapshots.Count > 0)
                         .Select(static position => position.PoolPositionSnapshots.MaxBy(snapshot => snapshot.Day))
                         .Sum(static snapshot => snapshot!.TokenSumInUsd()),
                     ProfitInUsd =
@@ -45,8 +46,13 @@ public class UniswapReportService : IPlatformDailyReportDataProvider
                     TotalHoldInUsd = poolPositions
                         .Sum(static position =>
                         {
-                            var lastPosition =
-                                position.PoolPositionSnapshots.MaxBy(positionSnapshot => positionSnapshot.Day);
+                            if (position.PoolPositionSnapshots.Count == 0)
+                            {
+                                return 0;
+                            }
+                            
+                            var lastPosition = position.PoolPositionSnapshots
+                                    .MaxBy(positionSnapshot => positionSnapshot.Day);
 
                             return position.Token0.Amount * lastPosition!.Token0.PriceInUsd +
                                    position.Token1.Amount * lastPosition.Token1.PriceInUsd;
