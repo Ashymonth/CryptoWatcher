@@ -2,9 +2,9 @@ using System.Numerics;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Models;
 
-public class EthTransaction
+public record EthTransaction
 {
-    public BigInteger Amount { get; set; }
+    public required BigInteger Amount { get; init; }
 
-    public DateTimeOffset TimeStamp { get; set; }
+    public required DateTimeOffset TimeStamp { get; init; }
 }

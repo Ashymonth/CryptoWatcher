@@ -1,5 +1,6 @@
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.ValueObjects;
+using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Extensions;
 

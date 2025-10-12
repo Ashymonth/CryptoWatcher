@@ -3,7 +3,6 @@ using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Helpers;
 using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Shared.ValueObjects;
-using CryptoWatcher.UniswapModule.Models;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure;
 

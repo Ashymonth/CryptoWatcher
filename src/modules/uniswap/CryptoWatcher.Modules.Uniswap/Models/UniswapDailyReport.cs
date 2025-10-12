@@ -1,6 +1,5 @@
 using CryptoWatcher.Models;
 using CryptoWatcher.Shared.ValueObjects;
-using CryptoWatcher.UniswapModule.Models;
 
 namespace CryptoWatcher.Modules.Uniswap.Models;
 
@@ -16,7 +15,11 @@ public class UniswapDailyReport : PlatformDailyReport
     /// This value represents the aggregate monetary value of the tokens held in the pool positions.
     /// </summary>
     public required Money TotalHoldInUsd { get; init; }
-    
+
+    /// <summary>
+    /// Gets the total commission value in USD accumulated from Uniswap pool positions.
+    /// This value represents the aggregate fees earned through liquidity provisions within the pools.
+    /// </summary>
     public required Money TotalCommissionInUsd { get; init; }
  
     /// <summary>

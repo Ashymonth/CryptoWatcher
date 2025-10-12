@@ -2,6 +2,7 @@ using System.Numerics;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Entities;
+using CryptoWatcher.ValueObjects;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
 
@@ -37,7 +38,9 @@ internal class NethereumLogProvider : IBlockchainLogProvider
 
         var logs = await web3.Eth.Filters.GetLogs.SendRequestAsync(filter);
 
-        return logs.Select(log => new BlockchainLogEntry
-            { Address = log.Address, Data = log.Data, TransactionHash = log.TransactionHash }).ToArray();
+        return logs
+            .Select(log => new BlockchainLogEntry
+                { Address = EvmAddress.Create(log.Address), Data = log.Data, TransactionHash = log.TransactionHash })
+            .ToArray();
     }
 }

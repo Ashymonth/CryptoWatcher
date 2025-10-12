@@ -1,6 +1,7 @@
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Entities;
+using CryptoWatcher.ValueObjects;
 using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services.EventsSynchronization;
@@ -17,16 +18,17 @@ internal class Web3TransactionDataProvider : ITransactionDataProvider
     }
 
     public async Task<TransactionData?> GetTransactionDataAsync(UniswapChainConfiguration chain,
-        string transactionHash, CancellationToken ct)
+        TransactionHash transactionHash, CancellationToken ct)
     {
         var web3 = _web3Factory.GetWeb3(chain);
         var receipt = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
 
         var wallets = chain.LiquidityPoolPositions.Select(position => position.WalletAddress)
             .Distinct()
-            .ToDictionary(wallet => wallet, StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(wallet => wallet);
 
-        if (!wallets.TryGetValue(receipt.From, out var walletAddress))
+        var fromAddress = EvmAddress.Create(receipt.From);
+        if (!wallets.TryGetValue(fromAddress, out var walletAddress))
         {
             return null;
         }
@@ -35,7 +37,7 @@ internal class Web3TransactionDataProvider : ITransactionDataProvider
         {
             Address = log.Address,
             Data = log.Data.HexToBigInteger(false),
-            Topics = (string[])log.Topics
+            Topics = log.Topics.Select(o => o.ToString()).ToArray()!
         }).ToArray();
         
         var eventEnrichment =
@@ -49,7 +51,7 @@ internal class Web3TransactionDataProvider : ITransactionDataProvider
 
         return new TransactionData
         {
-            WalletAddress = receipt.From,
+            WalletAddress = fromAddress,
             EventEnrichment = eventEnrichment,
             TransactionHash = receipt.TransactionHash
         };

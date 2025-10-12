@@ -1,6 +1,5 @@
 using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Shared.ValueObjects;
-using CryptoWatcher.UniswapModule.Models;
 
 namespace CryptoWatcher.Modules.Uniswap.Abstractions;
 

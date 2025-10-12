@@ -15,7 +15,7 @@ public class PositionInPool
     /// especially during calculations, state tracking, or operations related
     /// to liquidity management and token balances in the Uniswap protocol.
     /// </summary>
-    public required ulong PositionId { get; set; }
+    public required ulong PositionId { get; init; }
 
     /// <summary>
     /// Indicates whether the position is currently within the active price range of the liquidity pool.

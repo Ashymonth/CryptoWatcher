@@ -1,9 +1,10 @@
 using CryptoWatcher.Modules.Uniswap.Application.Models;
+using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 
 public interface ILiquidityEventLogEnricher
 {
-    Task<LiquidityEventEnrichment?> EnrichLiquidityEventFromLogsAsync(string walletAddress,
-        string transactionHash, LiquidityEventLog[] logs, CancellationToken ct = default);
+    Task<LiquidityEventEnrichment?> EnrichLiquidityEventFromLogsAsync(EvmAddress walletAddress,
+        TransactionHash transactionHash, LiquidityEventLog[] logs, CancellationToken ct = default);
 }

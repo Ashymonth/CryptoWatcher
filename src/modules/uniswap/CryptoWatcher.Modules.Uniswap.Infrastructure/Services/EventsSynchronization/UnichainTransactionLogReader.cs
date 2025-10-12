@@ -2,6 +2,7 @@ using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Unichain;
 using CryptoWatcher.Shared.ValueObjects;
+using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services.EventsSynchronization;
 
@@ -17,8 +18,8 @@ internal class LiquidityEventLogEnricher : ILiquidityEventLogEnricher
         _internalTransactionProvider = internalTransactionProvider;
     }
 
-    public async Task<LiquidityEventEnrichment?> EnrichLiquidityEventFromLogsAsync(string walletAddress,
-        string transactionHash,
+    public async Task<LiquidityEventEnrichment?> EnrichLiquidityEventFromLogsAsync(EvmAddress walletAddress,
+        TransactionHash transactionHash,
         LiquidityEventLog[] logs,
         CancellationToken ct = default)
     {
@@ -38,8 +39,8 @@ internal class LiquidityEventLogEnricher : ILiquidityEventLogEnricher
     }
 
     private async Task<LiquidityEventEnrichment> CreateTokenPairFromLogsAndInternalTransactionAsync(
-        string walletAddress,
-        string transactionHash,
+        EvmAddress walletAddress,
+        TransactionHash transactionHash,
         LiquidityEventLog[] logs,
         CancellationToken ct)
     {
@@ -61,7 +62,7 @@ internal class LiquidityEventLogEnricher : ILiquidityEventLogEnricher
         };
     }
 
-    private async Task<LiquidityEventEnrichment> CreateTokenPairFromLogs(string transactionHash,
+    private async Task<LiquidityEventEnrichment> CreateTokenPairFromLogs(TransactionHash transactionHash,
         LiquidityEventLog[] logs,
         CancellationToken ct)
     {

@@ -2,6 +2,7 @@ using System.Numerics;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Shared.ValueObjects;
+using CryptoWatcher.ValueObjects;
 using Nethereum.ABI.FunctionEncoding;
 using Nethereum.ABI.Model;
 
@@ -18,8 +19,8 @@ internal class LiquidityPoolEventDecoder : ILiquidityPoolEventDecoder
         new("int24", 3) // liquidityDelta
     ];
 
-    public LiquidityPoolPositionEvent DecodeModifyLiquidityEvent(string walletAddress, string data,
-        string transactionHash,
+    public LiquidityPoolPositionEvent DecodeModifyLiquidityEvent(EvmAddress walletAddress, string data,
+        TransactionHash transactionHash,
         TokenPair tokenPair,
         DateTimeOffset timestamp)
     {

@@ -2,11 +2,11 @@ using System.Numerics;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Models;
 
-public class LiquidityEventLog
+public record LiquidityEventLog
 {
-    public string Address { get; set; } = null!;
+    public string Address { get; init; } = null!;
 
-    public string[] Topics { get; set; } = null!;
-    
-    public BigInteger Data { get; set; }
+    public string[] Topics { get; init; } = null!;
+
+    public BigInteger Data { get; init; }
 }
