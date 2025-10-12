@@ -105,6 +105,33 @@ app.MapPost("/uniswap/sync-block/{blockNumber}", async (IUniswapCashFlowBlockRan
     await sync.SynchronizeBlockRangeAsync(chain, blockNumber, blockNumber, false);
 });
 
+app.MapPatch("/uniswap/sync-block/{blockNumber}", async (IUniswapCashFlowBlockRangeSynchronizer sync,
+    CryptoWatcherDbContext dbContext,
+    BigInteger blockNumber) =>
+{
+    await using var tr = await dbContext.Database.BeginTransactionAsync();
+    try
+    {
+        var now = DateTime.UtcNow;
+        
+        await dbContext.UniswapChainConfigurations
+            .ExecuteUpdateAsync(calls =>
+                calls.SetProperty(configuration => configuration.LastProcessedBlock, blockNumber));
+        
+        await dbContext.UniswapChainConfigurations
+            .ExecuteUpdateAsync(calls =>
+                calls.SetProperty(configuration => configuration.LastProcessedBlockUpdatedAt, now));
+
+        await tr.CommitAsync();
+    }
+    catch (Exception)
+    {
+        await tr.RollbackAsync();
+        throw;
+    }
+ 
+});
+
 async Task<FileStreamHttpResult> TotalReportHandler(IDailySummaryReportProvider reportProvider,
     IRepository<Wallet> walletRepository,
     [FromQuery] DateOnly? from, [FromQuery] DateOnly? to)

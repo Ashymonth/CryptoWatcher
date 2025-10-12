@@ -8,6 +8,8 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Services;
 
 public class UniswapChainSynchronizationOrchestrator : IUniswapChainSynchronizerOrchestrator
 {
+    private static int _isRunning;
+
     private readonly IUniswapChainSynchronizer _chainSynchronizer;
     private readonly IRepository<UniswapChainConfiguration> _chainConfigurationRepository;
     private readonly ILogger<UniswapChainSynchronizationOrchestrator> _logger;
@@ -23,19 +25,34 @@ public class UniswapChainSynchronizationOrchestrator : IUniswapChainSynchronizer
 
     public async Task SynchronizeAllChainsAsync(CancellationToken ct = default)
     {
-        var chainsToSynchronize =
-            await _chainConfigurationRepository.ListAsync(new GetUniswapChainWithStateAndActivePositions(), ct);
-
-        foreach (var uniswapChainConfiguration in chainsToSynchronize)
+        if (Interlocked.CompareExchange(ref _isRunning, 1, 0) == 1)
         {
-            try
+            _logger.LogWarning("Synchronization is already in progress");
+            return;
+        }
+
+        try
+        {
+            _isRunning = 1;
+
+            var chainsToSynchronize =
+                await _chainConfigurationRepository.ListAsync(new GetUniswapChainWithStateAndActivePositions(), ct);
+
+            foreach (var uniswapChainConfiguration in chainsToSynchronize)
             {
-                await _chainSynchronizer.SynchronizeChainAsync(uniswapChainConfiguration, ct);
+                try
+                {
+                    await _chainSynchronizer.SynchronizeChainAsync(uniswapChainConfiguration, ct);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occured while synchronizing the chain");
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occured while synchronizing the chain");
-            }
+        }
+        finally
+        {
+            _isRunning = 0;
         }
     }
 }
