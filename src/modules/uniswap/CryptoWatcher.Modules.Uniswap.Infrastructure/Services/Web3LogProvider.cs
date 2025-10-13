@@ -32,7 +32,7 @@ internal class Web3LogProvider : IBlockchainLogProvider
             [
                 new[] { UniswapWellKnownField.V4ModifyLiquiditySignature },
                 null,
-                new[] { UniswapWellKnownField.V4PositionManagerAddress }
+                new[] { chainConfiguration.SmartContractAddresses.PositionManager.ToPaddedAddress() }
             ],
         };
 

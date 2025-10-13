@@ -14,6 +14,7 @@ namespace CryptoWatcher.Modules.Uniswap.Entities;
 /// </remarks>
 public class UniswapChainConfiguration
 {
+    // ReSharper disable once CollectionNeverUpdated.Local
     private readonly List<UniswapLiquidityPosition> _liquidityPoolPositions = [];
 
     /// <summary>
@@ -33,6 +34,16 @@ public class UniswapChainConfiguration
     /// for executing transactions, querying data, and other interactions required by the Uniswap protocol.
     /// </remarks>
     public required Uri RpcUrl { get; init; } = null!;
+    
+    /// <summary>
+    /// Gets the URL of the Blockscout instance associated with the blockchain chain.
+    /// </summary>
+    /// <remarks>
+    /// This property provides the endpoint for accessing blockchain data and analytics through Blockscout,
+    /// which is a block explorer and analytics platform. It is used for various service queries and data retrievals
+    /// within the application, such as fetching transaction details or blockchain state.
+    /// </remarks>
+    public required Uri BlockscoutUrl { get; init; }
 
     /// <summary>
     /// Gets the authorization token for the RPC endpoint (e.g., API key for Infura, RPC).
@@ -40,7 +51,7 @@ public class UniswapChainConfiguration
     /// <remarks>
     /// Stored separately for security; can be rotated independently. Do not log or expose in APIs.
     /// </remarks>
-    public string? RpcAuthToken { get; private set; }
+    public string? RpcAuthToken { get; init; } // store later with encryption
 
     /// <summary>
     /// Gets a composed URL that includes the RPC base URL and the optional authentication token.
@@ -54,8 +65,8 @@ public class UniswapChainConfiguration
 
     /// <summary>
     /// Represents the required collection of smart contract addresses specific
-    /// to the configuration of a Uniswap chain, defining addresses for key
-    /// on-chain components and operations.
+    /// to the configuration of an Uniswap chain, defining addresses for key
+    /// on-chain parts and operations.
     /// </summary>
     public required UniswapAddresses SmartContractAddresses { get; init; } = null!;
 
@@ -64,8 +75,6 @@ public class UniswapChainConfiguration
     /// and dictates the behavior and features available based on the version defined.
     /// </summary>
     public required UniswapProtocolVersion ProtocolVersion { get; init; }
-
-    public required Uri BlockscoutUrl { get; init; }
 
     /// <summary>
     /// The last block number that has been successfully processed for Uniswap data

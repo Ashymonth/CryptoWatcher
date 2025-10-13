@@ -21,6 +21,15 @@ public sealed partial class EvmAddress : IEquatable<EvmAddress>, IEqualityCompar
             ? new EvmAddress(value)
             : throw new ArgumentException($"Invalid Ethereum address format: {value}", nameof(value));
     }
+    
+    /// <summary>
+    /// Pad address to 64 characters (32 bytes).
+    /// </summary>
+    /// <returns></returns>
+    public string ToPaddedAddress()
+    {
+        return "0x000000000000000000000000" +  Value[2..];
+    }
 
     public bool Equals(EvmAddress? other)
         => other is not null && string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
