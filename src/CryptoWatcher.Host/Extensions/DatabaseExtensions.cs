@@ -39,7 +39,7 @@ public static class DatabaseExtensions
 
                     context.Set<UniswapChainConfiguration>().Add(new UniswapChainConfiguration
                     {
-                        Name = "Unichain",
+                        Name = "Arbitrum",
                         RpcUrl = new Uri("https://lb.drpc.live/arbitrum"),
                         BlockscoutUrl = new Uri("https://arbitrum.blockscout.com"),
                         SmartContractAddresses = new UniswapAddresses
