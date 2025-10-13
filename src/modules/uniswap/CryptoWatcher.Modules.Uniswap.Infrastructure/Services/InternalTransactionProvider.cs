@@ -68,7 +68,7 @@ public class InternalTransactionProvider : IInternalTransactionProvider
         CancellationToken ct = default)
     {
         var internalTransactionsResponse = await _httpClient.GetFromJsonAsync<Root>(
-            $"{chainConfiguration}/api/v2/transactions/{transactionHash}/internal-transactions", ct);
+            $"{chainConfiguration.BlockscoutUrl}/api/v2/transactions/{transactionHash}/internal-transactions", ct);
 
         //there should be only one internal transaction with a call and not 0 value for wallet address
         var internalTransactionsWithEth = internalTransactionsResponse!.Items.SingleOrDefault(item =>

@@ -28,6 +28,8 @@ public partial class TransactionHash : IEqualityComparer<TransactionHash>
 
     public static implicit operator TransactionHash(string value) => FromString(value);
 
+    public override string ToString() => Value;
+
     public bool Equals(TransactionHash? x, TransactionHash? y)
     {
         if (ReferenceEquals(x, y)) return true;
