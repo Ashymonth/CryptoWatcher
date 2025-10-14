@@ -72,31 +72,4 @@ public class UniswapReportService : IPlatformDailyReportDataProvider
             Reports = result
         };
     }
-
-    /// <summary>
-    /// Calculate actual fee from cumulative fee.
-    /// </summary>
-    /// <param name="positionFees"></param>
-    /// <returns></returns>
-    private static decimal CalculateActualFee(IEnumerable<UniswapLiquidityPositionSnapshot> positionFees)
-    {
-        var prevDayFee = 0m;
-        var result = 0m;
-        foreach (var poolPositionFee in positionFees.OrderBy(snapshot => snapshot.Day))
-        {
-            if (poolPositionFee.FeeInUsd > prevDayFee)
-            {
-                prevDayFee = poolPositionFee.FeeInUsd;
-                continue;
-            }
-
-            if (poolPositionFee.FeeInUsd < prevDayFee)
-            {
-                result += prevDayFee;
-                prevDayFee = 0;
-            }
-        }
-
-        return result + prevDayFee;
-    }
 }
