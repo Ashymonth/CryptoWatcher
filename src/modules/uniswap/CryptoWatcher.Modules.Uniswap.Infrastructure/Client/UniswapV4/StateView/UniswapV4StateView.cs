@@ -32,7 +32,7 @@ internal class UniswapV4StateView : IUniswapV4StateView
     public async Task<GetSlot0OutputDTO> GetSlot0Async(UniswapChainConfiguration chain, UniswapV4PoolKey poolId25)
     {
         var web3 = _web3Factory.GetWeb3(chain);
-        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, "0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990");
+        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, chain.SmartContractAddresses.StateView!);
 
         var poolKey = GeneratePoolId(poolId25);
 
