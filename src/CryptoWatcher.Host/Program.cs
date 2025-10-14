@@ -95,9 +95,11 @@ app.MapGet("/report/total", TotalReportHandler);
 
 app.MapPost("/uniswap/sync-block/{blockNumber}", async (IUniswapCashFlowBlockRangeSynchronizer sync,
     CryptoWatcherDbContext dbContext,
+    string chainName,
     BigInteger blockNumber) =>
 {
     var chain = await dbContext.UniswapChainConfigurations
+        .Where(configuration => configuration.Name == chainName)
         .Include(configuration => configuration.LiquidityPoolPositions)
         .ThenInclude(positions => positions.Wallet)
         .FirstAsync();
@@ -105,20 +107,23 @@ app.MapPost("/uniswap/sync-block/{blockNumber}", async (IUniswapCashFlowBlockRan
     await sync.SynchronizeBlockRangeAsync(chain, blockNumber, blockNumber, false);
 });
 
-app.MapPatch("/uniswap/sync-block/{blockNumber}", async (IUniswapCashFlowBlockRangeSynchronizer sync,
+app.MapPatch("/uniswap/sync-block/{blockNumber}", async (
     CryptoWatcherDbContext dbContext,
+    string chainName,
     BigInteger blockNumber) =>
 {
     await using var tr = await dbContext.Database.BeginTransactionAsync();
     try
     {
         var now = DateTime.UtcNow;
-        
+
         await dbContext.UniswapChainConfigurations
+            .Where(configuration => configuration.Name == chainName)
             .ExecuteUpdateAsync(calls =>
                 calls.SetProperty(configuration => configuration.LastProcessedBlock, blockNumber));
-        
+
         await dbContext.UniswapChainConfigurations
+            .Where(configuration => configuration.Name == chainName)
             .ExecuteUpdateAsync(calls =>
                 calls.SetProperty(configuration => configuration.LastProcessedBlockUpdatedAt, now));
 
@@ -129,7 +134,6 @@ app.MapPatch("/uniswap/sync-block/{blockNumber}", async (IUniswapCashFlowBlockRa
         await tr.RollbackAsync();
         throw;
     }
- 
 });
 
 async Task<FileStreamHttpResult> TotalReportHandler(IDailySummaryReportProvider reportProvider,
