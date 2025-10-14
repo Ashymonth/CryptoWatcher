@@ -23,6 +23,8 @@ internal class UniswapChainSynchronizer : IUniswapChainSynchronizer
 
     public async Task SynchronizeChainAsync(UniswapChainConfiguration chain, CancellationToken ct = default)
     {
+        using var scope = _logger.BeginScope("Synchronize chain: {ChainName}", chain.Name);
+        
         var web3 = _web3Factory.GetWeb3(chain);
 
         var lastBlockInBlockChain = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
