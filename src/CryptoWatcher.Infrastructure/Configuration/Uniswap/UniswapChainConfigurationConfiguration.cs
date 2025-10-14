@@ -27,10 +27,10 @@ public class UniswapChainConfigurationConfiguration : IEntityTypeConfiguration<U
         
         builder.OwnsOne(chain => chain.SmartContractAddresses, navigationBuilder =>
         {
-            navigationBuilder.Property(addresses => addresses.NftManager).ConfigureEvmAddress();
             navigationBuilder.Property(addresses => addresses.PoolFactory).ConfigureEvmAddress();
             navigationBuilder.Property(addresses => addresses.MultiCall).ConfigureEvmAddress();
             navigationBuilder.Property(addresses => addresses.PositionManager).ConfigureEvmAddress();
+            navigationBuilder.Property(addresses => addresses.StateView)!.ConfigureNullableEvmAddress();
         });
 
         builder.Navigation(configuration => configuration.LiquidityPoolPositions)

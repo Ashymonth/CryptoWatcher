@@ -27,6 +27,17 @@ public class UniswapChainConfiguration
     public required string Name { get; init; } = null!;
 
     /// <summary>
+    /// Gets the identifier of the blockchain network where the Uniswap protocol is deployed.
+    /// </summary>
+    /// <remarks>
+    /// This property represents the chain ID of a specific network, which is used to distinguish
+    /// between multiple blockchain networks within the Uniswap protocol's configurations. It is
+    /// critical for ensuring protocol operations and interactions are performed on the correct
+    /// blockchain network.
+    /// </remarks>
+    public required int ChainId { get; init; }
+
+    /// <summary>
     /// Gets the URL of the RPC (Remote Procedure Call) endpoint for the blockchain network.
     /// </summary>
     /// <remarks>

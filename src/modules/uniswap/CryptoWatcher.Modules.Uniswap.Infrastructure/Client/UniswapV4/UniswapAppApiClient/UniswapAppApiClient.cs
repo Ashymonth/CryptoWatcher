@@ -36,11 +36,11 @@ internal class UniswapAppApiClient
         _client = client;
     }
 
-    public async Task<ulong[]> GetPoolPositionTokenIdsAsync(string walletAddress,
+    public async Task<Dictionary<int, ulong[]>> GetPoolPositionTokenIdsAsync(string walletAddress,
         CancellationToken ct = default)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "v2/pools.v1.PoolsService/ListPositions");
-        
+
         var requestBody = new GetPositionsRequest(
             walletAddress,
             SupportedChainIds,
@@ -61,6 +61,9 @@ internal class UniswapAppApiClient
 
         return result!.Positions
             .Where(position => position.V4Position is not null)
-            .Select(position => ulong.Parse(position.V4Position!.PoolPosition.TokenId)).ToArray();
+            .GroupBy(position => position.ChainId)
+            .ToDictionary(grouping => grouping.Key,
+                grouping => grouping.Select(position => ulong.Parse(position.V4Position!.PoolPosition.TokenId))
+                    .ToArray());
     }
 }

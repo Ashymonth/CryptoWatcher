@@ -5,7 +5,6 @@ using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Mappers;
 using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Shared.Entities;
-using Nethereum.Web3;
 using UniswapClient.Models;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
@@ -72,7 +71,7 @@ internal class UniswapProvider : IUniswapProvider
     private async Task<LiquidityPoolInfo> GetV4PoolAsync(UniswapChainConfiguration chainConfiguration,
         IUniswapPosition position)
     {
-        return await _uniswapV4Client.LiquidityPool.GetPoolAsync(_web3Factory.GetWeb3(chainConfiguration),
+        return await _uniswapV4Client.LiquidityPool.GetPoolAsync(chainConfiguration,
             (position as UniswapV4PositionInfo)!);
     }
 }

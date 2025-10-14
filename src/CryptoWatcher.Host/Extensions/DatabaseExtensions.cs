@@ -23,34 +23,36 @@ public static class DatabaseExtensions
                     context.Set<UniswapChainConfiguration>().Add(new UniswapChainConfiguration
                     {
                         Name = "Unichain",
+                        ChainId = 130,
                         RpcUrl = new Uri("https://lb.drpc.live/unichain"),
                         BlockscoutUrl = new Uri("https://unichain.blockscout.com"),
                         SmartContractAddresses = new UniswapAddresses
                         {
-                            NftManager = EvmAddress.Create("0x4529a01c7a0410167c5740c487a8de60232617bf"),
                             PoolFactory = EvmAddress.Create("0x1f98400000000000000000000000000000000004"),
                             MultiCall = EvmAddress.Create("0xb7610f9b733e7d45184be3a1bc966960ccc54f0b"),
                             PositionManager =
                                 EvmAddress.Create("0x4529A01c7A0410167c5740C487A8DE60232617bf"),
+                            StateView = EvmAddress.Create("0x86e8631A016F9068C3f085fAF484Ee3F5fDee8f2")
                         },
-                        LastProcessedBlock = 29634140 ,
-                        ProtocolVersion = UniswapProtocolVersion.V4,
+                        LastProcessedBlock = 29634140,
+                        ProtocolVersion = UniswapProtocolVersion.V4
                     });
 
                     context.Set<UniswapChainConfiguration>().Add(new UniswapChainConfiguration
                     {
                         Name = "Arbitrum",
+                        ChainId = 42161,
                         RpcUrl = new Uri("https://lb.drpc.live/arbitrum"),
                         BlockscoutUrl = new Uri("https://arbitrum.blockscout.com"),
                         SmartContractAddresses = new UniswapAddresses
                         {
-                            NftManager = EvmAddress.Create("0x4529a01c7a0410167c5740c487a8de60232617bf"),
-                            PoolFactory = EvmAddress.Create("0x1f98400000000000000000000000000000000004"),
-                            MultiCall = EvmAddress.Create("0xb7610f9b733e7d45184be3a1bc966960ccc54f0b"),
-                            PositionManager = EvmAddress.Create("0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32")
+                            PoolFactory = EvmAddress.Create("0x360e68faccca8ca495c1b759fd9eee466db9fb32"),
+                            MultiCall = EvmAddress.Create("0x842eC2c7D803033Edf55E478F461FC547Bc54EB2"),
+                            PositionManager = EvmAddress.Create("0xd88F38F930b7952f2DB2432Cb002E7abbF3dD869"),
+                            StateView = EvmAddress.Create("0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990")
                         },
                         LastProcessedBlock = 389191403,
-                        ProtocolVersion = UniswapProtocolVersion.V4,
+                        ProtocolVersion = UniswapProtocolVersion.V4
                     });
                 }
 

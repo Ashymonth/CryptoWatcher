@@ -1,5 +1,7 @@
 using System.Numerics;
+using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.StateView.Contracts;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 using Nethereum.ABI;
 using Nethereum.Web3;
 
@@ -7,24 +9,30 @@ namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.StateVie
 
 internal interface IUniswapV4StateView
 {
-    Task<GetSlot0OutputDTO> GetSlot0Async(IWeb3 web3, UniswapV4PoolKey poolId25);
+    Task<GetSlot0OutputDTO> GetSlot0Async(UniswapChainConfiguration chain, UniswapV4PoolKey poolId25);
 
-    Task<GetTickFeeGrowthOutsideOutput> GetTickInfoAsync(IWeb3 web3, UniswapV4PoolKey poolId25, int tick);
+    Task<GetTickFeeGrowthOutsideOutput> GetTickInfoAsync(UniswapChainConfiguration chain, UniswapV4PoolKey poolId25,
+        int tick);
 
-    Task<GetPositionInfoOutputDTO> GetPositionInfoAsync(IWeb3 web3, UniswapV4PoolKey poolId25,
+    Task<GetPositionInfoOutputDTO> GetPositionInfoAsync(UniswapChainConfiguration chain, UniswapV4PoolKey poolId25,
         int tickLower, int tickUpper, ulong tokenId);
 
-    Task<GetFeeGrowthGlobalsOutput> GetFeeGrowGlobalAsync(IWeb3 web3, UniswapV4PoolKey poolId25);
+    Task<GetFeeGrowthGlobalsOutput> GetFeeGrowGlobalAsync(UniswapChainConfiguration chain, UniswapV4PoolKey poolId25);
 }
 
 internal class UniswapV4StateView : IUniswapV4StateView
 {
-    private const string StateViewAddress = "0x86e8631a016f9068c3f085faf484ee3f5fdee8f2";
-    private const string UniswapV4PositionsNft = "0x4529a01c7a0410167c5740c487a8de60232617bf";
+    private readonly IWeb3Factory _web3Factory;
 
-    public async Task<GetSlot0OutputDTO> GetSlot0Async(IWeb3 web3, UniswapV4PoolKey poolId25)
+    public UniswapV4StateView(IWeb3Factory web3Factory)
     {
-        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, StateViewAddress);
+        _web3Factory = web3Factory;
+    }
+
+    public async Task<GetSlot0OutputDTO> GetSlot0Async(UniswapChainConfiguration chain, UniswapV4PoolKey poolId25)
+    {
+        var web3 = _web3Factory.GetWeb3(chain);
+        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, "0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990");
 
         var poolKey = GeneratePoolId(poolId25);
 
@@ -34,9 +42,11 @@ internal class UniswapV4StateView : IUniswapV4StateView
         return slot0;
     }
 
-    public async Task<GetTickFeeGrowthOutsideOutput> GetTickInfoAsync(IWeb3 web3, UniswapV4PoolKey poolId25, int tick)
+    public async Task<GetTickFeeGrowthOutsideOutput> GetTickInfoAsync(UniswapChainConfiguration chain,
+        UniswapV4PoolKey poolId25, int tick)
     {
-        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, StateViewAddress);
+        var web3 = _web3Factory.GetWeb3(chain);
+        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, chain.SmartContractAddresses.StateView!);
 
         var poolKey = GeneratePoolId(poolId25);
 
@@ -44,21 +54,24 @@ internal class UniswapV4StateView : IUniswapV4StateView
             .CallDeserializingToObjectAsync<GetTickFeeGrowthOutsideOutput>(poolKey, tick);
     }
 
-    public async Task<GetPositionInfoOutputDTO> GetPositionInfoAsync(IWeb3 web3, UniswapV4PoolKey poolId25,
+    public async Task<GetPositionInfoOutputDTO> GetPositionInfoAsync(UniswapChainConfiguration chain,
+        UniswapV4PoolKey poolId25,
         int tickLower, int tickUpper, ulong tokenId)
     {
-        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, StateViewAddress);
+        var web3 = _web3Factory.GetWeb3(chain);
+        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, chain.SmartContractAddresses.StateView!);
 
         var poolId = GeneratePoolId(poolId25);
 
-        return await contract.GetFunction("getPositionInfo")
-            .CallDeserializingToObjectAsync<GetPositionInfoOutputDTO>(poolId, UniswapV4PositionsNft, tickLower,
-                tickUpper, ConvertTokenIdToBytes32(tokenId));
+        return await contract.GetFunction("getPositionInfo").CallDeserializingToObjectAsync<GetPositionInfoOutputDTO>(
+            poolId, chain.SmartContractAddresses.PositionManager.Value, tickLower, tickUpper, ConvertTokenIdToBytes32(tokenId));
     }
 
-    public async Task<GetFeeGrowthGlobalsOutput> GetFeeGrowGlobalAsync(IWeb3 web3, UniswapV4PoolKey poolId25)
+    public async Task<GetFeeGrowthGlobalsOutput> GetFeeGrowGlobalAsync(UniswapChainConfiguration chain,
+        UniswapV4PoolKey poolId25)
     {
-        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, StateViewAddress);
+        var web3 = _web3Factory.GetWeb3(chain);
+        var contract = web3.Eth.GetContract(UniswapV4StateViewAbi.Abi, chain.SmartContractAddresses.StateView!);
 
         var poolKey = GeneratePoolId(poolId25);
 

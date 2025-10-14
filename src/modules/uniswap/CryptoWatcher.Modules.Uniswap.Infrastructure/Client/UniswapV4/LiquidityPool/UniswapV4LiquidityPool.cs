@@ -1,3 +1,4 @@
+using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.StateView;
 using Nethereum.Web3;
 using UniswapClient.Models;
@@ -6,7 +7,7 @@ namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.Liquidit
 
 internal interface IUniswapV4LiquidityPool
 {
-    Task<LiquidityPoolInfo> GetPoolAsync(IWeb3 web3,  UniswapV4PositionInfo position);
+    Task<LiquidityPoolInfo> GetPoolAsync(UniswapChainConfiguration chain, UniswapV4PositionInfo position);
 }
 
 internal class UniswapV4LiquidityPool : IUniswapV4LiquidityPool
@@ -18,15 +19,15 @@ internal class UniswapV4LiquidityPool : IUniswapV4LiquidityPool
         _stateView = stateView;
     }
 
-    public async Task<LiquidityPoolInfo> GetPoolAsync(IWeb3 web3,  UniswapV4PositionInfo position)
+    public async Task<LiquidityPoolInfo> GetPoolAsync(UniswapChainConfiguration chain,  UniswapV4PositionInfo position)
     {
-        var sot0 = await _stateView.GetSlot0Async(web3, position.PoolKey);
+        var sot0 = await _stateView.GetSlot0Async(chain, position.PoolKey);
 
-        var tickLower = await _stateView.GetTickInfoAsync(web3, position.PoolKey, position.TickLower);
+        var tickLower = await _stateView.GetTickInfoAsync(chain, position.PoolKey, position.TickLower);
 
-        var tickUpper = await _stateView.GetTickInfoAsync(web3, position.PoolKey, position.TickUpper);
+        var tickUpper = await _stateView.GetTickInfoAsync(chain, position.PoolKey, position.TickUpper);
 
-        var feeGlobal = await _stateView.GetFeeGrowGlobalAsync(web3, position.PoolKey);
+        var feeGlobal = await _stateView.GetFeeGrowGlobalAsync(chain, position.PoolKey);
 
         return new LiquidityPoolInfo
         {

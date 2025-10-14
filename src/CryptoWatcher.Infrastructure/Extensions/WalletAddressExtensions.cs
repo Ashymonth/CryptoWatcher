@@ -16,4 +16,13 @@ internal static class WalletAddressExtensions
             .IsFixedLength()
             .HasMaxLength(WalletAddressLength);
     }
+    
+    public static void ConfigureNullableEvmAddress(this PropertyBuilder<EvmAddress> builder)
+    {
+        builder
+            .HasConversion<WalletAddressConverter>()
+            .IsFixedLength()
+            .HasMaxLength(WalletAddressLength)
+            .IsRequired(false);
+    }
 }

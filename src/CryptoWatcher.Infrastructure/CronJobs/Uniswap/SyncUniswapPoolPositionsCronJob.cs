@@ -41,7 +41,7 @@ internal class SyncUniswapPoolPositionsCronJob
         {
             using var walletScope = _logger.BeginScope("Processing wallet {WalletAddress}", wallet.Address);
 
-            foreach (var network in networks)
+            foreach (var network in networks) 
             {
                 using var networkScope = _logger.BeginScope("Processing uniswapNetwork {NetworkName}", network.Name);
 

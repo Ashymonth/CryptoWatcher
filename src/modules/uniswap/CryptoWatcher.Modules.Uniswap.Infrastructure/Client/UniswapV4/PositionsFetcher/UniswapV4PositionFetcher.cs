@@ -33,7 +33,12 @@ internal class UniswapV4PositionFetcher : IUniswapV4PositionFetcher
         var web3 = _web3Factory.GetWeb3(chain);
         var tokenIds = await _apiClient.GetPoolPositionTokenIdsAsync(walletAddress);
 
-        return await GetPositionsDataAsync(web3, chain, tokenIds);
+        if (!tokenIds.TryGetValue(chain.ChainId, out var tokenIdsForChain))
+        {
+            return [];
+        }
+
+        return await GetPositionsDataAsync(web3, chain, tokenIdsForChain);
     }
 
     private async Task<List<IUniswapPosition>> GetPositionsDataAsync(IWeb3 web3,
@@ -44,7 +49,7 @@ internal class UniswapV4PositionFetcher : IUniswapV4PositionFetcher
         foreach (var tokenId in tokenIds)
         {
             var contract =
-                web3.Eth.GetContract(UniswapV4PositionFetcherAbi.Abi, chain.SmartContractAddresses.NftManager);
+                web3.Eth.GetContract(UniswapV4PositionFetcherAbi.Abi, chain.SmartContractAddresses.PositionManager);
 
             var packedData = await contract.GetFunction("getPoolAndPositionInfo")
                 .CallDeserializingToObjectAsync<GetPoolAndPositionInfoOutputDTO>(tokenId);
@@ -60,7 +65,7 @@ internal class UniswapV4PositionFetcher : IUniswapV4PositionFetcher
                 Hooks = packedData.PoolKey.Hooks,
             };
 
-            var feeGrowth = await _stateView.GetPositionInfoAsync(web3, poolKey, positionInfo.TickLower,
+            var feeGrowth = await _stateView.GetPositionInfoAsync(chain, poolKey, positionInfo.TickLower,
                 positionInfo.TickUpper, tokenId);
 
             result.Add(new UniswapV4PositionInfo

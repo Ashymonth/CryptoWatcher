@@ -10,19 +10,6 @@ namespace CryptoWatcher.Modules.Uniswap.ValueObjects;
 public record UniswapAddresses
 {
     /// <summary>
-    /// Represents the address of the Non-Fungible Token (NFT) Manager smart contract for Uniswap.
-    /// This property is required to interact with and fetch data from the corresponding
-    /// contract on supported blockchain networks.
-    /// </summary>
-    /// <remarks>
-    /// The NFT Manager contract is used for operations such as retrieving position data,
-    /// managing token ownership, and other functionalities related to Uniswap's liquidity operations.
-    /// This address is chain-specific and should be properly configured within the corresponding
-    /// blockchain environment.
-    /// </remarks>
-    public required EvmAddress NftManager { get; init; } = null!;
-
-    /// <summary>
     /// Represents the address of the Position Manager contract in the Uniswap ecosystem.
     /// </summary>
     /// <remarks>
@@ -58,4 +45,6 @@ public record UniswapAddresses
     /// on that network.
     /// </remarks>
     public required EvmAddress MultiCall { get; init; } = null!;
+
+    public EvmAddress? StateView { get; set; }
 }

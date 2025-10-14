@@ -211,6 +211,9 @@ namespace CryptoWatcher.Infrastructure.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<int>("ChainId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("LastProcessedBlock")
                         .IsRequired()
                         .HasColumnType("text");
@@ -684,12 +687,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
                                 .HasColumnType("character(42)")
                                 .IsFixedLength();
 
-                            b1.Property<string>("NftManager")
-                                .IsRequired()
-                                .HasMaxLength(42)
-                                .HasColumnType("character(42)")
-                                .IsFixedLength();
-
                             b1.Property<string>("PoolFactory")
                                 .IsRequired()
                                 .HasMaxLength(42)
@@ -698,6 +695,11 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
                             b1.Property<string>("PositionManager")
                                 .IsRequired()
+                                .HasMaxLength(42)
+                                .HasColumnType("character(42)")
+                                .IsFixedLength();
+
+                            b1.Property<string>("StateView")
                                 .HasMaxLength(42)
                                 .HasColumnType("character(42)")
                                 .IsFixedLength();
