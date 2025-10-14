@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
 
         services.AddResiliencePipeline("Uniswap", builder =>
         {
-            builder.AddRateLimiter(new SlidingWindowRateLimiter (new SlidingWindowRateLimiterOptions
+            builder.AddRateLimiter(new SlidingWindowRateLimiter(new SlidingWindowRateLimiterOptions
             {
                 AutoReplenishment = true,
                 PermitLimit = 20,
@@ -47,22 +47,24 @@ public static class ServiceCollectionExtensions
                 Window = TimeSpan.FromSeconds(1)
             }));
         });
-        
+
         services.AddScoped<IUniswapChainSynchronizerOrchestrator, UniswapChainSynchronizationOrchestrator>();
         services.AddScoped<IUniswapChainSynchronizer, UniswapChainSynchronizer>();
         services.AddScoped<IUniswapCashFlowBlockRangeSynchronizer, UniswapCashFlowBlockRangeSynchronizer>();
-        
+
         services.AddSingleton<IUniswapProvider, UniswapProvider>();
         services.AddSingleton<IChainLogChunkingStrategy, ChainLogChunkingStrategy>();
         services.AddSingleton<ICashFlowEventMatcher, CashFlowEventMatcher>();
         services.AddSingleton<ILiquidityEventsProvider, LiquidityEventsProvider>();
         services.AddSingleton<ITransactionDataProvider, Web3TransactionDataProvider>();
-        services.AddSingleton<IInternalTransactionProvider, InternalTransactionProvider>();
+        services.AddHttpClient<IInternalTransactionProvider, InternalTransactionProvider>()
+            .AddStandardResilienceHandler();
+
         services.AddSingleton<IBlockchainLogProvider, Web3LogProvider>();
         services.AddSingleton<ILiquidityEventLogEnricher, LiquidityEventLogEnricher>();
         services.AddSingleton<ILiquidityPoolEventDecoder, LiquidityPoolEventDecoder>();
         services.AddSingleton<IWeb3Factory, Web3Factory>();
-        
+
         //v3
         services.AddSingleton<UniswapV3Client>();
         services.AddSingleton<IUniswapV3LiquidityPool, UniswapV3LiquidityPool>();
@@ -74,16 +76,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IUniswapV4StateView, UniswapV4StateView>();
         services.AddSingleton<IUniswapV4LiquidityPool, UniswapV4LiquidityPool>();
         services.AddSingleton<IUniswapV4PositionFetcher, UniswapV4PositionFetcher>();
-        services.AddSingleton<UniswapAppApiClient>(_ => new UniswapAppApiClient(new HttpClient
-        {
-            BaseAddress = new Uri("https://interface.gateway.uniswap.org")
-        }));
+        services.AddHttpClient<UniswapAppApiClient>(client =>
+            client.BaseAddress = new Uri("https://interface.gateway.uniswap.org")).AddStandardHedgingHandler();
 
         services.AddKeyedScoped<IPlatformDailyReportDataProvider, UniswapReportService>(UniswapModuleKeyedService
             .DailyPlatformKeyService);
         services.AddSingleton<IUniswapMath, UniswapMath>();
         services.AddScoped<IUniswapPositionsSyncService, UniswapPositionsSyncService>();
-
 
 
         return services;
