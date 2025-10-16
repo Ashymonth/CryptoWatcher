@@ -6,8 +6,7 @@ using CryptoWatcher.Abstractions;
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Application;
 using CryptoWatcher.Application.Reports;
-using CryptoWatcher.HyperliquidModule.Abstractions;
-using CryptoWatcher.HyperliquidModule.Extensions;
+using CryptoWatcher.Modules.Hyperliquid.Abstractions;
 using CryptoWatcher.Infrastructure.Aave;
 using CryptoWatcher.Infrastructure.Configs;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
@@ -16,14 +15,15 @@ using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Abstractions;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Hyperliquid;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Total;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Uniswap;
-using CryptoWatcher.Infrastructure.Hyperliquid;
 using CryptoWatcher.Infrastructure.Integrations;
 using CryptoWatcher.Infrastructure.Services;
 using CryptoWatcher.Integrations;
+using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Client.Extensions;
+using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Extensions;
+using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Services;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Services;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
-using HyperliquidClient.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CryptoWatcher.Infrastructure.Extensions;
@@ -88,7 +88,6 @@ public static class ServiceCollectionExtensions
         services.AddHyperLiquidClient();
 
         services.AddHyperliquidModule()
-            .AddScoped<IHyperliquidProvider, HyperliquidApiProvider>()
             .AddSingleton<IDailyExcelSheetBuilder, HyperliquidDailyExcelSheetBuilder>()
             .AddSingleton<HyperliquidDailyReportExcelWorksheetWriter>();
 

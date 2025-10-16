@@ -1,4 +1,4 @@
-using CryptoWatcher.HyperliquidModule.Entities;
+using CryptoWatcher.Modules.Hyperliquid.Entities;
 using CryptoWatcher.Infrastructure.Configuration.Converters;
 using CryptoWatcher.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +13,11 @@ public class HyperliquidVaultPositionConfiguration : IEntityTypeConfiguration<Hy
         builder.HasKey(position => new { position.VaultAddress, position.WalletAddress });
 
         builder.Property(wallet => wallet.WalletAddress).ConfigureEvmAddress();
-        
+
         builder.Property(wallet => wallet.VaultAddress).ConfigureEvmAddress();
 
         builder.HasMany(position => position.PositionSnapshots)
-            .WithOne(snapshot => snapshot.Vault)
+            .WithOne()
             .HasForeignKey(snapshot => new { snapshot.VaultAddress, snapshot.WalletAddress })
             .IsRequired();
 
