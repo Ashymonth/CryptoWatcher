@@ -1,10 +1,9 @@
-using AaveClient;
 using CryptoWatcher.Modules.Aave.Abstractions;
+using CryptoWatcher.Modules.Aave.Infrastructure.Client;
+using CryptoWatcher.Modules.Aave.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Aave.Models;
-using CryptoWatcher.Infrastructure.Configs;
-using CryptoWatcher.Infrastructure.Extensions;
 
-namespace CryptoWatcher.Infrastructure.Aave;
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Services;
 
 internal class AaveMainnetProvider : IAaveMainnetProvider
 {

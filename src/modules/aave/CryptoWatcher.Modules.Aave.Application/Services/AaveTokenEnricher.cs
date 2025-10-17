@@ -1,18 +1,13 @@
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Aave.Abstractions;
+using CryptoWatcher.Modules.Aave.Application.Abstractions;
 using CryptoWatcher.Modules.Aave.Models;
+using CryptoWatcher.Modules.Aave.Services;
 using CryptoWatcher.Shared.ValueObjects;
 
-namespace CryptoWatcher.Modules.Aave.Services;
+namespace CryptoWatcher.Modules.Aave.Application.Services;
 
-internal interface IAaveTokenEnricher
-{
-    Task<TokenInfo> GetEnrichedTokenInfoAsync(AaveNetwork network,
-        CalculatableAaveLendingPosition position,
-        CancellationToken ct = default);
-}
-
-internal class AaveTokenEnricher : IAaveTokenEnricher
+public class AaveTokenEnricher : IAaveTokenEnricher
 {
     private readonly IAaveMainnetProvider _aaveMainnetProvider;
     private readonly ITokenEnricher _tokenEnricher;
@@ -23,7 +18,7 @@ internal class AaveTokenEnricher : IAaveTokenEnricher
         _tokenEnricher = tokenEnricher;
     }
 
-    public async Task<TokenInfo> GetEnrichedTokenInfoAsync(AaveNetwork network,
+    public async Task<TokenInfo> EnrichTokenAsync(AaveNetwork network,
         CalculatableAaveLendingPosition position,
         CancellationToken ct = default)
     {

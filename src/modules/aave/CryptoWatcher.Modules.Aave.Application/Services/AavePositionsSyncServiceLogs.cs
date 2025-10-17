@@ -1,7 +1,8 @@
+using CryptoWatcher.Modules.Aave.Services;
 using CryptoWatcher.Shared.ValueObjects;
 using Microsoft.Extensions.Logging;
 
-namespace CryptoWatcher.Modules.Aave.Services;
+namespace CryptoWatcher.Modules.Aave.Application.Services;
 
 internal static partial class AavePositionsSyncServiceLogs
 {

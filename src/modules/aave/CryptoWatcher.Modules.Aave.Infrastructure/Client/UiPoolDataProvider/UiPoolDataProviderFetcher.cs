@@ -1,9 +1,9 @@
-using AaveClient.UiPoolDataProvider.Contracts;
-using AaveClient.UiPoolDataProvider.Contracts.ReservesData;
+using CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider.Contracts.ReservesData;
+using CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider.Contracts.UserReserve;
 using Nethereum.Contracts;
 using Nethereum.Web3;
 
-namespace AaveClient.UiPoolDataProvider;
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider;
 
 /// <summary>
 /// Interface for fetching data related to user reserves and reserves metadata

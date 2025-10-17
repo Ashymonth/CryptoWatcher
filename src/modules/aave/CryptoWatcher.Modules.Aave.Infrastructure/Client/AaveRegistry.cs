@@ -1,4 +1,4 @@
-namespace AaveClient;
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Client;
 
 /// <summary>
 /// https://aave.com/docs/resources/addresses

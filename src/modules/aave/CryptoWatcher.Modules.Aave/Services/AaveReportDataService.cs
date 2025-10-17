@@ -9,7 +9,7 @@ using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.Modules.Aave.Services;
 
-internal class AaveReportDataService : IPlatformDailyReportDataProvider
+public class AaveReportDataService : IPlatformDailyReportDataProvider
 {
     private readonly IRepository<AavePosition> _repository;
 

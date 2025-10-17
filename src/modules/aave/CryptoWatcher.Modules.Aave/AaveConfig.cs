@@ -1,4 +1,4 @@
-namespace CryptoWatcher.Infrastructure.Configs;
+namespace CryptoWatcher.Modules.Aave;
 
 public class AaveConfig
 {

@@ -39,7 +39,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CryptoWatcher.Modules.Aave\CryptoWatcher.Modules.Aave.csproj" />
+      <ProjectReference Include="..\CryptoWatcher.Modules.Aave.Infrastructure\CryptoWatcher.Modules.Aave.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
-using CryptoWatcher.Modules.Aave.Models;
-using CryptoWatcher.Modules.Aave.Services;
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Modules.Aave.Application.Abstractions;
+using CryptoWatcher.Modules.Aave.Models;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.Extensions.Logging;
 using TickerQ.Utilities.Base;

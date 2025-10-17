@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\clients\AaveClient\AaveClient.csproj" />
+      <ProjectReference Include="..\CryptoWatcher.Modules.Aave.Application\CryptoWatcher.Modules.Aave.Application.csproj" />
+    </ItemGroup>
+
 </Project>

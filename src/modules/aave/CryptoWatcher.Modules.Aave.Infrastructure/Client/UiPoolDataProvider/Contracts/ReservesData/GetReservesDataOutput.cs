@@ -1,6 +1,6 @@
 using Nethereum.ABI.FunctionEncoding.Attributes;
 
-namespace AaveClient.UiPoolDataProvider.Contracts.ReservesData;
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider.Contracts.ReservesData;
 
 [FunctionOutput]
 public class GetReservesDataOutput
