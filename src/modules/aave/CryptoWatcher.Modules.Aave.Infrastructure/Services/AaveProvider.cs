@@ -1,0 +1,83 @@
+using CryptoWatcher.Extensions;
+using CryptoWatcher.Modules.Aave.Abstractions;
+using CryptoWatcher.Modules.Aave.Application.Abstractions.Client;
+using CryptoWatcher.Modules.Aave.Application.Models;
+using CryptoWatcher.Modules.Aave.Entities;
+using CryptoWatcher.Modules.Aave.Models;
+using CryptoWatcher.Shared.Entities;
+using CryptoWatcher.ValueObjects;
+
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Services;
+
+internal class AaveProvider : IAaveProvider
+{
+    private readonly IAaveApiClient _aaveApiClient;
+
+    public AaveProvider(IAaveApiClient aaveApiClient)
+    {
+        _aaveApiClient = aaveApiClient;
+    }
+
+    public async Task<List<AaveLendingPosition>> GetLendingPositionAsync(AaveChainConfiguration chain, Wallet wallet,
+        CancellationToken ct = default)
+    {
+        var userReserves =
+            await _aaveApiClient.UiPoolDataProviderFetcher.GetUserReservesDataAsync(chain, wallet.Address);
+
+        var reserveOutput =
+            await _aaveApiClient.UiPoolDataProviderFetcher.GetMarketReservesDataAsync(chain);
+        var marketData = reserveOutput.AggregatedMarketReserveData.ToDictionary(data => data.UnderlyingAsset);
+
+        var result = new List<AaveLendingPosition>();
+
+        foreach (var userReserveData in userReserves)
+        {
+            if (userReserveData.ScaledATokenBalance == 0 && userReserveData.ScaledVariableDebt == 0)
+            {
+                result.Add(new EmptyAaveLendingPosition
+                {
+                    TokenAddress = EvmAddress.Create(userReserveData.UnderlyingAsset)
+                });
+
+                continue;
+            }
+
+            if (!marketData.TryGetValue(userReserveData.UnderlyingAsset, out var reserveData))
+            {
+                throw new Exception("Can't find reserve data");
+            }
+
+            var decimals = reserveOutput.NetworkBaseTokenPriceDecimals;
+
+            if (userReserveData.ScaledATokenBalance > 0)
+            {
+                var suppliedPosition = new SuppliedAaveLendingPosition
+                {
+                    ScaleAmount = userReserveData.ScaledATokenBalance,
+                    TokenAddress = EvmAddress.Create(userReserveData.UnderlyingAsset),
+                    LiquidityIndex = reserveData.LiquidityIndex,
+                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(decimals),
+                    TokenDecimals = (byte)reserveData.Decimals
+                };
+
+                result.Add(suppliedPosition);
+            }
+
+            if (userReserveData.ScaledVariableDebt > 0)
+            {
+                var borrowedPosition = new BorrowedAaveLendingPosition
+                {
+                    ScaleAmount = userReserveData.ScaledVariableDebt,
+                    TokenAddress = EvmAddress.Create(userReserveData.UnderlyingAsset),
+                    VariableBorrowIndex = reserveData.VariableBorrowIndex,
+                    TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(decimals),
+                    TokenDecimals = (byte)reserveData.Decimals
+                };
+
+                result.Add(borrowedPosition);
+            }
+        }
+
+        return result;
+    }
+}

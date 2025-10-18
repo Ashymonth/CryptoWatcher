@@ -25,7 +25,7 @@ public class UniswapChainConfigurationConfiguration : IEntityTypeConfiguration<U
         builder.Property(configuration => configuration.LastProcessedBlock)
             .HasConversion(integer => integer.ToString(), bigInterString => BigInteger.Parse(bigInterString));
         
-        builder.OwnsOne(chain => chain.SmartContractAddresses, navigationBuilder =>
+        builder.ComplexProperty(chain => chain.SmartContractAddresses, navigationBuilder =>
         {
             navigationBuilder.Property(addresses => addresses.PoolFactory).ConfigureEvmAddress();
             navigationBuilder.Property(addresses => addresses.MultiCall).ConfigureEvmAddress();

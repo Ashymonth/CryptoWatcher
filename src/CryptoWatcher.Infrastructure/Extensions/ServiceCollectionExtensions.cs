@@ -1,13 +1,8 @@
-using AaveClient.Extensions;
 using CoinGeckoClient.Extensions;
-using CryptoWatcher.AaveModule.Abstractions;
-using CryptoWatcher.AaveModule.Extensions;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Application;
 using CryptoWatcher.Application.Reports;
-using CryptoWatcher.Modules.Hyperliquid.Abstractions;
-using CryptoWatcher.Infrastructure.Aave;
 using CryptoWatcher.Infrastructure.Configs;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Aave;
@@ -18,9 +13,9 @@ using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Uniswap;
 using CryptoWatcher.Infrastructure.Integrations;
 using CryptoWatcher.Infrastructure.Services;
 using CryptoWatcher.Integrations;
+using CryptoWatcher.Modules.Aave.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Client.Extensions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Extensions;
-using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Services;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Services;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
@@ -51,9 +46,7 @@ public static class ServiceCollectionExtensions
 
         services.AddCoinGeckoClient(provider => provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
         services.AddTransient<ICoinPriceProvider, CoinGeckoCoinPriceProvider>();
-
-        services.AddSingleton<IAaveProvider, AaveProvider>();
-
+ 
         services.AddSingleton<IExcelReportGenerator, ExcelReportGenerator>();
         services.AddScoped<IPlatformDailyReportFacade, PlatformDailyReportFacade>();
         return services;
@@ -71,12 +64,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddConfiguredAaveModule(this IServiceCollection services)
     {
-        services.AddAaveClient();
-
-        services
-            .AddAaveModule()
-            .AddSingleton<IAaveMainnetProvider, AaveMainnetProvider>()
-            .AddScoped<IAaveProvider, AaveProvider>()
+        services.AddAaveModule()
             .AddSingleton<IDailyExcelSheetBuilder, AaveDailyExcelSheetBuilder>()
             .AddSingleton<AaveDailyReportExcelWorksheetWriter>();
 

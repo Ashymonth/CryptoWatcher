@@ -23,7 +23,44 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePosition", b =>
+            modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AaveChainConfiguration", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("RpcAuthToken")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("RpcUrl")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.ComplexProperty<Dictionary<string, object>>("SmartContractAddresses", "CryptoWatcher.Modules.Aave.Entities.AaveChainConfiguration.SmartContractAddresses#AaveAddresses", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("PoolAddressesProviderAddress")
+                                .IsRequired()
+                                .HasMaxLength(42)
+                                .HasColumnType("character(42)")
+                                .IsFixedLength();
+
+                            b1.Property<string>("UiPoolDataProviderAddress")
+                                .IsRequired()
+                                .HasMaxLength(42)
+                                .HasColumnType("character(42)")
+                                .IsFixedLength();
+                        });
+
+                    b.HasKey("Name");
+
+                    b.ToTable("AaveChainConfigurations");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePosition", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,7 +102,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("AavePositions");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionEvent", b =>
+            modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePositionEvent", b =>
                 {
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uuid");
@@ -76,7 +113,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Property<int>("Event")
                         .HasColumnType("integer");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Token", "CryptoWatcher.AaveModule.Entities.AavePositionEvent.Token#TokenInfo", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Token", "CryptoWatcher.Modules.Aave.Entities.AavePositionEvent.Token#TokenInfo", b1 =>
                         {
                             b1.IsRequired();
 
@@ -96,7 +133,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("AavePositionEvents");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionSnapshot", b =>
+            modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePositionSnapshot", b =>
                 {
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uuid");
@@ -104,7 +141,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Property<DateOnly>("Day")
                         .HasColumnType("date");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Token", "CryptoWatcher.AaveModule.Entities.AavePositionSnapshot.Token#TokenInfo", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Token", "CryptoWatcher.Modules.Aave.Entities.AavePositionSnapshot.Token#TokenInfo", b1 =>
                         {
                             b1.IsRequired();
 
@@ -192,8 +229,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
                     b.HasKey("VaultAddress", "WalletAddress", "Day");
 
-                    b.HasIndex("WalletAddress");
-
                     b.ToTable("HyperliquidVaultPositionSnapshots");
                 });
 
@@ -229,6 +264,34 @@ namespace CryptoWatcher.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
+
+                    b.ComplexProperty<Dictionary<string, object>>("SmartContractAddresses", "CryptoWatcher.Modules.Uniswap.Entities.UniswapChainConfiguration.SmartContractAddresses#UniswapAddresses", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("MultiCall")
+                                .IsRequired()
+                                .HasMaxLength(42)
+                                .HasColumnType("character(42)")
+                                .IsFixedLength();
+
+                            b1.Property<string>("PoolFactory")
+                                .IsRequired()
+                                .HasMaxLength(42)
+                                .HasColumnType("character(42)")
+                                .IsFixedLength();
+
+                            b1.Property<string>("PositionManager")
+                                .IsRequired()
+                                .HasMaxLength(42)
+                                .HasColumnType("character(42)")
+                                .IsFixedLength();
+
+                            b1.Property<string>("StateView")
+                                .HasMaxLength(42)
+                                .HasColumnType("character(42)")
+                                .IsFixedLength();
+                        });
 
                     b.HasKey("Name", "ProtocolVersion");
 
@@ -595,7 +658,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("TimeTickers", "ticker");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePosition", b =>
+            modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePosition", b =>
                 {
                     b.HasOne("CryptoWatcher.Shared.Entities.Wallet", "Wallet")
                         .WithMany()
@@ -606,18 +669,18 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Navigation("Wallet");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionEvent", b =>
+            modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePositionEvent", b =>
                 {
-                    b.HasOne("CryptoWatcher.AaveModule.Entities.AavePosition", null)
+                    b.HasOne("CryptoWatcher.Modules.Aave.Entities.AavePosition", null)
                         .WithMany("PositionEvents")
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePositionSnapshot", b =>
+            modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePositionSnapshot", b =>
                 {
-                    b.HasOne("CryptoWatcher.AaveModule.Entities.AavePosition", null)
+                    b.HasOne("CryptoWatcher.Modules.Aave.Entities.AavePosition", null)
                         .WithMany("PositionSnapshots")
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -654,65 +717,10 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
             modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPositionSnapshot", b =>
                 {
-                    b.HasOne("CryptoWatcher.Shared.Entities.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletAddress")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition", "Vault")
+                    b.HasOne("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition", null)
                         .WithMany("PositionSnapshots")
                         .HasForeignKey("VaultAddress", "WalletAddress")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Vault");
-
-                    b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Modules.Uniswap.Entities.UniswapChainConfiguration", b =>
-                {
-                    b.OwnsOne("CryptoWatcher.Modules.Uniswap.ValueObjects.UniswapAddresses", "SmartContractAddresses", b1 =>
-                        {
-                            b1.Property<string>("UniswapChainConfigurationName")
-                                .HasColumnType("character varying(32)");
-
-                            b1.Property<int>("UniswapChainConfigurationProtocolVersion")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("MultiCall")
-                                .IsRequired()
-                                .HasMaxLength(42)
-                                .HasColumnType("character(42)")
-                                .IsFixedLength();
-
-                            b1.Property<string>("PoolFactory")
-                                .IsRequired()
-                                .HasMaxLength(42)
-                                .HasColumnType("character(42)")
-                                .IsFixedLength();
-
-                            b1.Property<string>("PositionManager")
-                                .IsRequired()
-                                .HasMaxLength(42)
-                                .HasColumnType("character(42)")
-                                .IsFixedLength();
-
-                            b1.Property<string>("StateView")
-                                .HasMaxLength(42)
-                                .HasColumnType("character(42)")
-                                .IsFixedLength();
-
-                            b1.HasKey("UniswapChainConfigurationName", "UniswapChainConfigurationProtocolVersion");
-
-                            b1.ToTable("UniswapChainConfigurations");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UniswapChainConfigurationName", "UniswapChainConfigurationProtocolVersion");
-                        });
-
-                    b.Navigation("SmartContractAddresses")
                         .IsRequired();
                 });
 
@@ -774,7 +782,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Navigation("ParentJob");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.AaveModule.Entities.AavePosition", b =>
+            modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePosition", b =>
                 {
                     b.Navigation("PositionEvents");
 
