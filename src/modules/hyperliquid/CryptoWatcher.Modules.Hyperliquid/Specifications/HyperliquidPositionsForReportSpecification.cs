@@ -19,8 +19,8 @@ public sealed class HyperliquidPositionsForReportSpecification : Specification<H
         Query
             .Where(position => valetAddresses.Contains(position.WalletAddress))
             .Include(position => position.Wallet)
-            .Include(position =>
-                position.VaultEvents.Where(@event => @event.Date.ToDateOnly() > from && @event.Date.ToDateOnly() <= to))
+            .Include(position => position.VaultEvents.Where(@event =>
+                    @event.Date.Date > from.ToMinDateTime() && @event.Date.Date <= to.ToMaxDateTime()))
             .Include(position => position.PositionSnapshots
                 .OrderBy(snapshot => snapshot.Day)
                 .Where(snapshot => snapshot.Day >= from && snapshot.Day <= to));

@@ -8,17 +8,19 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["src/CryptoWatcher.Host/CryptoWatcher.Host.csproj", "src/CryptoWatcher.Host/"]
+COPY ["src/modules/hyperliquid/CryptoWatcher.Modules.Hyperliquid.Infrastructure/CryptoWatcher.Modules.Hyperliquid.Infrastructure.csproj", "src/modules/hyperliquid/CryptoWatcher.Modules.Hyperliquid.Infrastructure/"]
+COPY ["src/modules/hyperliquid/CryptoWatcher.Modules.Hyperliquid.Application/CryptoWatcher.Modules.Hyperliquid.Application.csproj", "src/modules/hyperliquid/CryptoWatcher.Modules.Hyperliquid.Application/"]
+COPY ["src/modules/hyperliquid/CryptoWatcher.Modules.Hyperliquid/CryptoWatcher.Modules.Hyperliquid.csproj", "src/modules/hyperliquid/CryptoWatcher.Modules.Hyperliquid/"]
+COPY ["src/CryptoWatcher/CryptoWatcher.csproj", "src/CryptoWatcher/"]
 COPY ["src/modules/uniswap/CryptoWatcher.Modules.Uniswap.Infrastructure/CryptoWatcher.Modules.Uniswap.Infrastructure.csproj", "src/modules/uniswap/CryptoWatcher.Modules.Uniswap.Infrastructure/"]
 COPY ["src/modules/uniswap/CryptoWatcher.Modules.Uniswap.Application/CryptoWatcher.Modules.Uniswap.Application.csproj", "src/modules/uniswap/CryptoWatcher.Modules.Uniswap.Application/"]
 COPY ["src/modules/uniswap/CryptoWatcher.Modules.Uniswap/CryptoWatcher.Modules.Uniswap.csproj", "src/modules/uniswap/CryptoWatcher.Modules.Uniswap/"]
-COPY ["src/CryptoWatcher/CryptoWatcher.csproj", "src/CryptoWatcher/"]
-COPY ["clients/AaveClient/AaveClient.csproj", "clients/AaveClient/"]
 COPY ["clients/CoinGeckoClient/CoinGeckoClient.csproj", "clients/CoinGeckoClient/"]
 COPY ["src/CryptoWatcher.Application/CryptoWatcher.Application.csproj", "src/CryptoWatcher.Application/"]
-COPY ["src/modules/aave/CryptoWatcher.AaveModule/CryptoWatcher.AaveModule.csproj", "src/modules/aave/CryptoWatcher.AaveModule/"]
-COPY ["src/modules/hyperliquid/CryptoWatcher.HyperliquidModule/CryptoWatcher.HyperliquidModule.csproj", "src/modules/hyperliquid/CryptoWatcher.HyperliquidModule/"]
-COPY ["clients/HyperliquidClient/HyperliquidClient.csproj", "clients/HyperliquidClient/"]
 COPY ["src/CryptoWatcher.Infrastructure/CryptoWatcher.Infrastructure.csproj", "src/CryptoWatcher.Infrastructure/"]
+COPY ["src/modules/aave/CryptoWatcher.Modules.Aave/CryptoWatcher.Modules.Aave.csproj", "src/modules/aave/CryptoWatcher.Modules.Aave/"]
+COPY ["src/modules/aave/CryptoWatcher.Modules.Aave.Infrastructure/CryptoWatcher.Modules.Aave.Infrastructure.csproj", "src/modules/aave/CryptoWatcher.Modules.Aave.Infrastructure/"]
+COPY ["src/modules/aave/CryptoWatcher.Modules.Aave.Application/CryptoWatcher.Modules.Aave.Application.csproj", "src/modules/aave/CryptoWatcher.Modules.Aave.Application/"]
 RUN dotnet restore "src/CryptoWatcher.Host/CryptoWatcher.Host.csproj"
 COPY . .
 WORKDIR "/src/src/CryptoWatcher.Host"
