@@ -1,4 +1,5 @@
 using AutoFixture;
+using CryptoWatcher.Modules.Aave.Application.Models;
 using CryptoWatcher.Modules.Aave.Models;
 
 namespace CryptoWatcher.Modules.Aave.Tests.Customizations;

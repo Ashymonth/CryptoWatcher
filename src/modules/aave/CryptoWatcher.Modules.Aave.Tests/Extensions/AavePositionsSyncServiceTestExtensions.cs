@@ -1,6 +1,7 @@
 using AutoFixture;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Aave.Application.Abstractions;
+using CryptoWatcher.Modules.Aave.Application.Models;
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Modules.Aave.Models;
 using CryptoWatcher.Modules.Aave.Specifications;
@@ -20,7 +21,7 @@ internal static class AavePositionsSyncServiceTestExtensions
 
     public static List<TokenInfo> SetupAaveTokenEnricher(this Mock<IAaveTokenEnricher> mock,
         Fixture fixture,
-        AaveNetwork network,
+        AaveChainConfiguration chain,
         IEnumerable<AaveLendingPosition> expectedPositions)
     {
         var expectedSnapshotTokens = new List<TokenInfo>();
@@ -28,7 +29,7 @@ internal static class AavePositionsSyncServiceTestExtensions
         {
             var expectedTokenInfo = fixture.Create<TokenInfo>();
             
-            mock.Setup(enricher => enricher.EnrichTokenAsync(network,
+            mock.Setup(enricher => enricher.EnrichTokenAsync(chain,
                     (CalculatableAaveLendingPosition)expectedPosition, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedTokenInfo);
             

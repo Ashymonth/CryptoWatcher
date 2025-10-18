@@ -36,6 +36,16 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     #region Aave
 
     /// <summary>
+    /// Represents the entity set for managing Aave chain configurations in the application's database context.
+    /// </summary>
+    /// <remarks>
+    /// This property allows access to Aave-specific blockchain configuration data, including chain names, RPC details,
+    /// and associated smart contract addresses. It is essential to manage and query configuration settings necessary
+    /// for interaction with various Aave-supported blockchains within the CryptoWatcher application.
+    /// </remarks>
+    public DbSet<AaveChainConfiguration> AaveChainConfigurations => Set<AaveChainConfiguration>();
+    
+    /// <summary>
     /// Provides access to the set of Aave positions within the application's database context.
     /// </summary>
     /// <remarks>

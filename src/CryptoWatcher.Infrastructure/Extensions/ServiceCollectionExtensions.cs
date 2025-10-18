@@ -13,8 +13,6 @@ using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Uniswap;
 using CryptoWatcher.Infrastructure.Integrations;
 using CryptoWatcher.Infrastructure.Services;
 using CryptoWatcher.Integrations;
-using CryptoWatcher.Modules.Aave.Abstractions;
-using CryptoWatcher.Modules.Aave.Infrastructure.Client.Extensions;
 using CryptoWatcher.Modules.Aave.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Client.Extensions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Extensions;
@@ -66,11 +64,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddConfiguredAaveModule(this IServiceCollection services)
     {
-        services.AddAaveClient();
-
-        services
-            .AddAaveModule()
-          
+        services.AddAaveModule()
             .AddSingleton<IDailyExcelSheetBuilder, AaveDailyExcelSheetBuilder>()
             .AddSingleton<AaveDailyReportExcelWorksheetWriter>();
 

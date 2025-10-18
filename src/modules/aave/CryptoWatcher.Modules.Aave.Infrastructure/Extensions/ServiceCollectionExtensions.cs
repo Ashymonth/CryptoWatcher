@@ -1,6 +1,7 @@
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Modules.Aave.Abstractions;
 using CryptoWatcher.Modules.Aave.Application.Abstractions;
+using CryptoWatcher.Modules.Aave.Application.Abstractions.Client;
 using CryptoWatcher.Modules.Aave.Application.Services;
 using CryptoWatcher.Modules.Aave.Infrastructure.Client;
 using CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider;
@@ -29,7 +30,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAavePositionsSyncService, AavePositionsSyncService>();
         services.AddScoped<IAaveTokenEnricher, AaveTokenEnricher>();
 
-        services.AddSingleton<IAaveMainnetProvider, AaveMainnetProvider>();
         services.AddScoped<IAaveProvider, AaveProvider>();
 
         services.AddKeyedScoped<IPlatformDailyReportDataProvider, AaveReportDataService>(AaveModuleKeyedService

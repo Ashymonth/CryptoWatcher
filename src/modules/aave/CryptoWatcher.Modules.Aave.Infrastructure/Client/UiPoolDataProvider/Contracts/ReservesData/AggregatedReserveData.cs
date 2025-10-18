@@ -99,36 +99,30 @@ public class AggregatedReserveData
     [Parameter("uint128", "accruedToTreasury", 31)]
     public BigInteger AccruedToTreasury { get; set; }
 
-    [Parameter("uint128", "unbacked", 32)]
-    public BigInteger Unbacked { get; set; }
-
-    [Parameter("uint128", "isolationModeTotalDebt", 33)]
+    [Parameter("uint128", "isolationModeTotalDebt", 32)]
     public BigInteger IsolationModeTotalDebt { get; set; }
 
-    [Parameter("bool", "flashLoanEnabled", 34)]
+    [Parameter("bool", "flashLoanEnabled", 33)]
     public bool FlashLoanEnabled { get; set; }
 
-    [Parameter("uint256", "debtCeiling", 35)]
+    [Parameter("uint256", "debtCeiling", 34)]
     public BigInteger DebtCeiling { get; set; }
 
-    [Parameter("uint256", "debtCeilingDecimals", 36)]
+    [Parameter("uint256", "debtCeilingDecimals", 35)]
     public BigInteger DebtCeilingDecimals { get; set; }
 
-    [Parameter("uint256", "borrowCap", 37)]
+    [Parameter("uint256", "borrowCap", 36)]
     public BigInteger BorrowCap { get; set; }
 
-    [Parameter("uint256", "supplyCap", 38)]
+    [Parameter("uint256", "supplyCap", 37)]
     public BigInteger SupplyCap { get; set; }
 
-    [Parameter("bool", "borrowableInIsolation", 39)]
+    [Parameter("bool", "borrowableInIsolation", 38)]
     public bool BorrowableInIsolation { get; set; }
 
-    [Parameter("bool", "virtualAccActive", 40)]
-    public bool VirtualAccActive { get; set; }
-
-    [Parameter("uint128", "virtualUnderlyingBalance", 41)]
+    [Parameter("uint128", "virtualUnderlyingBalance", 39)]
     public BigInteger VirtualUnderlyingBalance { get; set; }
 
-    [Parameter("uint128", "deficit", 42)]
+    [Parameter("uint128", "deficit", 40)]
     public BigInteger Deficit { get; set; }
 }

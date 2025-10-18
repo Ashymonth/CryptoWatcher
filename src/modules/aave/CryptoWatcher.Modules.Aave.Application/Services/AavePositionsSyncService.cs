@@ -1,6 +1,7 @@
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Aave.Abstractions;
 using CryptoWatcher.Modules.Aave.Application.Abstractions;
+using CryptoWatcher.Modules.Aave.Application.Models;
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Modules.Aave.Models;
 using CryptoWatcher.Modules.Aave.Specifications;
@@ -32,7 +33,7 @@ public class AavePositionsSyncService : IAavePositionsSyncService
     }
 
     public async Task<List<AavePosition>> SyncPositionsAsync(
-        AaveNetwork network,
+        AaveChainConfiguration chain,
         Wallet wallet, 
         DateOnly syncDay,
         CancellationToken ct = default)
@@ -44,9 +45,9 @@ public class AavePositionsSyncService : IAavePositionsSyncService
 
         var result = new List<AavePosition>();
 
-        var lendingPositions = await _aaveProvider.GetLendingPositionAsync(network, wallet, ct);
+        var lendingPositions = await _aaveProvider.GetLendingPositionAsync(chain, wallet, ct);
 
-        _logger.LogFetchedPositionsForNetworkCount(network.Name, lendingPositions.Count);
+        _logger.LogFetchedPositionsForNetworkCount(chain.Name, lendingPositions.Count);
 
         foreach (var lendingPosition in lendingPositions)
         {
@@ -69,7 +70,7 @@ public class AavePositionsSyncService : IAavePositionsSyncService
                                                       "To calculate position amount, lending position must inherit from CalculatableAaveLendingPosition class");
 
             var tokenInfo =
-                await _aaveTokenEnricher.EnrichTokenAsync(network, calculatableAaveLendingPosition, ct);
+                await _aaveTokenEnricher.EnrichTokenAsync(chain, calculatableAaveLendingPosition, ct);
 
             var positionType = calculatableAaveLendingPosition.DeterminePositionType();
 
@@ -79,7 +80,7 @@ public class AavePositionsSyncService : IAavePositionsSyncService
             if (currentPosition is null)
             {
                 currentPosition =
-                    new AavePosition(network, wallet, positionType, EvmAddress.Create(lendingPosition.TokenAddress),
+                    new AavePosition(chain, wallet, positionType, EvmAddress.Create(lendingPosition.TokenAddress),
                         syncDay);
 
                 _aavePositionRepository.Insert(currentPosition);

@@ -7,8 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\clients\AaveClient\AaveClient.csproj" />
       <ProjectReference Include="..\CryptoWatcher.Modules.Aave.Application\CryptoWatcher.Modules.Aave.Application.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Nethereum.Web3" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

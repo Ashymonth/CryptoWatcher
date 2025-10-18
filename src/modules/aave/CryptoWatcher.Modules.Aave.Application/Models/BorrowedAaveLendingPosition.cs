@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace CryptoWatcher.Modules.Aave.Models;
+namespace CryptoWatcher.Modules.Aave.Application.Models;
 
 /// <summary>
 /// Indicates that the position is borrowed.

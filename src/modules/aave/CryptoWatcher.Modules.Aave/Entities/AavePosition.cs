@@ -29,10 +29,10 @@ public class AavePosition : ICalculatablePosition<ITokenPositionSnapshot>
     {
     }
 
-    public AavePosition(AaveNetwork network, Wallet wallet, AavePositionType positionType, EvmAddress tokenAddress,
+    public AavePosition(AaveChainConfiguration chain, Wallet wallet, AavePositionType positionType, EvmAddress tokenAddress,
         DateOnly createdAtDay)
     {
-        Network = network.Name;
+        Network = chain.Name;
         WalletAddress = wallet.Address;
         PositionType = positionType;
         TokenAddress = tokenAddress;

@@ -4,11 +4,13 @@ using CryptoWatcher.AaveModule.Tests.Extensions;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Aave.Abstractions;
 using CryptoWatcher.Modules.Aave.Application.Abstractions;
+using CryptoWatcher.Modules.Aave.Application.Models;
 using CryptoWatcher.Modules.Aave.Application.Services;
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Modules.Aave.Models;
 using CryptoWatcher.Modules.Aave.Specifications;
 using CryptoWatcher.Modules.Aave.Tests.Customizations;
+using CryptoWatcher.Modules.Aave.ValueObjects;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
@@ -20,8 +22,20 @@ namespace CryptoWatcher.AaveModule.Tests.Services;
 [TestSubject(typeof(AavePositionsSyncService))]
 public class AavePositionsSyncServiceTest
 {
-    private static readonly AaveNetwork TestNetwork = AaveNetwork.CeloNetwork;
-    private static readonly Wallet TestWallet = new() { Address = EvmAddress.Create("0xcaBBa9e7f4b3A885C5aa069f88469ac711Dd4aCC") };
+    private static readonly AaveChainConfiguration TestNetwork = new AaveChainConfiguration
+    {
+        Name = "Celo",
+        RpcUrl = new Uri("https://alfajores-forno.celo-testnet.org"),
+        SmartContractAddresses = new AaveAddresses
+        {
+            PoolAddressesProviderAddress = EvmAddress.Create("0xcaBBa9e7f4b3A885C5aa069f88469ac711Dd4aCC"),
+            UiPoolDataProviderAddress = EvmAddress.Create("0xcaBBa9e7f4b3A885C5aa069f88469ac711Dd4aCC")
+        }
+    };
+
+    private static readonly Wallet TestWallet = new()
+        { Address = EvmAddress.Create("0xcaBBa9e7f4b3A885C5aa069f88469ac711Dd4aCC") };
+
     private static readonly DateOnly SyncDay = DateOnly.FromDateTime(DateTime.Now);
     private static readonly DateTimeOffset TestTime = DateTimeOffset.Now;
 
@@ -37,7 +51,7 @@ public class AavePositionsSyncServiceTest
         _fixture.WithTokenDecimalsRange();
         _fixture.Customize(new PositiveBigIntegerCustomization());
         _fixture.Customize(new EvmAddressCustomization());
-        
+
         _aavePositionRepositoryMock.Setup(repository => repository.UnitOfWork)
             .Returns(new Mock<IUnitOfWork>().Object);
 
@@ -58,7 +72,7 @@ public class AavePositionsSyncServiceTest
 
         var service = CreateService();
 
-        var result = await service.SyncPositionsAsync(AaveNetwork.CeloNetwork, TestWallet, randomSyncDay,
+        var result = await service.SyncPositionsAsync(TestNetwork, TestWallet, randomSyncDay,
             TestContext.Current.CancellationToken);
 
         Assert.Empty(result);
@@ -105,15 +119,16 @@ public class AavePositionsSyncServiceTest
             _aavePositionRepositoryMock.SetupEmptyListFromRepo();
         }
 
-        var expectedSnapshotTokens = _tokenEnricherMock.SetupAaveTokenEnricher(_fixture, TestNetwork, expectedPositions);
+        var expectedSnapshotTokens =
+            _tokenEnricherMock.SetupAaveTokenEnricher(_fixture, TestNetwork, expectedPositions);
 
         var service = CreateService();
 
-        var actual = await service.SyncPositionsAsync(AaveNetwork.CeloNetwork, TestWallet, SyncDay,
+        var actual = await service.SyncPositionsAsync(TestNetwork, TestWallet, SyncDay,
             TestContext.Current.CancellationToken);
 
         Assert.Equal(expectedPositions.Count, actual.Count);
-        
+
         var expectedMap = expectedPositions
             .Zip(expectedSnapshotTokens, (pos, token) => new { pos.TokenAddress, Token = token })
             .ToDictionary(x => x.TokenAddress, x => x.Token);
@@ -146,11 +161,12 @@ public class AavePositionsSyncServiceTest
 
         _aavePositionRepositoryMock.SetupEmptyListFromRepo();
 
-        var expectedSnapshotTokens = _tokenEnricherMock.SetupAaveTokenEnricher(_fixture, TestNetwork, expectedPositions);
+        var expectedSnapshotTokens =
+            _tokenEnricherMock.SetupAaveTokenEnricher(_fixture, TestNetwork, expectedPositions);
 
         var service = CreateService();
 
-        var actual = await service.SyncPositionsAsync(AaveNetwork.CeloNetwork, TestWallet, SyncDay,
+        var actual = await service.SyncPositionsAsync(TestNetwork, TestWallet, SyncDay,
             TestContext.Current.CancellationToken);
 
         Assert.Equal(expectedPositions.Length, actual.Count);
@@ -189,7 +205,7 @@ public class AavePositionsSyncServiceTest
 
         var service = CreateService();
 
-        var actual = await service.SyncPositionsAsync(AaveNetwork.CeloNetwork, TestWallet, SyncDay,
+        var actual = await service.SyncPositionsAsync(TestNetwork, TestWallet, SyncDay,
             TestContext.Current.CancellationToken);
 
         Assert.Single(actual);

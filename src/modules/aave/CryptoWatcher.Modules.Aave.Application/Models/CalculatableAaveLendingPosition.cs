@@ -1,8 +1,9 @@
 using System.Numerics;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Modules.Aave.Entities;
+using CryptoWatcher.Modules.Aave.Models;
 
-namespace CryptoWatcher.Modules.Aave.Models;
+namespace CryptoWatcher.Modules.Aave.Application.Models;
 
 /// <summary>
 /// Indicate that position is borrowed or supplied.

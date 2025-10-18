@@ -4,6 +4,7 @@ using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Modules.Aave.Models;
+using CryptoWatcher.Modules.Aave.ValueObjects;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
@@ -17,6 +18,16 @@ public class AavePositionTest
 {
     private static readonly Wallet TestWallet = new()
         { Address = EvmAddress.Create("0xb67dDd7562A4FeDAD0AbA02E09E696AAD365EcB7") };
+    private static readonly AaveChainConfiguration TestNetwork = new AaveChainConfiguration
+    {
+        Name = "Celo",
+        RpcUrl = new Uri("https://alfajores-forno.celo-testnet.org"),
+        SmartContractAddresses = new AaveAddresses
+        {
+            PoolAddressesProviderAddress = EvmAddress.Create("0xcaBBa9e7f4b3A885C5aa069f88469ac711Dd4aCC"),
+            UiPoolDataProviderAddress = EvmAddress.Create("0xcaBBa9e7f4b3A885C5aa069f88469ac711Dd4aCC")
+        }
+    };
 
     private static readonly DateTimeOffset TestTime = DateTimeOffset.UtcNow;
     private static readonly DateOnly TestDate = TestTime.DateTime.ToDateOnly();
@@ -169,7 +180,7 @@ public class AavePositionTest
     private AavePosition CreatePosition(AavePositionType type)
     {
         return new AavePosition(
-            AaveNetwork.CeloNetwork,
+            TestNetwork,
             TestWallet,
             type,
             _fixture.Create<EvmAddress>(),
