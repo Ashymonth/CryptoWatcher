@@ -1,15 +1,15 @@
+using CryptoWatcher.Modules.Hyperliquid.Application.Models;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
 using CryptoWatcher.Shared.Entities;
-using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Hyperliquid.Abstractions;
+namespace CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
 
 public interface IHyperliquidProvider
 {
     Task<HyperliquidVaultEvent[]> GetCashFlowEventsAsync(Wallet wallet,
         DateOnly from, DateOnly to,
         CancellationToken ct = default);
-    
-    Task<(EvmAddress VaultAddress, decimal Equity)[]> GetVaultsPositionsEquityAsync(Wallet wallet,
+
+    Task<IReadOnlyCollection<HyperliquidVault>> GetVaultsPositionsEquityAsync(Wallet wallet,
         CancellationToken ct = default);
 }

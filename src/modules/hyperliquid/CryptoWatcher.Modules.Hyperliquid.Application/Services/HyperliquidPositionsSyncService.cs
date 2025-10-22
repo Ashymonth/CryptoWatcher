@@ -1,5 +1,5 @@
 using CryptoWatcher.Abstractions;
-using CryptoWatcher.Modules.Hyperliquid.Abstractions;
+using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
 using CryptoWatcher.Modules.Hyperliquid.Specifications;
 using CryptoWatcher.Shared.Entities;
@@ -46,7 +46,7 @@ public class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncService
             .ToDictionary(position => position.VaultAddress);
 
         var hyperliquidVaultPositions = await _hyperliquidProvider.GetVaultsPositionsEquityAsync(wallet, ct);
- 
+
         var cashFlowHistory = (await _hyperliquidProvider.GetCashFlowEventsAsync(wallet, from, to, ct))
             .GroupBy(@event => @event.VaultAddress)
             .ToDictionary(events => events.Key, events => events.OrderBy(@event => @event.Date).ToArray());
@@ -57,34 +57,34 @@ public class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncService
 
         await _repository.UnitOfWork.BeginTransactionAsync(ct);
 
-        var result = new List<HyperliquidVaultPosition>(hyperliquidVaultPositions.Length);
+        var result = new List<HyperliquidVaultPosition>(hyperliquidVaultPositions.Count);
 
-        foreach (var (vaultAddress, equity) in hyperliquidVaultPositions)
+        foreach (var vault in hyperliquidVaultPositions)
         {
             try
             {
-                var isPositionExist = existingPositionMap.TryGetValue(vaultAddress, out var vaultPosition);
+                var isPositionExist = existingPositionMap.TryGetValue(vault.Address, out var vaultPosition);
                 if (!isPositionExist)
                 {
                     vaultPosition = new HyperliquidVaultPosition
                     {
-                        InitialBalance = equity,
+                        InitialBalance = vault.Balance,
                         WalletAddress = wallet.Address,
-                        VaultAddress = vaultAddress,
+                        VaultAddress = vault.Address,
                         Wallet = wallet,
                         CreatedAt = nowDay
                     };
                 }
 
-                if (equity == 0)
+                if (vault.Balance == 0)
                 {
                     vaultPosition!.ClosePosition(nowDay);
                 }
 
                 vaultPosition!.AddOrUpdateSnapshot(
-                    new HyperliquidVaultPositionSnapshot(wallet, vaultAddress, equity, nowDay));
+                    new HyperliquidVaultPositionSnapshot(wallet, vault.Address, vault.Balance, nowDay));
 
-                if (!cashFlowHistory.TryGetValue(vaultAddress, out var cashFlowEvents))
+                if (!cashFlowHistory.TryGetValue(vault.Address, out var cashFlowEvents))
                 {
                     continue;
                 }
