@@ -7,7 +7,7 @@ using CryptoWatcher.Modules.Aave.Models;
 using CryptoWatcher.Modules.Aave.Specifications;
 using CryptoWatcher.Shared.Entities;
 
-namespace CryptoWatcher.Modules.Aave.Services;
+namespace CryptoWatcher.Modules.Aave.Application.Services;
 
 public class AaveReportDataService : IPlatformDailyReportDataProvider
 {
