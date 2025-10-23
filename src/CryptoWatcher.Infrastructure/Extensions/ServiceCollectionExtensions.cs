@@ -14,6 +14,7 @@ using CryptoWatcher.Infrastructure.Integrations;
 using CryptoWatcher.Infrastructure.Services;
 using CryptoWatcher.Integrations;
 using CryptoWatcher.Modules.Aave.Infrastructure.Extensions;
+using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Client.Extensions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
@@ -43,6 +44,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 
         services.AddScoped<IPoolHistorySyncRepositoryFacade, PoolHistorySyncRepositoryFacade>();
+        services.AddScoped<IHyperliquidSyncRepoFacade, HyperliquidSyncRepoFacade>();
 
         services.AddCoinGeckoClient(provider => provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
         services.AddTransient<ICoinPriceProvider, CoinGeckoCoinPriceProvider>();

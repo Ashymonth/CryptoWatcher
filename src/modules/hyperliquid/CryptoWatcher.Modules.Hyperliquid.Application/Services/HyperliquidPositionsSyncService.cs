@@ -1,5 +1,6 @@
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
+using CryptoWatcher.Modules.Hyperliquid.Application.Models;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
 using CryptoWatcher.Modules.Hyperliquid.Specifications;
 using CryptoWatcher.Shared.Entities;
@@ -14,15 +15,17 @@ public class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncService
     private readonly IHyperliquidProvider _hyperliquidProvider;
     private readonly IRepository<HyperliquidVaultPosition> _repository;
     private readonly TimeProvider _timeProvider;
+    private readonly IHyperliquidSyncRepoFacade _facade;
 
     public HyperliquidPositionsSyncService(IHyperliquidProvider hyperliquidProvider,
         IRepository<HyperliquidVaultPosition> repository,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider, IHyperliquidSyncRepoFacade facade)
     {
         _hyperliquidProvider = hyperliquidProvider;
         _repository = repository;
 
         _timeProvider = timeProvider;
+        _facade = facade;
     }
 
     public async Task SyncPositionsAsync(Wallet wallet, DateOnly from, DateOnly to, CancellationToken ct = default)
@@ -44,7 +47,7 @@ public class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncService
 
         await _repository.UnitOfWork.BeginTransactionAsync(ct);
 
-        var result = new List<HyperliquidVaultPosition>(hyperliquidVaultPositions.Count);
+        var result = new List<HyperliquidVaultPosition>();
 
         foreach (var vault in hyperliquidVaultPositions)
         {
@@ -71,14 +74,12 @@ public class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncService
                 vaultPosition!.AddOrUpdateSnapshot(
                     new HyperliquidVaultPositionSnapshot(wallet, vault.Address, vault.Balance, nowDay));
 
-                if (!cashFlowHistory.TryGetValue(vault.Address, out var cashFlowEvents))
+                if (cashFlowHistory.TryGetValue(vault.Address, out var cashFlowEvents))
                 {
-                    continue;
-                }
-
-                foreach (var cashFlowEvent in cashFlowEvents)
-                {
-                    vaultPosition.AddCashFlowIfNotExists(cashFlowEvent);
+                    foreach (var cashFlowEvent in cashFlowEvents)
+                    {
+                        vaultPosition.AddCashFlowIfNotExists(cashFlowEvent);
+                    }
                 }
 
                 result.Add(vaultPosition);
@@ -90,7 +91,7 @@ public class HyperliquidPositionsSyncService : IHyperliquidPositionsSyncService
             }
         }
 
-        await _repository.BulkMergeAsync(result, ct);
+        await _facade.SavePositionWithGraphAsync(result, ct);
         await _repository.UnitOfWork.CommitTransactionAsync(ct);
     }
 }
