@@ -29,7 +29,7 @@ public class HyperliquidDailyBalanceChange
             throw new DomainException("Snapshots must belong to the same vault and wallet");
         }
 
-        if (previousSnapshot.Day >= currentSnapshot.Day)
+        if (previousSnapshot.Day > currentSnapshot.Day)
         {
             throw new DomainException("Previous snapshot must be before current");
         }
