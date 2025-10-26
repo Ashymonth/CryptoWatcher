@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 namespace CryptoWatcher.Modules.Aave.Application.Services;
 
 public class AaveDailyPositionPerformanceSynchronizer :
-    BaseDailyPositionPerformanceSynchronizer<AaveDailyBalanceChange>,
+    BaseDailyPositionPerformanceSynchronizer<AavePositionDailyPerformance>,
     IDailyPositionPerformanceSynchronizer
 {
     private readonly IRepository<AavePosition> _positionRepository;
 
-    public AaveDailyPositionPerformanceSynchronizer(IRepository<AaveDailyBalanceChange> balanceChangeRepository,
+    public AaveDailyPositionPerformanceSynchronizer(IRepository<AavePositionDailyPerformance> balanceChangeRepository,
         ILogger<AaveDailyPositionPerformanceSynchronizer> logger,
         IRepository<AavePosition> positionRepository) : base(balanceChangeRepository, logger)
     {
@@ -22,10 +22,10 @@ public class AaveDailyPositionPerformanceSynchronizer :
 
     public string Name => "Aave";
 
-    protected override async Task<List<AaveDailyBalanceChange>> GetDailyBalanceChangesAsync(
+    protected override async Task<List<AavePositionDailyPerformance>> GetDailyBalanceChangesAsync(
         IReadOnlyCollection<Wallet> wallets, DateOnly from, DateOnly to, CancellationToken ct)
     {
-        var result = new List<AaveDailyBalanceChange>();
+        var result = new List<AavePositionDailyPerformance>();
 
         var positions =
             await _positionRepository.ListAsync(new AavePositionsWithSnapshotsAndEventsSpecification(wallets, from, to),
@@ -38,7 +38,7 @@ public class AaveDailyPositionPerformanceSynchronizer :
             {
                 previousSnapshot ??= currentSnapshot;
 
-                var balanceChange = AaveDailyBalanceChange.Create(aavePosition, previousSnapshot, currentSnapshot);
+                var balanceChange = AavePositionDailyPerformance.Create(aavePosition, previousSnapshot, currentSnapshot);
 
                 result.Add(balanceChange);
             }

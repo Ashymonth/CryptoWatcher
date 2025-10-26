@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 namespace CryptoWatcher.Modules.Hyperliquid.Application.Services;
 
 public class HyperliquidDailyPositionPerformanceSynchronizer :
-    BaseDailyPositionPerformanceSynchronizer<HyperliquidDailyBalanceChange>,
+    BaseDailyPositionPerformanceSynchronizer<HyperliquidPositionDailyPerformance>,
     IDailyPositionPerformanceSynchronizer
 {
     private readonly IRepository<HyperliquidVaultPosition> _positionRepository;
 
-    public HyperliquidDailyPositionPerformanceSynchronizer(IRepository<HyperliquidDailyBalanceChange> balanceChangeRepository,
+    public HyperliquidDailyPositionPerformanceSynchronizer(IRepository<HyperliquidPositionDailyPerformance> balanceChangeRepository,
         IRepository<HyperliquidVaultPosition> positionRepository,
         ILogger<HyperliquidDailyPositionPerformanceSynchronizer> logger) : base(balanceChangeRepository, logger)
     {
@@ -22,13 +22,13 @@ public class HyperliquidDailyPositionPerformanceSynchronizer :
 
     public string Name => "Hyperliquid";
 
-    protected override async Task<List<HyperliquidDailyBalanceChange>> GetDailyBalanceChangesAsync(
+    protected override async Task<List<HyperliquidPositionDailyPerformance>> GetDailyBalanceChangesAsync(
         IReadOnlyCollection<Wallet> wallets, DateOnly from, DateOnly to, CancellationToken ct)
     {
         var positions =
             await _positionRepository.ListAsync(new HyperliquidPositionsForReportSpecification(wallets, from, to), ct);
 
-        var result = new List<HyperliquidDailyBalanceChange>();
+        var result = new List<HyperliquidPositionDailyPerformance>();
         foreach (var vaultPosition in positions)
         {
             HyperliquidVaultPositionSnapshot? previousSnapshot = null;
@@ -37,7 +37,7 @@ public class HyperliquidDailyPositionPerformanceSynchronizer :
                 previousSnapshot ??= currentSnapshot;
 
                 var balanceChange =
-                    HyperliquidDailyBalanceChange.CreateFromSnapshot(vaultPosition, previousSnapshot, currentSnapshot);
+                    HyperliquidPositionDailyPerformance.CreateFromSnapshot(vaultPosition, previousSnapshot, currentSnapshot);
 
                 previousSnapshot = currentSnapshot;
 

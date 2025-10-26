@@ -66,6 +66,8 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     /// </remarks>
     public DbSet<AavePositionSnapshot> AavePositionSnapshots => Set<AavePositionSnapshot>();
 
+    public DbSet<AavePositionDailyPerformance> Type { get; set; }
+    
     /// <summary>
     /// Provides access to the set of Aave position events in the application's database context.
     /// </summary>

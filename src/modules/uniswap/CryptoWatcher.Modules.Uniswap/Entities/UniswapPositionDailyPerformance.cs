@@ -7,9 +7,8 @@ public class UniswapPositionDailyPerformance
 {
     private UniswapPositionDailyPerformance()
     {
-        
     }
-    
+
     /// <summary>
     /// Represents the unique identifier for a liquidity pool position from NFT manager.
     /// </summary>
@@ -29,8 +28,12 @@ public class UniswapPositionDailyPerformance
     public string NetworkName { get; private set; } = null!;
 
     /// <summary>
-    /// 
+    /// Represents the specific date associated with the daily performance data of a Uniswap liquidity pool position.
     /// </summary>
+    /// <remarks>
+    /// This property indicates the day for which the performance metrics, such as hold value, current value, and commission,
+    /// are calculated. It acts as a reference point for temporal snapshots of the position's activity.
+    /// </remarks>
     public DateOnly Day { get; private set; }
 
     /// <summary>
@@ -63,6 +66,28 @@ public class UniswapPositionDailyPerformance
     public decimal CommissionInUsd { get; private set; }
 
     /// <summary>
+    /// Represents the quantity of token0 held in the Uniswap liquidity position for a specific day.
+    /// </summary>
+    /// <remarks>
+    /// This property reflects the amount of the first token (token0) associated with the liquidity position
+    /// during the specified daily performance period.
+    /// It is used to track and evaluate the position's performance
+    /// in terms of token0 holdings over time.
+    /// </remarks>
+    public decimal PositionInToken0 { get; private set; }
+
+    /// <summary>
+    /// Represents the quantity of token1 held in the Uniswap liquidity position for a specific day.
+    /// </summary>
+    /// <remarks>
+    /// This property reflects the amount of the second token (token1) associated with the liquidity position
+    /// during the specified daily performance period.
+    /// It is used to track and evaluate the position's performance
+    /// in terms of token1 holdings over time.
+    /// </remarks>
+    public decimal PositionInToken1 { get; private set; }
+
+    /// <summary>
     /// Indicates whether the associated liquidity position was actively within the range during the defined period.
     /// </summary>
     /// <remarks>
@@ -70,7 +95,7 @@ public class UniswapPositionDailyPerformance
     /// for a given day. It is primarily evaluated using liquidity position snapshots and can help assess range-bound
     /// performance or strategy adherence.
     /// </remarks>
-    public bool IsInRange { get; set; }
+    public bool IsInRange { get; private set; }
 
     public static UniswapPositionDailyPerformance Create(UniswapLiquidityPosition position,
         UniswapLiquidityPositionSnapshot previous, UniswapLiquidityPositionSnapshot current)
@@ -79,7 +104,7 @@ public class UniswapPositionDailyPerformance
         {
             throw new DomainException("Previous day cannot be greater than current day");
         }
-        
+
         return new UniswapPositionDailyPerformance
         {
             PoolPositionId = position.PositionId,
@@ -88,6 +113,8 @@ public class UniswapPositionDailyPerformance
             CommissionInUsd = position.CalculateFeeInUsd(previous.Day, current.Day),
             CurrentValueInUsd = position.CalculateProfitInUsd(previous.Day, current.Day).Amount,
             Day = current.Day,
+            PositionInToken0 = current.Token0.Amount,
+            PositionInToken1 = current.Token1.Amount,
             IsInRange = current.IsInRange
         };
     }
