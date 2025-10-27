@@ -37,7 +37,7 @@ public class AavePosition : ICalculatablePosition<ITokenPositionSnapshot>
         PositionType = positionType;
         TokenAddress = tokenAddress;
         CreatedAtDay = createdAtDay;
-        Id = GeneratePositionId();
+        Id = Guid.CreateVersion7();
     }
 
     /// <summary>
@@ -217,17 +217,5 @@ public class AavePosition : ICalculatablePosition<ITokenPositionSnapshot>
         }
 
         PreviousScaledAmount = positionScale;
-    }
-    
-    private Guid GeneratePositionId()
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(Network);
-        ArgumentException.ThrowIfNullOrWhiteSpace(WalletAddress);
-        ArgumentException.ThrowIfNullOrWhiteSpace(TokenAddress);
-
-        var keyData = $"{Network}:{WalletAddress}:{TokenAddress}:{PositionType}";
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(keyData));
-
-        return new Guid(hash.Take(16).ToArray());
-    }
+    } 
 }
