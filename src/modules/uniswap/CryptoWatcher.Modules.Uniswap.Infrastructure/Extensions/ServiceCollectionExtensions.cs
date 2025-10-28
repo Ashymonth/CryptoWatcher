@@ -1,5 +1,6 @@
 using System.Threading.RateLimiting;
 using CryptoWatcher.Abstractions.Reports;
+using CryptoWatcher.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Services;
@@ -48,6 +49,8 @@ public static class ServiceCollectionExtensions
             }));
         });
 
+        services.AddScoped<IDailyPositionPerformanceSynchronizer, UniswapDailyPositionPerformanceSynchronizer>();
+        
         services.AddScoped<IBlockscoutTransactionSynchronizer, BlockscoutTransactionSynchronizer>();
         services.AddSingleton<IBlockscoutTransactionFetcher, BlockscoutTransactionFetcher>();
         services.AddScoped<IUniswapChainSynchronizerOrchestrator, UniswapChainSynchronizationOrchestrator>();

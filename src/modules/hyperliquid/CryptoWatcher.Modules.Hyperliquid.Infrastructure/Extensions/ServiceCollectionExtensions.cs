@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions.Reports;
+using CryptoWatcher.Application.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Services;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Client;
@@ -20,6 +21,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddHyperliquidModule(this IServiceCollection services,
         Func<IServiceProvider, Uri>? hyperliquidUriFactory = null)
     {
+        services.AddScoped<IDailyPositionPerformanceSynchronizer, HyperliquidDailyPositionPerformanceSynchronizer>();
         services.AddScoped<IHyperliquidPositionsSyncService, HyperliquidPositionsSyncService>();
         services.AddKeyedScoped<IPlatformDailyReportDataProvider, HyperliquidReportDataService>(
             HyperliquidModuleKeyedService.DailyPlatformKeyService);
