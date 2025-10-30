@@ -59,6 +59,7 @@ public static class DatabaseExtensions
                 LastProcessedBlock = 29634140,
                 ProtocolVersion = UniswapProtocolVersion.V4
             });
+            
             context.Set<UniswapChainConfiguration>().Add(new UniswapChainConfiguration
             {
                 Name = "Arbitrum",
@@ -74,6 +75,22 @@ public static class DatabaseExtensions
                 },
                 LastProcessedBlock = 389191403,
                 ProtocolVersion = UniswapProtocolVersion.V4
+            });
+            
+            context.Set<UniswapChainConfiguration>().Add(new UniswapChainConfiguration
+            {
+                Name = "Arbitrum",
+                ChainId = 42161,
+                RpcUrl = new Uri("https://lb.drpc.live/arbitrum"),
+                BlockscoutUrl = new Uri("https://arbitrum.blockscout.com"),
+                SmartContractAddresses = new UniswapAddresses
+                {
+                    PoolFactory = EvmAddress.Create("0x1F98431c8aD98523631AE4a59f267346ea31F984"),
+                    MultiCall = EvmAddress.Create("0x842eC2c7D803033Edf55E478F461FC547Bc54EB2"),
+                    PositionManager = EvmAddress.Create("0xC36442b4a4522E871399CD717aBDD847Ab11FE88")
+                },
+                LastProcessedBlock = 389191403,
+                ProtocolVersion = UniswapProtocolVersion.V3
             });
         }
     }

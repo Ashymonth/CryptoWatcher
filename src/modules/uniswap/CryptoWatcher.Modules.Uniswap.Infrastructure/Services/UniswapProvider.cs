@@ -43,7 +43,7 @@ internal class UniswapProvider : IUniswapProvider
     {
         var pool = position.ProtocolVersion switch
         {
-            3 => await GetV3PoolAsync(chainConfiguration, position),
+            3 => await GetV3PoolAsync(chainConfiguration, (UniswapV3PositionInfo)position),
             4 => await GetV4PoolAsync(chainConfiguration, position),
             _ => throw new ArgumentOutOfRangeException(nameof(position), position.ProtocolVersion,
                 "Only v3 and v4 protocol supported")
@@ -53,12 +53,12 @@ internal class UniswapProvider : IUniswapProvider
     }
 
     private async Task<LiquidityPoolInfo> GetV3PoolAsync(UniswapChainConfiguration chainConfiguration,
-        IUniswapPosition position)
+        UniswapV3PositionInfo position)
     {
         var web3 = _web3Factory.GetWeb3(chainConfiguration);
 
         var poolAddress = await _uniswapV3Client.PoolFactory.GetPoolAddressAsync(web3,
-            chainConfiguration.SmartContractAddresses.PoolFactory, position.Token0, position.Token1);
+            chainConfiguration.SmartContractAddresses.PoolFactory, position.Token0, position.Token1, position.Fee);
 
         var poolInfoV3 = await _uniswapV3Client.LiquidityPool.GetPoolInfoAsync(web3,
             poolAddress,

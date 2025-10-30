@@ -36,6 +36,11 @@ internal class UniswapV3PositionFetcher : IUniswapV3PositionFetcher
         var balance = await web3.Eth.ERC20.GetContractService(chain.SmartContractAddresses.PositionManager)
             .BalanceOfQueryAsync(walletAddress);
 
+        if (balance == 0)
+        {
+            return [];
+        }
+
         var tokenIds = await GetTokenIdsAsync(web3, chain, walletAddress, balance);
 
         return await GetPositionsDataAsync(web3, chain, tokenIds);
@@ -72,13 +77,14 @@ internal class UniswapV3PositionFetcher : IUniswapV3PositionFetcher
             })
             .ToList();
 
-        var result = await web3.MultiCallAsync(calls, chain.SmartContractAddresses.PositionManager,
+        var result = await web3.MultiCallAsync(calls, chain.SmartContractAddresses.MultiCall,
             bytes => new PositionsOutputDTO().DecodeOutput(bytes.ToHex()));
 
         return result.Select((output, i) => new UniswapV3PositionInfo
             {
                 Token0 = output.Token0,
                 Token1 = output.Token1,
+                Fee = output.Fee,
                 TickLower = output.TickLower,
                 TickUpper = output.TickUpper,
                 Liquidity = output.Liquidity,

@@ -15,6 +15,8 @@ internal class UniswapV3PositionInfo : IUniswapPosition
     public required int TickLower { get; init; }
     
     public required int TickUpper { get; init; }
+
+    public required uint Fee { get; set; }
     
     public required BigInteger Liquidity { get; init; }
     

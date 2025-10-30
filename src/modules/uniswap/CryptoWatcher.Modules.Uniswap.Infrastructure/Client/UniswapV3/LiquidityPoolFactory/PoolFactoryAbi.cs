@@ -7,23 +7,14 @@ internal static class PoolFactoryAbi
     [StringSyntax(StringSyntaxAttribute.Json)]
     public const string Abi = """
                               [
-                                {
+                               {
                                 "inputs": [
-                                  { "internalType": "address", "name": "tokenA", "type": "address" },
-                                  { "internalType": "address", "name": "tokenB", "type": "address" }
+                                  { "internalType": "address", "name": "", "type": "address" },
+                                  { "internalType": "address", "name": "", "type": "address" },
+                                  { "internalType": "uint24", "name": "", "type": "uint24" }
                                 ],
-                                "name": "getPairPools",
-                                "outputs": [
-                                  {
-                                    "components": [
-                                      { "internalType": "address", "name": "pool", "type": "address" },
-                                      { "internalType": "int24", "name": "tickSpacing", "type": "int24" }
-                                    ],
-                                    "internalType": "struct SyncSwapRangePoolFactoryZKSync.PoolInfo[]",
-                                    "name": "",
-                                    "type": "tuple[]"
-                                  }
-                                ],
+                                "name": "getPool",
+                                "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
                                 "stateMutability": "view",
                                 "type": "function"
                                 }

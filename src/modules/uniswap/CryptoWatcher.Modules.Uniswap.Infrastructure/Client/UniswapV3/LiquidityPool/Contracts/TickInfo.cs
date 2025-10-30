@@ -12,26 +12,21 @@ internal class TickInfo : IFunctionOutputDTO
     [Parameter("int128", "liquidityNet", 2)]
     public BigInteger LiquidityNet { get; set; }
 
-    [Parameter("int128", "stakedLiquidityNet", 3)]
-    public BigInteger StakedLiquidityNet { get; set; }
-
-    [Parameter("uint256", "feeGrowthOutside0X128", 4)]
+    [Parameter("uint256", "feeGrowthOutside0X128", 3)]
     public BigInteger FeeGrowthOutside0X128 { get; set; }
 
-    [Parameter("uint256", "feeGrowthOutside1X128", 5)]
+    [Parameter("uint256", "feeGrowthOutside1X128", 4)]
     public BigInteger FeeGrowthOutside1X128 { get; set; }
 
-    [Parameter("uint256", "rewardGrowthOutsideX128", 6)]
-    public BigInteger RewardGrowthOutsideX128 { get; set; }
-
-    [Parameter("int56", "tickCumulativeOutside", 7)]
+    [Parameter("int56", "tickCumulativeOutside", 5)]
     public BigInteger TickCumulativeOutside { get; set; }
 
-    [Parameter("uint160", "secondsPerLiquidityOutsideX128", 8)]
+    [Parameter("uint160", "secondsPerLiquidityOutsideX128", 6)]
     public BigInteger SecondsPerLiquidityOutsideX128 { get; set; }
 
-    [Parameter("uint32", "secondsOutside", 9)]
+    [Parameter("uint32", "secondsOutside", 7)]
     public uint SecondsOutside { get; set; }
 
-    [Parameter("bool", "initialized", 10)] public bool Initialized { get; set; }
+    [Parameter("bool", "initialized", 8)]
+    public bool Initialized { get; set; }
 }
