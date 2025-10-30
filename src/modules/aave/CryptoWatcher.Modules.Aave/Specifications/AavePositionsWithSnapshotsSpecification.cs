@@ -1,5 +1,7 @@
 using Ardalis.Specification;
 using CryptoWatcher.Modules.Aave.Entities;
+using CryptoWatcher.Shared.Entities;
+using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Aave.Specifications;
 
@@ -13,12 +15,14 @@ namespace CryptoWatcher.Modules.Aave.Specifications;
 /// </remarks>
 public sealed class AavePositionsWithSnapshotsSpecification : Specification<AavePosition>
 {
-    public AavePositionsWithSnapshotsSpecification(string walletAddress, DateOnly from, DateOnly to)
+    public AavePositionsWithSnapshotsSpecification(AaveChainConfiguration chain, Wallet wallet, DateOnly from,
+        DateOnly to)
     {
         Query
             .Include(position => position.PositionPeriods)
             .Include(position =>
                 position.PositionSnapshots.Where(snapshot => snapshot.Day >= from && snapshot.Day <= to))
-            .Where(position => position.WalletAddress == walletAddress && position.IsActive());
+            .Where(position => position.WalletAddress == wallet.Address && position.IsActive() &&
+                               position.Network == chain.Name);
     }
 }

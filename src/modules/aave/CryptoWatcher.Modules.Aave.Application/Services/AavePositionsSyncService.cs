@@ -34,12 +34,12 @@ public class AavePositionsSyncService : IAavePositionsSyncService
 
     public async Task<List<AavePosition>> SyncPositionsAsync(
         AaveChainConfiguration chain,
-        Wallet wallet, 
+        Wallet wallet,
         DateOnly syncDay,
         CancellationToken ct = default)
     {
         var existedPositions = await _aavePositionRepository.ListAsync(
-            new AavePositionsWithSnapshotsSpecification(wallet.Address, syncDay, syncDay), ct);
+            new AavePositionsWithSnapshotsSpecification(chain, wallet, syncDay, syncDay), ct);
 
         _logger.LogExistedPositionsForWalletCount(wallet.Address, existedPositions.Count);
 
@@ -59,6 +59,7 @@ public class AavePositionsSyncService : IAavePositionsSyncService
                     position.ClosePosition(syncDay);
                     result.Add(position);
 
+                    _aavePositionRepository.Update(position);
                     _logger.LogPositionClosed(position.Id, position.TokenAddress);
                 }
 
