@@ -35,9 +35,12 @@ public class UserNonFundingLedgerUpdatesClient : IUserNonFundingLedgerUpdatesCli
         DateTime from, DateTime to,
         CancellationToken ct = default)
     {
+        var startTime = ((DateTimeOffset)from).ToUnixTimeMilliseconds();
+        var endTime = ((DateTimeOffset)to).ToUnixTimeMilliseconds();
+
         using var response = await _client.PostAsJsonAsync("info",
-            new GetUserNonFundingLedgerUpdatesRequest("userNonFundingLedgerUpdates", user, from.Millisecond,
-                to.Millisecond), cancellationToken: ct);
+            new GetUserNonFundingLedgerUpdatesRequest("userNonFundingLedgerUpdates", user, startTime, endTime),
+            cancellationToken: ct);
 
         response.EnsureSuccessStatusCode();
 
