@@ -9,4 +9,6 @@ public abstract class PlatformDailyReport
     public required Money ProfitInUsd { get; init; }
 
     public required Percent ProfitInPercent { get; init; }
+
+    public abstract string GetNeworkName();
 }

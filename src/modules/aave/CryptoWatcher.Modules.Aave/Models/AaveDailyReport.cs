@@ -18,4 +18,9 @@ public class AaveDailyReport : PlatformDailyReport
     public required decimal ProfitInToken { get; init; }
 
     public IReadOnlyCollection<AaveDailyReportItem> ReportItems { get; init; } = [];
+    
+    public override string GetNeworkName()
+    {
+        return NetworkName;
+    }
 }

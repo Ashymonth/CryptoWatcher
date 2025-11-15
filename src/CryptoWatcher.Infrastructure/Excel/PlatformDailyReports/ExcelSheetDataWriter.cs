@@ -30,14 +30,21 @@ public abstract class ExcelSheetDataWriter<TExcelRowContext, TDailyReport, TDail
         {
             await WriteWalletRow(workbook, wallet, ct);
 
-            foreach (var platformDailyReport in positionReport)
+            foreach (var platformDailyReportByNetwork in positionReport.GroupBy(report => report.GetNeworkName()))
             {
-                foreach (var reportItem in GetReportItems((TDailyReport)platformDailyReport))
+                foreach (var platformDailyReport in platformDailyReportByNetwork)
                 {
-                    await WriteRowAsync(workbook, reportItem, ct);
-                }
+                    var reportItems = GetReportItems((TDailyReport)platformDailyReport);
 
-                await WriteTotalRowAsync(workbook, (TDailyReport)platformDailyReport, ct);
+                    foreach (var dailyReportItem in reportItems)
+                    {
+                        await WriteRowAsync(workbook, dailyReportItem, ct);   
+                    }
+                    
+                    await WriteTotalRowAsync(workbook, (TDailyReport)platformDailyReport, ct);
+                    
+                    await workbook.AddRowAsync([], ct);
+                }
 
                 await workbook.AddRowAsync([], ct);
             }

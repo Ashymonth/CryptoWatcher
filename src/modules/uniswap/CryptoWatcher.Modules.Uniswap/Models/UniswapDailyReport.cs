@@ -10,6 +10,8 @@ namespace CryptoWatcher.Modules.Uniswap.Models;
 /// </summary>
 public class UniswapDailyReport : PlatformDailyReport
 {
+    public string NetworkName => ReportItems.FirstOrDefault()?.Network ?? string.Empty;
+    
     /// <summary>
     /// Gets the total hold value in USD derived from the Uniswap pool positions.
     /// This value represents the aggregate monetary value of the tokens held in the pool positions.
@@ -28,4 +30,9 @@ public class UniswapDailyReport : PlatformDailyReport
     /// position values in USD, hold values in USD, and fee values in USD.
     /// </summary>
     public required IReadOnlyCollection<UniswapDailyReportItem> ReportItems { get; init; } = [];
+
+    public override string GetNeworkName()
+    {
+        return NetworkName;
+    }
 }
