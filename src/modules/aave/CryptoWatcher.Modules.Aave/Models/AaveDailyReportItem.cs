@@ -4,7 +4,9 @@ namespace CryptoWatcher.Modules.Aave.Models;
 
 public class AaveDailyReportItem : PlatformDailyReportItem
 {
-    public string TokenSymbol { get; init; } = null!;
+    public required string TokenSymbol { get; init; } = null!;
+    
+    public required string NetworkName { get; init; } = null!;
  
     public required decimal PositionGrowInUsd { get; init; }
     

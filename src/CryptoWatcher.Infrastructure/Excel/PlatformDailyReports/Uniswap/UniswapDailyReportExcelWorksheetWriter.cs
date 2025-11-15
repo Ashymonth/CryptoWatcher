@@ -13,7 +13,7 @@ internal class UniswapDailyReportExcelWorksheetWriter : ExcelSheetDataWriter<Uni
         UniswapExcelRowContext.Default.UniswapPoolPositionExcelRow;
 
     protected override IReadOnlyCollection<UniswapDailyReportItem> GetReportItems(UniswapDailyReport report) =>
-        report.ReportItems;
+        report.ReportItems.GroupBy(item => item.Network).SelectMany(items => items.ToArray()).ToArray();
 
     protected override async Task WriteRowAsync(Spreadsheet workbook, UniswapDailyReportItem dailyReportItem,
         CancellationToken ct)

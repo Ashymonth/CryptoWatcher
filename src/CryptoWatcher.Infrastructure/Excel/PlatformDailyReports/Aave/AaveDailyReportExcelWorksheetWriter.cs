@@ -13,7 +13,7 @@ internal class AaveDailyReportExcelWorksheetWriter : ExcelSheetDataWriter<AavePo
         AaveExcelReportContext.Default.AavePositionExcelRow;
 
     protected override IReadOnlyCollection<AaveDailyReportItem> GetReportItems(AaveDailyReport report) =>
-        report.ReportItems;
+        report.ReportItems.GroupBy(item => item.NetworkName).SelectMany(items => items.ToArray()).ToArray();
 
     protected override async Task WriteRowAsync(Spreadsheet workbook, AaveDailyReportItem dailyReportItem,
         CancellationToken ct)

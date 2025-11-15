@@ -9,6 +9,8 @@ internal class AavePositionExcelTotalRow
 
     public required string TokenSymbol { get; init; } = null!;
     
+    public required string NetworkName { get; init; } = null!;
+    
     [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Money>))]
     [CellStyle(ExcelStyleRegistry.TwoDecimalPlaces)]
     public required Money PositionInUsd { get; init; }

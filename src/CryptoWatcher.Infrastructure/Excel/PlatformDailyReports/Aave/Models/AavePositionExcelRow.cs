@@ -14,6 +14,10 @@ internal class AavePositionExcelRow
     [ColumnWidth(10)]
     public required string TokenSymbol { get; init; } = null!;
     
+    [ColumnHeader("Сеть")] 
+    [ColumnWidth(10)]
+    public required string NetworkName { get; init; } = null!;
+    
     [ColumnHeader("Позиция в $")]
     [ColumnWidth(20)]
     [CellValueConverter(typeof(ValueObjectToExcelValueConverter<Money>))]

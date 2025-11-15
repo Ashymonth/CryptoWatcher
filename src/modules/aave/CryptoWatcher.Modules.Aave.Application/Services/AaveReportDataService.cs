@@ -42,6 +42,7 @@ public class AaveReportDataService : IPlatformDailyReportDataProvider
                         return new AaveDailyReportItem
                         {
                             Day = snapshot.Day,
+                            NetworkName = position.Network,
                             TokenSymbol = snapshot.Token.Symbol,
                             PositionInUsd = snapshot.Token.AmountInUsd * sign,
                             PositionGrowInUsd = profitInUsd.Amount * sign,

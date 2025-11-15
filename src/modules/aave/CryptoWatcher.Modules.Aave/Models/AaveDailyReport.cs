@@ -8,6 +8,8 @@ namespace CryptoWatcher.Modules.Aave.Models;
 public class AaveDailyReport : PlatformDailyReport
 {
     public string TokenSymbol => ReportItems.FirstOrDefault()?.TokenSymbol ?? string.Empty;
+    
+    public string NetworkName => ReportItems.FirstOrDefault()?.NetworkName ?? string.Empty;
 
     public required decimal PositionGrowInUsd { get; init; }
 
