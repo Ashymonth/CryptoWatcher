@@ -10,6 +10,7 @@ using CryptoWatcher.Infrastructure.Configs;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Aave;
+using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -104,6 +105,21 @@ app.MapPost("/sync-daily-performance",
         return TypedResults.Ok();
     });
 
+app.MapPost("/hyperliquid/sync-positions",
+    async (
+        CryptoWatcherDbContext dbContext,
+        IHyperliquidPositionsSyncService coordinator, DateOnly from, DateOnly to, CancellationToken ct) =>
+    {
+        var wallets = await dbContext.Wallets.ToArrayAsync(ct);
+
+        foreach (var wallet in wallets)
+        {
+            await coordinator.SyncPositionsAsync(wallet, from, to, ct);
+        }
+
+        return TypedResults.Ok();
+    });
+
 app.MapPost("/uniswap/sync-block/{blockNumber}", async (IUniswapCashFlowBlockRangeSynchronizer sync,
     CryptoWatcherDbContext dbContext,
     string chainName,
@@ -116,35 +132,6 @@ app.MapPost("/uniswap/sync-block/{blockNumber}", async (IUniswapCashFlowBlockRan
         .FirstAsync();
 
     await sync.SynchronizeBlockRangeAsync(chain, blockNumber, blockNumber);
-});
-
-app.MapPatch("/uniswap/sync-block/{blockNumber}", async (
-    CryptoWatcherDbContext dbContext,
-    string chainName,
-    BigInteger blockNumber) =>
-{
-    await using var tr = await dbContext.Database.BeginTransactionAsync();
-    try
-    {
-        var now = DateTime.UtcNow;
-
-        await dbContext.UniswapChainConfigurations
-            .Where(configuration => configuration.Name == chainName)
-            .ExecuteUpdateAsync(calls =>
-                calls.SetProperty(configuration => configuration.LastProcessedBlock, blockNumber));
-
-        await dbContext.UniswapChainConfigurations
-            .Where(configuration => configuration.Name == chainName)
-            .ExecuteUpdateAsync(calls =>
-                calls.SetProperty(configuration => configuration.LastProcessedBlockUpdatedAt, now));
-
-        await tr.CommitAsync();
-    }
-    catch (Exception)
-    {
-        await tr.RollbackAsync();
-        throw;
-    }
 });
 
 async Task<FileStreamHttpResult> TotalReportHandler(IDailySummaryReportProvider reportProvider,
