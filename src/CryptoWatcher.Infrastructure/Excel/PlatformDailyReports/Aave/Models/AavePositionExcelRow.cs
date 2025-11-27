@@ -43,4 +43,12 @@ internal class AavePositionExcelRow
     [ColumnHeader("Доход за день в токене")]
     [ColumnWidth(25)]
     public required decimal DailyProfitInToken { get; init; }
+    
+    [ColumnHeader("Кэш флоу $")]
+    [ColumnWidth(25)]
+    public required decimal CashFlowsInUsd { get; init; } 
+    
+    [ColumnHeader("Кэш флоу токен")]
+    [ColumnWidth(25)]
+    public required decimal CashFlowsInToken { get; init; } 
 }

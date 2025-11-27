@@ -4,12 +4,36 @@ namespace CryptoWatcher.Extensions;
 
 public static class CacheFlowExtensions
 {
-    public static decimal CalculateNetCashFlowInUsd(this IEnumerable<IUsdCacheFlow> cacheFlows, DateOnly from,
-        DateOnly to)
+    public static decimal CalculateNetCashFlowInUsd<TCashFlow>(this IEnumerable<TCashFlow> cacheFlows, DateOnly from,
+        DateOnly to) where TCashFlow : IUsdCacheFlow
     {
         return cacheFlows.Where(e => FilterCashFlowEvents(e, from, to)).Sum(e => ComputeCashFlowEvent(e.Event, e.Usd));
     }
- 
+
+    public static decimal CalculateNetTokenCashFlowInUsd<TCashFlow>(this IEnumerable<TCashFlow> cacheFlows,
+        DateOnly from,
+        DateOnly to) where TCashFlow : ITokenCacheFlow
+    {
+        return cacheFlows.Where(e => FilterCashFlowEvents(e, from, to))
+            .Sum(e => ComputeCashFlowEvent(e.Event, e.Token.AmountInUsd));
+    }
+    
+    public static decimal CalculateNetTokenCashFlowInToken<TCashFlow>(this IEnumerable<TCashFlow> cacheFlows,
+        DateOnly from,
+        DateOnly to) where TCashFlow : ITokenCacheFlow
+    {
+        return cacheFlows.Where(e => FilterCashFlowEvents(e, from, to))
+            .Sum(e => ComputeCashFlowEvent(e.Event, e.Token.Amount));
+    }
+    
+    public static decimal CalculateNetTokenPairCashFlowInUsd<TCashFlow>(this IEnumerable<TCashFlow> cacheFlows,
+        DateOnly from,
+        DateOnly to) where TCashFlow : ITokenPairCashFlow
+    {
+        return cacheFlows.Where(e => FilterCashFlowEvents(e, from, to))
+            .Sum(e => ComputeCashFlowEvent(e.Event, e.Token0.AmountInUsd + e.Token1.AmountInUsd));
+    }
+
     private static bool FilterCashFlowEvents(ICacheFlow cacheFlow, DateOnly from, DateOnly to)
     {
         return cacheFlow.Date >= from.ToMinDateTime() && cacheFlow.Date <= to.ToMaxDateTime();
