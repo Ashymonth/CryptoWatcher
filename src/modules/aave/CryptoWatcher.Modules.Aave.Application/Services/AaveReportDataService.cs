@@ -46,11 +46,15 @@ public class AaveReportDataService : IPlatformDailyReportDataProvider
                             TokenSymbol = snapshot.Token.Symbol,
                             PositionInUsd = snapshot.Token.AmountInUsd * sign,
                             PositionGrowInUsd = profitInUsd.Amount * sign,
-                            
+
                             PositionInToken = snapshot.Token.Amount * sign,
                             DailyProfitInUsd = profitInToken.Amount * snapshot.Token.PriceInUsd * sign,
                             DailyProfitInUsdPercent = profitInUsd.Percent * sign,
-                            DailyProfitInToken = profitInToken.Amount * sign
+                            DailyProfitInToken = profitInToken.Amount * sign,
+                            CashFlowsInUsd =
+                                position.PositionEvents.CalculateNetTokenCashFlowInUsd(snapshot.Day, snapshot.Day),
+                            CashFlowsInToken =
+                                position.PositionEvents.CalculateNetTokenCashFlowInToken(snapshot.Day, snapshot.Day),
                         };
                     })
                     .ToArray();

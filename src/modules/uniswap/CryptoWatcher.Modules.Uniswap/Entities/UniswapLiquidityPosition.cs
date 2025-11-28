@@ -66,7 +66,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     /// An active state signifies that the position is engaged in the liquidity pool,
     /// while an inactive state suggests the position has been exited or is no longer valid.
     /// </remarks>
-    public bool IsActive { get; init; }
+    public bool IsActive { get; set; }
 
     /// <summary>
     /// Represents the wallet address associated with the liquidity pool position.

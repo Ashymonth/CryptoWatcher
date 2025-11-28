@@ -88,8 +88,7 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
                     positionInPool.TokenInfoPair, ct);
 
                 var positionKey = new PositionKey((ulong)uniswapPosition.PositionId, chainConfiguration.Name);
-                if (!existedPositions.TryGetValue(positionKey, out var dbPoolPosition) ||
-                    dbPoolPosition.PoolPositionSnapshots.Count == 1)
+                if (!existedPositions.TryGetValue(positionKey, out var dbPoolPosition))
                     // for case when position was created
                     // and added liquidity in 1 day
                 {
@@ -98,12 +97,13 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
                     positions.Add(dbPoolPosition);
                 }
 
-                if (!dbPoolPosition.IsActive)
+                if (uniswapPosition.Liquidity == 0)
                 {
-                    _logger.SkippingInactivePosition();
+                    dbPoolPosition.IsActive = false;
+                    positions.Add(dbPoolPosition);
                     continue;
                 }
-
+                
                 var feeEnriched = await CalculateFeeAsync(chainConfiguration, pool, uniswapPosition, ct);
 
                 var snapshotEntity = MapToLiquidityPoolPositionSnapshot(dbPoolPosition.PositionId,
