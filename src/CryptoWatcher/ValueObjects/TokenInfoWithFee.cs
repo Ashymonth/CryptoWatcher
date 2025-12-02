@@ -37,6 +37,8 @@ public record TokenInfoWithFee
     /// Represents the total monetary value in USD of a token by multiplying its amount with its price in USD.
     /// </summary>
     public decimal AmountInUsd => Amount * PriceInUsd;
+    
+    public decimal FeeAmountInUsd => FeeAmount * PriceInUsd;
 
     /// <summary>
     /// Creates a new instance of <see cref="TokenInfoWithFee"/> using the provided token information, fee amount, and USD price.

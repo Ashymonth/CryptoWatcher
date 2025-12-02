@@ -12,12 +12,7 @@ public class UniswapLiquidityPositionSnapshotConfiguration : IEntityTypeConfigur
         builder.Property(poolPositionHistory => poolPositionHistory.NetworkName).HasMaxLength(32);
 
         builder.HasKey(fee => new { fee.PoolPositionId, fee.NetworkName, fee.Day });
-
-        builder.HasOne(positionFee => positionFee.UniswapLiquidityPosition)
-            .WithMany(position => position.PoolPositionSnapshots)
-            .HasForeignKey(fee => new { fee.PoolPositionId, fee.NetworkName })
-            .IsRequired();
-        
+ 
         builder.ComplexProperty<TokenInfoWithFee>(snapshot => snapshot.Token0,
             propertyBuilder => propertyBuilder.Property(info => info.Symbol).HasMaxLength(16));
         

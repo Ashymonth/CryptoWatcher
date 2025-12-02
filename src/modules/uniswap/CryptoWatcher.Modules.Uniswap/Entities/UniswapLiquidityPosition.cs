@@ -1,6 +1,7 @@
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Abstractions.PositionSnapshots;
+using CryptoWatcher.Exceptions;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
@@ -19,6 +20,37 @@ namespace CryptoWatcher.Modules.Uniswap.Entities;
 /// </remarks>
 public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPositionSnapshot>
 {
+    private readonly List<UniswapLiquidityPositionSnapshot> _positionSnapshots = [];
+    private readonly List<UniswapLiquidityPositionCashFlow> _cashFlows = [];
+
+    private UniswapLiquidityPosition()
+    {
+    }
+
+    public UniswapLiquidityPosition(ulong positionId, long tickLower, long tickUpper, TokenInfo token0,
+        TokenInfo token1, EvmAddress walletAddress, UniswapChainConfiguration chain)
+    {
+        if (token0.Symbol == token1.Symbol)
+        {
+            throw new DomainException("For uniswap position tokens can't be the same");
+        }
+
+        if (tickLower > tickUpper)
+        {
+            throw new DomainException("For uniswap position tick lower can't be greater than tick upper");
+        }
+
+        PositionId = positionId;
+        TickLower = tickLower;
+        TickUpper = tickUpper;
+        Token0 = token0;
+        Token1 = token1;
+        WalletAddress = walletAddress;
+        NetworkName = chain.Name;
+        ProtocolVersion = chain.ProtocolVersion;
+        IsActive = true;
+    }
+
     /// <summary>
     /// Represents the unique identifier for a liquidity pool position from NFT manager.
     /// </summary>
@@ -26,18 +58,18 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     /// This property is used to uniquely identify a specific position within the liquidity pool.
     /// It serves as a key for referencing and managing individual positions across the system.
     /// </remarks>
-    public ulong PositionId { get; init; }
+    public ulong PositionId { get; private set; }
 
     /// <summary>
     /// Gets the lower tick boundary of the Uniswap liquidity position.
     /// </summary>
-    public long TickLower { get; init; }
+    public long TickLower { get; private set; }
 
     /// <summary>
     /// Represents the upper tick of an Uniswap liquidity position, delimiting the price range
     /// at which the position is active within the liquidity pool.
     /// </summary>
-    public long TickUpper { get; init; }
+    public long TickUpper { get; private set; }
 
     /// <summary>
     /// Represents the first token in the liquidity pool pair for a position.
@@ -46,7 +78,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     /// This property holds information about one of the two tokens in the liquidity pool.
     /// It is paired with <c>Token1</c> to define the token pair comprising the pool.
     /// </remarks>
-    public TokenInfo Token0 { get; init; } = null!;
+    public TokenInfo Token0 { get; private set; } = null!;
 
     /// <summary>
     /// Represents the second token in a liquidity pool position.
@@ -56,7 +88,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     /// It is used in association with <c>Token0</c> to define the token pair within the pool
     /// and their respective attributes, enabling operations such as valuation and tracking.
     /// </remarks>
-    public TokenInfo Token1 { get; init; } = null!;
+    public TokenInfo Token1 { get; private set; } = null!;
 
     /// <summary>
     /// Indicates whether the liquidity pool position is active.
@@ -66,7 +98,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     /// An active state signifies that the position is engaged in the liquidity pool,
     /// while an inactive state suggests the position has been exited or is no longer valid.
     /// </remarks>
-    public bool IsActive { get; set; }
+    public bool IsActive { get; private set; }
 
     /// <summary>
     /// Represents the wallet address associated with the liquidity pool position.
@@ -75,7 +107,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     /// This property holds the blockchain wallet address that is linked to the liquidity pool position.
     /// It is used to identify the owner of the position and manage the related account details.
     /// </remarks>
-    public EvmAddress WalletAddress { get; init; } = null!;
+    public EvmAddress WalletAddress { get; private set; } = null!;
 
     /// <summary>
     /// Represents the wallet associated with a liquidity pool position.
@@ -93,9 +125,9 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     /// This property is used to identify the uniswapNetwork, such as a blockchain or communication uniswapNetwork,
     /// that the system is interacting with or utilizing for its processes.
     /// </remarks>
-    public string NetworkName { get; init; } = null!;
+    public string NetworkName { get; private set; } = null!;
 
-    public UniswapProtocolVersion ProtocolVersion { get; init; }
+    public UniswapProtocolVersion ProtocolVersion { get; private set; }
 
     /// <summary>
     /// Represents a collection of snapshots associated with a specific liquidity pool position.
@@ -105,21 +137,39 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     /// These snapshots can be used to track changes and analyze the evolution of the position over time,
     /// including performance metrics, token balances, and other relevant data.
     /// </remarks>
-    public List<UniswapLiquidityPositionSnapshot> PoolPositionSnapshots { get; init; } = [];
+    public IReadOnlyCollection<UniswapLiquidityPositionSnapshot> PoolPositionSnapshots => _positionSnapshots;
 
-    public List<UniswapLiquidityPositionCashFlow> CashFlows { get; init; } = [];
+    public IReadOnlyCollection<UniswapLiquidityPositionCashFlow> CashFlows => _cashFlows;
 
-    public Money CalculateHoldValueInUsd(DateOnly from, DateOnly to)
+    public UniswapLiquidityPositionSnapshot AddOrUpdateSnapshot(DateOnly day, bool isInRange, TokenInfoWithFee token0,
+        TokenInfoWithFee token1)
+    {
+        var existedSnapshot = _positionSnapshots.FirstOrDefault(snapshot => snapshot.Day == day);
+        if (existedSnapshot is null)
+        {
+            var snapshot = new UniswapLiquidityPositionSnapshot(this, day, isInRange, token0, token1);
+            _positionSnapshots.Add(snapshot);
+            return snapshot;
+        }
+
+        existedSnapshot.Update(token0, token1, isInRange);
+
+        return existedSnapshot;
+    }
+
+    public void ClosePosition()
+    {
+        IsActive = false;
+    }
+
+    public Money CalculateHoldValueInUsd(DateOnly to)
     {
         if (PoolPositionSnapshots.Count == 0)
         {
             return 0;
         }
 
-        var lastPosition = PoolPositionSnapshots
-            .Where(snapshot => snapshot.Day >= from && snapshot.Day <= to)
-            .OrderByDescending(snapshot => snapshot.Day)
-            .FirstOrDefault();
+        var lastPosition = PoolPositionSnapshots.GetNearestSnapshot(to, true);
 
         if (lastPosition is null)
         {
@@ -147,8 +197,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
 
             if (cashFlows.TryGetValue(snapshot.Day, out var positionCashFlows))
             {
-                fee += positionCashFlows.Sum(flow => flow.Token0.FeeAmount * snapshot.Token0.PriceInUsd +
-                                                     flow.Token1.FeeAmount * snapshot.Token1.PriceInUsd);
+                fee += positionCashFlows.Sum(flow => flow.Token0.FeeAmountInUsd + flow.Token1.FeeAmountInUsd);
             }
         }
 
@@ -200,7 +249,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
         {
             return 0;
         }
- 
+
         var lastSnapshot = PoolPositionSnapshots.GetNearestSnapshot(to, true);
 
         if (lastSnapshot == null)
@@ -209,7 +258,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
         }
 
         var claimedEvents = CalculateDailyFeesFromCashFlows(DateOnly.MinValue, to);
- 
+
         return claimedEvents.Values
                    .SelectMany(flows => flows)
                    .Sum(flow => flow.Token0.Amount * lastSnapshot.Token0.PriceInUsd +

@@ -21,6 +21,11 @@ public class UniswapLiquidityPositionConfiguration : IEntityTypeConfiguration<Un
             .WithMany()
             .HasForeignKey(position => position.WalletAddress)
             .IsRequired();
+        
+         builder.HasMany(position => position.PoolPositionSnapshots)
+            .WithOne()
+            .HasForeignKey(snapshot => new { snapshot.PoolPositionId, snapshot.NetworkName })
+            .IsRequired();
 
         builder.HasMany(poolPosition => poolPosition.CashFlows)
             .WithOne()

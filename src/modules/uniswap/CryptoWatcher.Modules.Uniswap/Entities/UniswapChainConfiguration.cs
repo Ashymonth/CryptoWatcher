@@ -90,7 +90,7 @@ public class UniswapChainConfiguration
     /// <summary>
     /// The last block number that has been successfully processed for Uniswap data
     /// </summary>
-    public BigInteger LastProcessedBlock { get; set; }
+    public BigInteger LastProcessedBlock { get; init; }
 
     /// <summary>
     /// Timestamp when the synchronization state was last updated
@@ -98,15 +98,4 @@ public class UniswapChainConfiguration
     public DateTime LastProcessedBlockUpdatedAt { get; private set; } = DateTime.UtcNow;
 
     public IReadOnlyCollection<UniswapLiquidityPosition> LiquidityPoolPositions => _liquidityPoolPositions;
-
-    public void UpdateLastSynchronizedBlock(BigInteger lastSynchronizedBlock)
-    {
-        if (lastSynchronizedBlock <= LastProcessedBlock)
-        {
-            throw new DomainException("Last processed block cannot be less than or equal to the current block");
-        }
-
-        LastProcessedBlock = lastSynchronizedBlock;
-        LastProcessedBlockUpdatedAt = DateTime.UtcNow;
-    }
 }

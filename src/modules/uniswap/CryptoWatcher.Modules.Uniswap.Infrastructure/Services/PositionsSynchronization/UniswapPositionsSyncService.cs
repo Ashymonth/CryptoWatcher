@@ -99,15 +99,15 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
 
                 if (uniswapPosition.Liquidity == 0)
                 {
-                    dbPoolPosition.IsActive = false;
+                    dbPoolPosition.ClosePosition();
                     positions.Add(dbPoolPosition);
                     continue;
                 }
-                
+
                 var feeEnriched = await CalculateFeeAsync(chainConfiguration, pool, uniswapPosition, ct);
 
-                var snapshotEntity = MapToLiquidityPoolPositionSnapshot(dbPoolPosition.PositionId,
-                    dbPoolPosition.NetworkName, tokensEnriched, feeEnriched, positionInPool.IsInRange, syncDay);
+                var snapshotEntity = MapToLiquidityPoolPositionSnapshot(dbPoolPosition, tokensEnriched, feeEnriched,
+                    positionInPool.IsInRange, syncDay);
 
                 poolPositionSnapshots.Add(snapshotEntity);
 
@@ -146,35 +146,27 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
         IUniswapPosition position, TokenInfoPair tokensEnriched)
     {
         return new UniswapLiquidityPosition
-        {
-            NetworkName = chain.Name,
-            IsActive = position.Liquidity != 0,
-            Token0 = tokensEnriched.Token0,
-            Token1 = tokensEnriched.Token1,
-            WalletAddress = wallet.Address,
-            PositionId = (ulong)position.PositionId,
-            ProtocolVersion = chain.ProtocolVersion,
-            TickLower = position.TickLower,
-            TickUpper = position.TickUpper
-        };
+        (
+            (ulong)position.PositionId,
+            position.TickLower,
+            position.TickUpper,
+            tokensEnriched.Token0,
+            tokensEnriched.Token1,
+            wallet.Address,
+            chain
+        );
     }
 
     private static UniswapLiquidityPositionSnapshot MapToLiquidityPoolPositionSnapshot(
-        ulong positionId,
-        string networkName,
+        UniswapLiquidityPosition position,
         TokenInfoPair poolPosition,
         TokenInfoPair feeInfo,
         bool isInRange,
         DateOnly day)
     {
-        return new UniswapLiquidityPositionSnapshot
-        {
-            PoolPositionId = positionId,
-            NetworkName = networkName,
-            Day = day,
-            Token0 = TokenInfoWithFee.Create(poolPosition.Token0, feeInfo.Token0.Amount, feeInfo.Token0.PriceInUsd),
-            Token1 = TokenInfoWithFee.Create(poolPosition.Token1, feeInfo.Token1.Amount, feeInfo.Token1.PriceInUsd),
-            IsInRange = isInRange,
-        };
+        var token0 = TokenInfoWithFee.Create(poolPosition.Token0, feeInfo.Token0.Amount, feeInfo.Token0.PriceInUsd);
+        var token1 = TokenInfoWithFee.Create(poolPosition.Token1, feeInfo.Token1.Amount, feeInfo.Token1.PriceInUsd);
+
+        return new UniswapLiquidityPositionSnapshot(position, day, isInRange, token0, token1);
     }
 }
