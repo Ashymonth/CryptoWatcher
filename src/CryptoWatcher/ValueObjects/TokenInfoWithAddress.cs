@@ -12,7 +12,7 @@ public record TokenInfoWithAddress : TokenInfo
         
     }
 
-    public TokenInfoWithAddress(TokenInfo tokenInfo, EvmAddress address) : base(tokenInfo)
+    public TokenInfoWithAddress(TokenInfo tokenInfo, EvmAddress address)
     {
         Symbol = tokenInfo.Symbol;
         Amount = tokenInfo.Amount;

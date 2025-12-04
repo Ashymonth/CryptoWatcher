@@ -3,6 +3,7 @@ using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Abstractions.PositionSnapshots;
 using CryptoWatcher.Exceptions;
 using CryptoWatcher.Extensions;
+using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
@@ -157,6 +158,22 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
         return existedSnapshot;
     }
 
+    public UniswapLiquidityPositionCashFlow AddEventsIfNotExists(
+        LiquidityPoolPositionEvent positionEvent,
+        TokenInfoPair tokenInfoPair)
+    {
+        var existedSnapshot = _cashFlows.FirstOrDefault(snapshot => snapshot.Date == positionEvent.TimeStamp);
+        if (existedSnapshot is null)
+        {
+            var cashFlow =
+                new UniswapLiquidityPositionCashFlow(this, positionEvent, tokenInfoPair, positionEvent.TimeStamp);
+            _cashFlows.Add(cashFlow);
+            return cashFlow;
+        }
+
+        return existedSnapshot;
+    }
+
     public void ClosePosition()
     {
         IsActive = false;
@@ -180,28 +197,25 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
                Token1.Amount * lastPosition.Token1.PriceInUsd;
     }
 
-    public Money CalculateFeeInUsd(DateOnly from, DateOnly to)
+    public Money CalculateCumulativeFeeInUsd(DateOnly from, DateOnly to)
     {
-        if (PoolPositionSnapshots.Count == 0)
+        var snapshotBeforeFrom = PoolPositionSnapshots.GetLastSnapshotBefore(from);
+
+        var snapshotAtOrBeforeTo = PoolPositionSnapshots.GetLastSnapshotOnOrBefore(to);
+
+        if (snapshotAtOrBeforeTo is null)
         {
             return 0;
         }
 
-        var cashFlows = CalculateDailyFeesFromCashFlows(from, to);
+        var feeFromPosition = snapshotAtOrBeforeTo.FeeInUsd - (snapshotBeforeFrom?.FeeInUsd ?? 0M);
 
-        var fee = 0M;
+        var feeFromCashFlows = CalculateDailyFeesFromCashFlows(from, to)
+            .Values
+            .SelectMany(x => x)
+            .Sum(x => x.Token0.FeeAmountInUsd + x.Token1.FeeAmountInUsd);
 
-        foreach (var snapshot in PoolPositionSnapshots.Where(snapshot => snapshot.Day >= from && snapshot.Day <= to))
-        {
-            fee += snapshot.FeeInUsd - fee;
-
-            if (cashFlows.TryGetValue(snapshot.Day, out var positionCashFlows))
-            {
-                fee += positionCashFlows.Sum(flow => flow.Token0.FeeAmountInUsd + flow.Token1.FeeAmountInUsd);
-            }
-        }
-
-        return fee;
+        return feeFromPosition + feeFromCashFlows;
     }
 
     public Money CalculateTotalFeeInUsd(DateOnly from, DateOnly to)
@@ -221,8 +235,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
         {
             if (cashFlows.TryGetValue(snapshot.Day, out var positionCashFlows))
             {
-                claimed += positionCashFlows.Sum(flow => flow.Token0.FeeAmount * snapshot.Token0.PriceInUsd +
-                                                         flow.Token1.FeeAmount * snapshot.Token1.PriceInUsd);
+                claimed += positionCashFlows.Sum(flow => flow.FeeInUsd);
             }
         }
 
@@ -270,7 +283,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
         DateOnly from, DateOnly to)
     {
         return CashFlows
-            .Where(flow => flow.Date.ToDateOnly() > from && flow.Date.ToDateOnly() <= to)
+            .Where(flow => flow.Date.ToDateOnly() >= from && flow.Date.ToDateOnly() <= to)
             .Where(cashFlow => cashFlow.Event == CacheFlowEvent.FeeClaim)
             .GroupBy(cashFlow => cashFlow.Date.ToDateOnly())
             .ToDictionary(

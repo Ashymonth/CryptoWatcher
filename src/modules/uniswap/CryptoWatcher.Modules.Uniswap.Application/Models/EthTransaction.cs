@@ -6,5 +6,5 @@ public record EthTransaction
 {
     public required BigInteger Amount { get; init; }
 
-    public required DateTimeOffset TimeStamp { get; init; }
+    public required DateTime TimeStamp { get; init; }
 }

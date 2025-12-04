@@ -25,7 +25,7 @@ internal class UniswapV4ModifyLiquidityEventDecoder : ILiquidityPoolEventDecoder
     public LiquidityPoolPositionEvent DecodeModifyLiquidityEvent(EvmAddress walletAddress,
         BlockchainLogEntry blockchainLogEntry,
         TokenPair tokenPair,
-        DateTimeOffset timestamp)
+        DateTime timestamp)
     {
         var decoded = Decoder.DecodeDefaultData(blockchainLogEntry.Data, Parameters);
 

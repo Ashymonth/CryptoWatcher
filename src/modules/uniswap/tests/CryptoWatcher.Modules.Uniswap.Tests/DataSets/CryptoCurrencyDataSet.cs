@@ -61,9 +61,27 @@ public partial class Crypto : DataSet
             PriceInUsd = Random.Decimal(0.0001m, 200_000m)
         };
     }
-    
+
     public TokenInfoWithFee RandomTokenInfoWithFee(TokenInfo token)
     {
+        return TokenInfoWithFee.Create(token, Random.Decimal(0.0001m, 200_000m), Random.Decimal(0, 20000));
+    }
+
+    public TokenInfoWithFee RandomTokenInfoWithAddress()
+    {
+        var token = TokenInfo();
+        return TokenInfoWithFee.Create(token, Random.Decimal(0.0001m, 200_000m), Random.Decimal(0, 20000));
+    }
+
+    public TokenInfoWithFee RandomTokenInfoWithAddressOtherThan(TokenInfoWithAddress token)
+    {
+        var address = EvmAddress();
+
+        while (address == token.Address)
+        {
+            address = EvmAddress();
+        }
+
         return TokenInfoWithFee.Create(token, Random.Decimal(0.0001m, 200_000m), Random.Decimal(0, 20000));
     }
 

@@ -1,6 +1,4 @@
 using Bogus;
-using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Modules.Uniswap.Tests.Fakers;
 
 namespace CryptoWatcher.Modules.Uniswap.Tests.DataSets;
 

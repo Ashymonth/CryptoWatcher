@@ -25,7 +25,7 @@ public interface IBlockscoutProvider
         TransactionHash transactionHash,
         CancellationToken ct = default);
 
-    Task<DateTimeOffset> GetTransactionTimestampAsync(UniswapChainConfiguration chainConfiguration,
+    Task<DateTime> GetTransactionTimestampAsync(UniswapChainConfiguration chainConfiguration,
         TransactionHash transactionHash,
         CancellationToken ct = default);
 }

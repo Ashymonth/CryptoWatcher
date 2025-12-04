@@ -9,5 +9,5 @@ public interface IUniswapLiquidityPoolEventDecoderSelector
 {
     LiquidityPoolPositionEvent DecodeEvent(EvmAddress walletAddress,
         BlockchainLogEntry blockchainLogEntry,
-        TokenPair tokenPair, DateTimeOffset timestamp);
+        TokenPair tokenPair, DateTime timestamp);
 }

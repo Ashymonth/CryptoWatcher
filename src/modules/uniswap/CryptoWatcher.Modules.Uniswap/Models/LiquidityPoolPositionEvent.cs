@@ -1,5 +1,6 @@
 using System.Numerics;
 using CryptoWatcher.Abstractions.CacheFlows;
+using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 
@@ -17,7 +18,7 @@ public class LiquidityPoolPositionEvent
 
     public required BigInteger LiquidityDelta { get; init; }
 
-    public required DateTimeOffset TimeStamp { get; init; }
+    public required DateTime TimeStamp { get; init; }
 
     public TokenPair TokenPair { get; init; } = null!;
 

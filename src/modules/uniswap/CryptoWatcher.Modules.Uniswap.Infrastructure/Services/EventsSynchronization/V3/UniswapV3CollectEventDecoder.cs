@@ -17,7 +17,7 @@ public class UniswapV3CollectEventDecoder : ILiquidityPoolEventDecoder
 
     public LiquidityPoolPositionEvent DecodeModifyLiquidityEvent(EvmAddress walletAddress,
         BlockchainLogEntry blockchainLogEntry,
-        TokenPair tokenPair, DateTimeOffset timestamp)
+        TokenPair tokenPair, DateTime timestamp)
     {
         var tickLower = Decoder.DecodeDefaultData(blockchainLogEntry.Topics[2].ToString(), new Parameter("int24"))
             .FirstOrDefault();
