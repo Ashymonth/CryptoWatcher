@@ -4,7 +4,7 @@ using CryptoWatcher.Modules.Uniswap.Tests.Fakers;
 using JetBrains.Annotations;
 using Shouldly;
 
-namespace CryptoWatcher.Modules.Uniswap.Tests.Entities;
+namespace CryptoWatcher.Modules.Uniswap.Tests.Entities.UniswapPositionTests;
 
 [TestSubject(typeof(UniswapLiquidityPosition))]
 public partial class UniswapLiquidityPositionTest

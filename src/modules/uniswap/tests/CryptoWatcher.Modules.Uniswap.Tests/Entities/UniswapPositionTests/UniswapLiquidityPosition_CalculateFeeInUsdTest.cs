@@ -9,7 +9,7 @@ using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 using Shouldly;
 
-namespace CryptoWatcher.Modules.Uniswap.Tests.Entities;
+namespace CryptoWatcher.Modules.Uniswap.Tests.Entities.UniswapPositionTests;
 
 public partial class UniswapLiquidityPositionTest
 {

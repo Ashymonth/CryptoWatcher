@@ -1,7 +1,7 @@
 using CryptoWatcher.Modules.Uniswap.Tests.Fakers;
 using Shouldly;
 
-namespace CryptoWatcher.Modules.Uniswap.Tests.Entities;
+namespace CryptoWatcher.Modules.Uniswap.Tests.Entities.UniswapPositionTests;
 
 public partial class UniswapLiquidityPositionTest
 {
