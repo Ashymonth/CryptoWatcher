@@ -49,6 +49,24 @@ public partial class UniswapLiquidityPositionTest
         // Assert
         actual.Value.ShouldBe(expected.FeeInUsd);
     }
+    
+    [Fact]
+    public void Calculate_position_fee_with_empty_snapshot_for_start_range()
+    {
+        // Arrange
+        var startDate =
+            DateOnly.FromDateTime(new DateTime(DateOnly.Parse("2025.01.01"), new TimeOnly(), DateTimeKind.Utc));
+
+        var position = CreatePositionWithSnapshots(startDate, 10);
+        
+        var expected = position.PoolPositionSnapshots.Last();
+
+        // Act
+        var actual = position.CalculateCumulativeFeeInUsd(startDate, expected.Day);
+
+        // Assert
+        actual.Value.ShouldBe(expected.FeeInUsd);
+    }
 
     [Theory]
     [InlineData("2025.01.01")]

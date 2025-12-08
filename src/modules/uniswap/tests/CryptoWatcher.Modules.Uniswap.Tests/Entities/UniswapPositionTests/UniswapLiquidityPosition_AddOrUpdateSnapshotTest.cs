@@ -1,4 +1,6 @@
 using Bogus;
+using CryptoWatcher.Exceptions;
+using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Tests.DataSets;
 using CryptoWatcher.Modules.Uniswap.Tests.Fakers;
 using Shouldly;
@@ -56,5 +58,19 @@ public partial class UniswapLiquidityPositionTest
         updatedSnapshot.IsInRange.ShouldBe(!expectedIsInRange);
         updatedSnapshot.Token0.ShouldBeEquivalentTo(createdSnapshot.Token0);
         updatedSnapshot.Token1.ShouldBeEquivalentTo(createdSnapshot.Token1);
+    }
+
+    [Fact]
+    public void Do_not_add_snapshot_if_position_closed()
+    {
+        var position = CreatePositionWithSnapshots(_faker.Date.FutureDateOnly(), 10);
+        position.ClosePosition(_faker.Date.FutureDateOnly());
+
+        var token0 = _faker.Crypto().RandomTokenInfoWithFee(position.Token0);
+        var token1 = _faker.Crypto().RandomTokenInfoWithFee(position.Token1);
+
+        Should.Throw<DomainException>(
+            () => { position.AddOrUpdateSnapshot(_faker.Date.FutureDateOnly(), false, token0, token1); },
+            UniswapLiquidityPosition.PositionClosedException);
     }
 }

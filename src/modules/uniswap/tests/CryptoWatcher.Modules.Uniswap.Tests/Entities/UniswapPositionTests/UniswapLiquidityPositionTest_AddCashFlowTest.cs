@@ -1,3 +1,5 @@
+using CryptoWatcher.Exceptions;
+using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Tests.Fakers;
 using Shouldly;
 
@@ -43,5 +45,19 @@ public partial class UniswapLiquidityPositionTest
         var actual = position.CashFlows.Single();
 
         actual.ShouldBeSameAs(firstCashFlow);
+    }
+
+    [Fact]
+    public void Do_not_add_cash_if_position_closed()
+    {
+        var config = new UniswapChainConfigurationFaker().Generate();
+        var position = new UniswapLiquidityPositionFaker(config).Generate();
+
+        position.ClosePosition(_faker.Date.FutureDateOnly());
+
+        var claimDate = _faker.Date.Future(refDate: DateTime.UtcNow);
+
+        Should.Throw<DomainException>(() => { AddFeeClaimEvent(position, 0, claimDate); },
+            UniswapLiquidityPosition.PositionClosedException);
     }
 }

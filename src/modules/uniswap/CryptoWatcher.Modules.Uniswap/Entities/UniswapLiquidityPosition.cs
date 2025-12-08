@@ -28,17 +28,23 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     {
     }
 
+    internal const string SameSymbolsException = "Can't create a position with same token symbols";
+
+    internal const string InvalidTickRangeException = "Can't create a position with tick lower greater than tick upper";
+
+    internal const string PositionClosedException = "Position already closed position";
+
     public UniswapLiquidityPosition(ulong positionId, long tickLower, long tickUpper, TokenInfo token0,
         TokenInfo token1, EvmAddress walletAddress, UniswapChainConfiguration chain, DateOnly createdAt)
     {
         if (token0.Symbol == token1.Symbol)
         {
-            throw new DomainException("For uniswap position tokens can't be the same");
+            throw new DomainException(SameSymbolsException);
         }
 
         if (tickLower > tickUpper)
         {
-            throw new DomainException("For uniswap position tick lower can't be greater than tick upper");
+            throw new DomainException(InvalidTickRangeException);
         }
 
         PositionId = positionId;
@@ -99,7 +105,7 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     /// An active state signifies that the position is engaged in the liquidity pool,
     /// while an inactive state suggests the position has been exited or is no longer valid.
     /// </remarks>
-    public bool IsActive => ClosedAt is null;
+    public bool IsClosed => ClosedAt is not null;
 
     /// <summary>
     /// When position created
@@ -155,6 +161,11 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
     public UniswapLiquidityPositionSnapshot AddOrUpdateSnapshot(DateOnly day, bool isInRange, TokenInfoWithFee token0,
         TokenInfoWithFee token1)
     {
+        if (IsClosed)
+        {
+            throw new DomainException(PositionClosedException);
+        }
+        
         var existedSnapshot = _positionSnapshots.FirstOrDefault(snapshot => snapshot.Day == day);
         if (existedSnapshot is null)
         {
@@ -172,6 +183,11 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
         LiquidityPoolPositionEvent positionEvent,
         TokenInfoPair tokenInfoPair)
     {
+        if (IsClosed)
+        {
+            throw new DomainException(PositionClosedException);
+        }
+        
         var existedSnapshot = _cashFlows.FirstOrDefault(snapshot => snapshot.Date == positionEvent.TimeStamp);
         if (existedSnapshot is null)
         {
@@ -186,9 +202,9 @@ public class UniswapLiquidityPosition : ICalculatablePosition<ITokenPairPosition
 
     public void ClosePosition(DateOnly closedAt)
     {
-        if (ClosedAt.HasValue)
+        if (IsClosed)
         {
-            throw new DomainException("Can't close already closed uniswap position");
+            throw new DomainException(PositionClosedException);
         }
 
         ClosedAt = closedAt;
