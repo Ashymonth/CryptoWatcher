@@ -59,7 +59,12 @@ internal class UniswapAppApiClient
 
         var result = await responseMessage.Content.ReadFromJsonAsync<GetPositionsResponse>(cancellationToken: ct);
 
-        return result!.Positions
+        if (result!.Positions is null)
+        {
+            return [];
+        }
+        
+        return result.Positions
             .Where(position => position.V4Position is not null)
             .GroupBy(position => position.ChainId)
             .ToDictionary(grouping => grouping.Key,

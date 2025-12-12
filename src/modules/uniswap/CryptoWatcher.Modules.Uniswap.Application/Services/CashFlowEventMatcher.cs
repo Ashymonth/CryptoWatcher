@@ -78,9 +78,11 @@ public class CashFlowEventMatcher : ICashFlowEventMatcher
                 _logger.LogInformation("Matched position {PositionId} for event ticks {TickLower}-{TickUpper}",
                     positionFromDb.PositionId, poolPositionEvent.TickLower, poolPositionEvent.TickUpper);
 
-                var cashFlow = UniswapLiquidityPositionCashFlow.CreateFromEvent(poolPositionEvent.Event,
-                    positionFromDb.PositionId, chainConfiguration, poolPositionEvent.TransactionHash,
-                    enrichedTokenPair, poolPositionEvent.TimeStamp);
+                var cashFlow = new UniswapLiquidityPositionCashFlow(
+                    positionFromDb,
+                    poolPositionEvent,
+                    enrichedTokenPair,
+                    poolPositionEvent.TimeStamp);
 
                 result.Add(cashFlow);
 

@@ -410,8 +410,11 @@ namespace CryptoWatcher.Infrastructure.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                    b.Property<DateOnly?>("ClosedAt")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("CreatedAt")
+                        .HasColumnType("date");
 
                     b.Property<int>("ProtocolVersion")
                         .HasColumnType("integer");
@@ -973,13 +976,11 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
             modelBuilder.Entity("CryptoWatcher.Modules.Uniswap.Entities.UniswapLiquidityPositionSnapshot", b =>
                 {
-                    b.HasOne("CryptoWatcher.Modules.Uniswap.Entities.UniswapLiquidityPosition", "UniswapLiquidityPosition")
+                    b.HasOne("CryptoWatcher.Modules.Uniswap.Entities.UniswapLiquidityPosition", null)
                         .WithMany("PoolPositionSnapshots")
                         .HasForeignKey("PoolPositionId", "NetworkName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("UniswapLiquidityPosition");
                 });
 
             modelBuilder.Entity("CryptoWatcher.Modules.Uniswap.Entities.UniswapSynchronizationState", b =>

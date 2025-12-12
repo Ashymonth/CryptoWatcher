@@ -37,6 +37,7 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
     private readonly IUniswapProvider _providerFactory;
     private readonly IUniswapMath _math;
     private readonly IPoolHistorySyncRepositoryFacade _repositoryFacade;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<UniswapPositionsSyncService> _logger;
 
     public UniswapPositionsSyncService(
@@ -44,13 +45,15 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
         IUniswapProvider providerFactory,
         IUniswapMath math,
         IPoolHistorySyncRepositoryFacade repositoryFacade,
+        TimeProvider timeProvider,
         ILogger<UniswapPositionsSyncService> logger)
     {
         _enricher = enricher;
         _providerFactory = providerFactory;
         _math = math;
-        _logger = logger;
         _repositoryFacade = repositoryFacade;
+        _timeProvider = timeProvider;
+        _logger = logger;
     }
 
     public async Task SyncUniswapPositionsAsync(Wallet wallet, UniswapChainConfiguration chainConfiguration,
@@ -89,9 +92,12 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
 
                 var positionKey = new PositionKey((ulong)uniswapPosition.PositionId, chainConfiguration.Name);
                 if (!existedPositions.TryGetValue(positionKey, out var dbPoolPosition))
-                    // for case when position was created
-                    // and added liquidity in 1 day
                 {
+                    if (uniswapPosition.Liquidity == 0)
+                    {
+                        continue;
+                    }
+                    
                     dbPoolPosition =
                         MapToLiquidityPoolPosition(chainConfiguration, wallet, uniswapPosition, tokensEnriched);
                     positions.Add(dbPoolPosition);
@@ -99,15 +105,15 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
 
                 if (uniswapPosition.Liquidity == 0)
                 {
-                    dbPoolPosition.IsActive = false;
+                    dbPoolPosition.ClosePosition(DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime));
                     positions.Add(dbPoolPosition);
                     continue;
                 }
-                
+
                 var feeEnriched = await CalculateFeeAsync(chainConfiguration, pool, uniswapPosition, ct);
 
-                var snapshotEntity = MapToLiquidityPoolPositionSnapshot(dbPoolPosition.PositionId,
-                    dbPoolPosition.NetworkName, tokensEnriched, feeEnriched, positionInPool.IsInRange, syncDay);
+                var snapshotEntity = MapToLiquidityPoolPositionSnapshot(dbPoolPosition, tokensEnriched, feeEnriched,
+                    positionInPool.IsInRange, syncDay);
 
                 poolPositionSnapshots.Add(snapshotEntity);
 
@@ -142,39 +148,32 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
         return await _enricher.EnrichAsync(chain.RpcUrlWithAuthToken, fee, ct);
     }
 
-    private static UniswapLiquidityPosition MapToLiquidityPoolPosition(UniswapChainConfiguration chain, Wallet wallet,
+    private UniswapLiquidityPosition MapToLiquidityPoolPosition(UniswapChainConfiguration chain, Wallet wallet,
         IUniswapPosition position, TokenInfoPair tokensEnriched)
     {
         return new UniswapLiquidityPosition
-        {
-            NetworkName = chain.Name,
-            IsActive = position.Liquidity != 0,
-            Token0 = tokensEnriched.Token0,
-            Token1 = tokensEnriched.Token1,
-            WalletAddress = wallet.Address,
-            PositionId = (ulong)position.PositionId,
-            ProtocolVersion = chain.ProtocolVersion,
-            TickLower = position.TickLower,
-            TickUpper = position.TickUpper
-        };
+        (
+            (ulong)position.PositionId,
+            position.TickLower,
+            position.TickUpper,
+            tokensEnriched.Token0,
+            tokensEnriched.Token1,
+            wallet.Address,
+            chain,
+            DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime)
+        );
     }
 
     private static UniswapLiquidityPositionSnapshot MapToLiquidityPoolPositionSnapshot(
-        ulong positionId,
-        string networkName,
+        UniswapLiquidityPosition position,
         TokenInfoPair poolPosition,
         TokenInfoPair feeInfo,
         bool isInRange,
         DateOnly day)
     {
-        return new UniswapLiquidityPositionSnapshot
-        {
-            PoolPositionId = positionId,
-            NetworkName = networkName,
-            Day = day,
-            Token0 = TokenInfoWithFee.Create(poolPosition.Token0, feeInfo.Token0.Amount, feeInfo.Token0.PriceInUsd),
-            Token1 = TokenInfoWithFee.Create(poolPosition.Token1, feeInfo.Token1.Amount, feeInfo.Token1.PriceInUsd),
-            IsInRange = isInRange,
-        };
+        var token0 = TokenInfoWithFee.Create(poolPosition.Token0, feeInfo.Token0.Amount, feeInfo.Token0.PriceInUsd);
+        var token1 = TokenInfoWithFee.Create(poolPosition.Token1, feeInfo.Token1.Amount, feeInfo.Token1.PriceInUsd);
+
+        return new UniswapLiquidityPositionSnapshot(position, day, isInRange, token0, token1);
     }
 }

@@ -4,6 +4,26 @@ namespace CryptoWatcher.Extensions;
 
 public static class PositionSnapshotExtensions
 {
+    public static TSnapshot? GetLastSnapshotBefore<TSnapshot>(
+        this IReadOnlyCollection<TSnapshot> snapshots,
+        DateOnly day)
+        where TSnapshot : IPositionSnapshot
+    {
+        return snapshots
+            .Where(s => s.Day < day)
+            .MaxBy(s => s.Day);
+    }
+    
+    public static TSnapshot? GetLastSnapshotOnOrBefore<TSnapshot>(
+        this IReadOnlyCollection<TSnapshot> snapshots,
+        DateOnly day)
+        where TSnapshot : IPositionSnapshot
+    {
+        return snapshots
+            .Where(s => s.Day <= day)
+            .MaxBy(s => s.Day);
+    }
+    
     public static TSnapshot? GetNearestSnapshot<TSnapshot>(
         this IReadOnlyCollection<TSnapshot> availableSnapshots, 
         DateOnly day,

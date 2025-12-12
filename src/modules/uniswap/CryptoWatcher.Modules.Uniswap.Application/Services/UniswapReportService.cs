@@ -27,7 +27,8 @@ public class UniswapReportService : IPlatformDailyReportDataProvider
         var result = new Dictionary<Wallet, List<PlatformDailyReport>>();
         foreach (var poolPositionByWallet in poolPositions.GroupBy(position => position.WalletAddress))
         {
-            foreach (var poolPosition in poolPositionByWallet)
+            foreach (var poolPosition in poolPositionByWallet.OrderBy(position => position.PositionId)
+                         .ThenBy(position => position.IsClosed))
             {
                 if (poolPosition.PoolPositionSnapshots.Count == 0)
                 {
@@ -39,23 +40,19 @@ public class UniswapReportService : IPlatformDailyReportDataProvider
                 {
                     PositionInUsd = poolPosition.PoolPositionSnapshots.MaxBy(snapshot => snapshot.Day)!.TokenSumInUsd(),
                     ProfitInUsd = profit.Amount,
-                    TotalCommissionInUsd =  poolPosition.CalculateTotalFeeInUsd(from, to),
                     ProfitInPercent = profit.Percent,
-                    TotalHoldInUsd = poolPosition.CalculateHoldValueInUsd(from, to),
+                    TotalHoldInUsd = poolPosition.CalculateHoldValueInUsd(to),
                     ReportItems = poolPosition.PoolPositionSnapshots.Select(positionSnapshot =>
-                    {
-                        var previousDay = positionSnapshot.Day.AddDays(-1);
-                        return new UniswapDailyReportItem
+                        new UniswapDailyReportItem
                         {
                             Network = poolPosition.NetworkName,
                             Day = positionSnapshot.Day,
                             PositionInUsd = positionSnapshot.TokenSumInUsd(),
-                            HoldInUsd = poolPosition.CalculateHoldValueInUsd(previousDay, positionSnapshot.Day),
+                            HoldInUsd = poolPosition.CalculateHoldValueInUsd(positionSnapshot.Day),
                             TokenPairSymbols = $"{positionSnapshot.Token0.Symbol} / {positionSnapshot.Token1.Symbol}",
-                            DailyProfitInUsd = poolPosition.CalculateFeeInUsd(previousDay, positionSnapshot.Day),
+                            DailyProfitInUsd = poolPosition.CalculateDailyFeeProfit(positionSnapshot.Day),
                             DailyProfitInUsdPercent = 0
-                        };
-                    }).ToArray()
+                        }).ToArray()
                 };
 
                 if (!result.TryGetValue(poolPosition.Wallet, out var dailyReports))

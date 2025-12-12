@@ -30,5 +30,8 @@
     <Project Path="src\modules\uniswap\CryptoWatcher.Modules.Uniswap.Infrastructure\CryptoWatcher.Modules.Uniswap.Infrastructure.csproj" Type="C#" />
     <Project Path="src\modules\uniswap\CryptoWatcher.Modules.Uniswap\CryptoWatcher.Modules.Uniswap.csproj" Type="C#" />
   </Folder>
+  <Folder Name="/src/modules/uniswap/tests/">
+    <Project Path="src/modules/uniswap/tests/CryptoWatcher.Modules.Uniswap.Tests/CryptoWatcher.Modules.Uniswap.Tests.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
 </Solution>

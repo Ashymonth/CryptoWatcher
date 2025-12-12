@@ -12,5 +12,5 @@ public interface ILiquidityPoolEventDecoder
     LiquidityPoolPositionEvent DecodeModifyLiquidityEvent(EvmAddress walletAddress,
         BlockchainLogEntry blockchainLogEntry,
         TokenPair tokenPair,
-        DateTimeOffset timestamp);
+        DateTime timestamp);
 }

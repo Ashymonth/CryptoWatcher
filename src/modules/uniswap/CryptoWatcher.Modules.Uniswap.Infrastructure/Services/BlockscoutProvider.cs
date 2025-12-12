@@ -22,7 +22,7 @@ public class Item
 
     public Sender To { get; set; } = null!;
 
-    public DateTimeOffset TimeStamp { get; set; }
+    public DateTime TimeStamp { get; set; }
 }
 
 public class Root
@@ -101,8 +101,7 @@ public class BlockscoutProvider : IBlockscoutProvider
         return result;
     }
 
-    public async Task<DateTimeOffset> GetTransactionTimestampAsync(
-        UniswapChainConfiguration chainConfiguration,
+    public async Task<DateTime> GetTransactionTimestampAsync(UniswapChainConfiguration chainConfiguration,
         TransactionHash transactionHash,
         CancellationToken ct = default)
     {
@@ -115,7 +114,7 @@ public class BlockscoutProvider : IBlockscoutProvider
                 $"Can't find internal transaction with ETH. Transaction hash:{transactionHash}");
         }
 
-        return internalTransactionsResponse.TimeStamp;
+        return internalTransactionsResponse.TimeStamp.UtcDateTime;
     }
 
     public async Task<EthTransaction> GetEthAmountFromInternalTransaction(

@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions.CacheFlows;
+using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 
@@ -10,6 +11,26 @@ public class UniswapLiquidityPositionCashFlow : ITokenPairCashFlow
     {
     }
 
+    public UniswapLiquidityPositionCashFlow(
+        UniswapLiquidityPosition position,
+        LiquidityPoolPositionEvent  positionEvent,
+        TokenInfoPair tokenInfoPair,
+        DateTime date)
+    {
+        if (date.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Only UTC dates are supported.", nameof(date));
+        }
+        
+        PositionId = position.PositionId;
+        NetworkName = position.NetworkName;
+        Date = date;
+        Event = positionEvent.Event;
+        TransactionHash = positionEvent.TransactionHash;
+        Token0 = CreateFromEvent(tokenInfoPair.Token0, positionEvent.Event);
+        Token1 = CreateFromEvent(tokenInfoPair.Token1, positionEvent.Event);
+    }
+
     public ulong PositionId { get; init; }
 
     public string NetworkName { get; init; } = null!;
@@ -18,34 +39,18 @@ public class UniswapLiquidityPositionCashFlow : ITokenPairCashFlow
 
     public TransactionHash TransactionHash { get; init; } = null!;
 
-    public CacheFlowEvent Event { get; init; } = null!;
+    public CashFlowEvent Event { get; init; } = null!;
 
     public TokenInfoWithFee Token0 { get; set; } = null!;
 
     public TokenInfoWithFee Token1 { get; set; } = null!;
 
-    public static UniswapLiquidityPositionCashFlow CreateFromEvent(CacheFlowEvent @event, ulong positionId,
-        UniswapChainConfiguration chain,
-        TransactionHash transactionHash,
-        TokenInfoPair tokenInfoPair,
-        DateTimeOffset timeStamp)
+    public decimal FeeInUsd => Token0.FeeAmountInUsd + Token1.FeeAmountInUsd;
+ 
+    private static TokenInfoWithFee CreateFromEvent(TokenInfoWithAddress infoWithAddress, CashFlowEvent @event)
     {
-        return new UniswapLiquidityPositionCashFlow
-        {
-            PositionId = positionId,
-            NetworkName = chain.Name,
-            Date = timeStamp.DateTime.ToUniversalTime(),
-            Event = @event,
-            TransactionHash = transactionHash,
-            Token0 = CreateFromEvent(tokenInfoPair.Token0, @event),
-            Token1 = CreateFromEvent(tokenInfoPair.Token1, @event)
-        };
-    }
-
-    private static TokenInfoWithFee CreateFromEvent(TokenInfoWithAddress infoWithAddress, CacheFlowEvent @event)
-    {
-        var amount = @event != CacheFlowEvent.FeeClaim ? infoWithAddress.Amount : 0;
-        var feeAmount = @event != CacheFlowEvent.FeeClaim ? 0 : infoWithAddress.Amount;
+        var amount = @event != CashFlowEvent.FeeClaim ? infoWithAddress.Amount : 0;
+        var feeAmount = @event != CashFlowEvent.FeeClaim ? 0 : infoWithAddress.Amount;
 
         return TokenInfoWithFee.CreateForEvent(@event, infoWithAddress.Symbol, amount, feeAmount,
             infoWithAddress.PriceInUsd);
