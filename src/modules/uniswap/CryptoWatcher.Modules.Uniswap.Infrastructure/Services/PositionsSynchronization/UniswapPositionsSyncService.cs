@@ -92,9 +92,12 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
 
                 var positionKey = new PositionKey((ulong)uniswapPosition.PositionId, chainConfiguration.Name);
                 if (!existedPositions.TryGetValue(positionKey, out var dbPoolPosition))
-                    // for case when position was created
-                    // and added liquidity in 1 day
                 {
+                    if (uniswapPosition.Liquidity == 0)
+                    {
+                        continue;
+                    }
+                    
                     dbPoolPosition =
                         MapToLiquidityPoolPosition(chainConfiguration, wallet, uniswapPosition, tokensEnriched);
                     positions.Add(dbPoolPosition);
