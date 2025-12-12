@@ -59,7 +59,7 @@ internal class UniswapAppApiClient
 
         var result = await responseMessage.Content.ReadFromJsonAsync<GetPositionsResponse>(cancellationToken: ct);
 
-        if (result!.Positions.Count == 0)
+        if (result!.Positions is null)
         {
             return [];
         }
