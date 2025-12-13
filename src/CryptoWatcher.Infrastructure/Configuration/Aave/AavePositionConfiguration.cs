@@ -10,9 +10,7 @@ public class AavePositionConfiguration : IEntityTypeConfiguration<AavePosition>
     public void Configure(EntityTypeBuilder<AavePosition> builder)
     {
         builder.Property(aavePosition => aavePosition.Network).HasMaxLength(32);
-        builder.Property(aavePosition => aavePosition.WalletAddress).ConfigureEvmAddress();
-        builder.Property(aavePosition => aavePosition.TokenAddress).ConfigureEvmAddress();
-
+      
         builder.Navigation(position => position.PositionSnapshots).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(position => position.CashFlows).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(position => position.PositionPeriods).UsePropertyAccessMode(PropertyAccessMode.Field);

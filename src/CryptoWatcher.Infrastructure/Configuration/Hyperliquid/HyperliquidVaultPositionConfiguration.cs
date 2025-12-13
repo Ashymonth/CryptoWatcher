@@ -11,11 +11,7 @@ public class HyperliquidVaultPositionConfiguration : IEntityTypeConfiguration<Hy
     public void Configure(EntityTypeBuilder<HyperliquidVaultPosition> builder)
     {
         builder.HasKey(position => new { position.VaultAddress, position.WalletAddress });
-
-        builder.Property(wallet => wallet.WalletAddress).ConfigureEvmAddress();
-
-        builder.Property(wallet => wallet.VaultAddress).ConfigureEvmAddress();
-
+ 
         builder.Navigation(position => position.PositionSnapshots)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
         

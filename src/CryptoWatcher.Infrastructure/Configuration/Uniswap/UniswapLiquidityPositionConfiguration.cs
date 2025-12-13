@@ -1,6 +1,4 @@
-using CryptoWatcher.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Shared.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,10 +11,7 @@ public class UniswapLiquidityPositionConfiguration : IEntityTypeConfiguration<Un
         builder.HasKey(position => new { position.PositionId, position.NetworkName });
 
         builder.Property(network => network.NetworkName).HasMaxLength(32);
-        builder.Property(network => network.WalletAddress).HasMaxLength(64);
-
-        builder.Property(wallet => wallet.WalletAddress).ConfigureEvmAddress();
-        
+ 
         builder.HasOne(position => position.Wallet)
             .WithMany()
             .HasForeignKey(position => position.WalletAddress)
@@ -31,8 +26,5 @@ public class UniswapLiquidityPositionConfiguration : IEntityTypeConfiguration<Un
             .WithOne()
             .HasForeignKey(position => new { position.PositionId, position.NetworkName })
             .IsRequired();
-
-        builder.ComplexProperty<TokenInfo>(position => position.Token0);
-        builder.ComplexProperty<TokenInfo>(position => position.Token1); 
     }
 }

@@ -20,7 +20,7 @@ namespace CryptoWatcher.Modules.Aave.Entities;
 public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCashFlow>
 {
     private readonly List<AavePositionSnapshot> _positionSnapshots = [];
-    private readonly List<AavePositionCashFlow> _positionCashFlows = [];
+    private readonly List<AavePositionCashFlow> _cashFlows = [];
     private readonly List<AavePositionPeriod> _positionPeriods = [];
 
     [UsedImplicitly] // for ef core
@@ -119,7 +119,7 @@ public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCash
     /// have occurred within the lifecycle of the Aave position. These events reflect
     /// transactional or state changes tied to the position over time.
     /// </remarks>
-    public IReadOnlyCollection<AavePositionCashFlow> CashFlows => _positionCashFlows;
+    public IReadOnlyCollection<AavePositionCashFlow> CashFlows => _cashFlows;
 
     public IReadOnlyCollection<AavePositionPeriod> PositionPeriods => _positionPeriods;
  
@@ -182,7 +182,7 @@ public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCash
 
         if (PreviousScaledAmount < positionScale)
         {
-            _positionCashFlows.Add(new AavePositionCashFlow
+            _cashFlows.Add(new AavePositionCashFlow
             {
                 PositionId = Id,
                 Date = eventDateTime,
@@ -192,7 +192,7 @@ public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCash
         }
         else
         {
-            _positionCashFlows.Add(new AavePositionCashFlow
+            _cashFlows.Add(new AavePositionCashFlow
             {
                 PositionId = Id,
                 Date = eventDateTime,
