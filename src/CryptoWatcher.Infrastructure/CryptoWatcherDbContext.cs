@@ -1,9 +1,13 @@
-using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Exceptions;
+using CryptoWatcher.Infrastructure.Configuration.Conventions;
+using CryptoWatcher.Infrastructure.Configuration.Converters;
+using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.Entities;
+using CryptoWatcher.Shared.ValueObjects;
+using CryptoWatcher.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using SmartEnum.EFCore;
@@ -20,6 +24,9 @@ namespace CryptoWatcher.Infrastructure;
 /// </remarks>
 public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(options), IUnitOfWork
 {
+    private const byte EvmAddressLength = 42;
+    private const byte TransactionHashLength = 66;
+    
     private IDbContextTransaction? _activeTransaction;
 
     /// <summary>
@@ -85,7 +92,7 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     /// It is designed to store and retrieve transactional information, such as events specific
     /// to individual position records, including token details and relevant identifiers.
     /// </remarks>
-    public DbSet<AavePositionEvent> AavePositionEvents => Set<AavePositionEvent>();
+    public DbSet<AavePositionCashFlow> AavePositionCashFlows => Set<AavePositionCashFlow>();
 
     #endregion
 
@@ -161,9 +168,52 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     public DbSet<HyperliquidPositionDailyPerformance> HyperliquidPositionDailyPerformances =>
         Set<HyperliquidPositionDailyPerformance>();
     
-    public DbSet<HyperliquidVaultEvent> HyperliquidVaultEvents => Set<HyperliquidVaultEvent>();
+    public DbSet<HyperliquidPositionCashFlow> HyperliquidPositionCashFlows => Set<HyperliquidPositionCashFlow>();
 
     #endregion
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.ComplexProperties<TokenInfo>();
+        configurationBuilder.ComplexProperties<TokenInfoWithAddress>();
+        configurationBuilder.ComplexProperties<TokenInfoWithFee>();
+
+        configurationBuilder.Properties<EvmAddress>()
+            .HaveConversion<EvmAddressConverter>()
+            .AreFixedLength()
+            .AreUnicode(false)
+            .HaveMaxLength(EvmAddressLength);
+
+        configurationBuilder.Properties<EvmAddress?>()
+            .HaveConversion<EvmAddressConverter>()
+            .AreFixedLength()
+            .AreUnicode(false)
+            .HaveMaxLength(EvmAddressLength);
+        
+        configurationBuilder.Properties<TransactionHash>()
+            .HaveConversion<TransactionHashConverter>()
+            .AreFixedLength()
+            .AreUnicode(false)
+            .HaveMaxLength(TransactionHashLength); 
+        
+        configurationBuilder.Properties<TransactionHash?>()
+            .HaveConversion<TransactionHashConverter>()
+            .AreFixedLength()
+            .AreUnicode(false)
+            .HaveMaxLength(TransactionHashLength); 
+
+        // Map Uri to string with max length 128 globally
+        configurationBuilder.Properties<Uri>()
+            .HaveConversion<UriConverter>()
+            .HaveMaxLength(128);
+        configurationBuilder.Properties<Uri?>()
+            .HaveConversion<UriConverter>()
+            .HaveMaxLength(128);
+
+        configurationBuilder.Conventions.Add(_ => new TokenInfoSymbolMaxLengthConvention());
+        
+        base.ConfigureConventions(configurationBuilder);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

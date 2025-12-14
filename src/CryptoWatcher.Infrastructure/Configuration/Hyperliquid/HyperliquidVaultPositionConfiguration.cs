@@ -11,15 +11,11 @@ public class HyperliquidVaultPositionConfiguration : IEntityTypeConfiguration<Hy
     public void Configure(EntityTypeBuilder<HyperliquidVaultPosition> builder)
     {
         builder.HasKey(position => new { position.VaultAddress, position.WalletAddress });
-
-        builder.Property(wallet => wallet.WalletAddress).ConfigureEvmAddress();
-
-        builder.Property(wallet => wallet.VaultAddress).ConfigureEvmAddress();
-
+ 
         builder.Navigation(position => position.PositionSnapshots)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
         
-        builder.Navigation(position => position.VaultEvents)
+        builder.Navigation(position => position.CashFlows)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasOne(vaultPosition => vaultPosition.Wallet)
@@ -32,7 +28,7 @@ public class HyperliquidVaultPositionConfiguration : IEntityTypeConfiguration<Hy
             .HasForeignKey(snapshot => new { snapshot.VaultAddress, snapshot.WalletAddress })
             .IsRequired();
 
-        builder.HasMany(position => position.VaultEvents)
+        builder.HasMany(position => position.CashFlows)
             .WithOne()
             .HasForeignKey(snapshot => new { snapshot.VaultAddress, snapshot.WalletAddress })
             .IsRequired();

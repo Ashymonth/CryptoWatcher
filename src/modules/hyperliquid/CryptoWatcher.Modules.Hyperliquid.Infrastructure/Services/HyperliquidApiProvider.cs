@@ -6,6 +6,7 @@ using CryptoWatcher.Modules.Hyperliquid.Entities;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Client;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Client.UserNonFundingLedgerUpdates.Contracts;
 using CryptoWatcher.Shared.Entities;
+using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Hyperliquid.Infrastructure.Services;
@@ -19,7 +20,7 @@ public class HyperliquidApiProvider : IHyperliquidProvider
         _client = client;
     }
 
-    public async Task<HyperliquidVaultEvent[]> GetCashFlowEventsAsync(Wallet wallet,
+    public async Task<HyperliquidPositionCashFlow[]> GetCashFlowEventsAsync(Wallet wallet,
         DateOnly from, DateOnly to,
         CancellationToken ct = default)
     {
@@ -44,22 +45,22 @@ public class HyperliquidApiProvider : IHyperliquidProvider
         }).ToArray();
     }
 
-    private static HyperliquidVaultEvent MapToVaultEvent(UserNonFundingLedgerUpdate update, Wallet wallet)
+    private static HyperliquidPositionCashFlow MapToVaultEvent(UserNonFundingLedgerUpdate update, Wallet wallet)
     {
         var day = DateTime.UnixEpoch.AddMilliseconds(update.Time);
         return update.Delta switch
         {
-            VaultDeposit vaultDeposit => new HyperliquidVaultEvent
+            VaultDeposit vaultDeposit => new HyperliquidPositionCashFlow
             {
-                Usd = vaultDeposit.Usdc,
+                Token = new TokenInfo { Amount = vaultDeposit.Usdc, PriceInUsd = 1, Symbol = "USDC" },
                 Event = CashFlowEvent.Deposit,
                 VaultAddress = EvmAddress.Create(vaultDeposit.Vault),
                 WalletAddress = wallet.Address,
                 Date = day
             },
-            VaultWithdraw vaultWithdraw => new HyperliquidVaultEvent
+            VaultWithdraw vaultWithdraw => new HyperliquidPositionCashFlow
             {
-                Usd = vaultWithdraw.NetWithdrawnUsd,
+                Token = new TokenInfo { Amount = vaultWithdraw.NetWithdrawnUsd, PriceInUsd = 1, Symbol = "USDC" },
                 Event = CashFlowEvent.Withdrawal,
                 VaultAddress = EvmAddress.Create(vaultWithdraw.Vault),
                 WalletAddress = wallet.Address,

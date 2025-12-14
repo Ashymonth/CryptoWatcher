@@ -1,4 +1,3 @@
-using CryptoWatcher.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Aave.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -13,7 +12,5 @@ public class AavePositionDailyPerformanceConfiguration : IEntityTypeConfiguratio
             new { performance.Day, performance.PositionType, performance.SnapshotPositionId });
 
         builder.Property(performance => performance.NetworkName).HasMaxLength(32);
-        builder.Property(performance => performance.WalletAddress).ConfigureEvmAddress();
-        builder.ComplexProperty(performance => performance.Token).Property(info => info.Symbol).HasMaxLength(16);
     }
 }

@@ -1,4 +1,3 @@
-using CryptoWatcher.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,9 +11,7 @@ public class UniswapSynchronizationStateConfiguration : IEntityTypeConfiguration
         builder.HasKey(state => new { state.ChainName, state.UniswapProtocolVersion, state.WalletAddress });
         
         builder.Property(network => network.ChainName).HasMaxLength(32);
-        builder.Property(state => state.WalletAddress).ConfigureEvmAddress();
-        builder.Property(state => state.LastTransactionHash).ConfigureTransactionHash();
-
+        
         builder.HasOne(state => state.Wallet)
             .WithMany()
             .HasForeignKey(state => state.WalletAddress)
