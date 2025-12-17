@@ -19,7 +19,7 @@ public partial class UniswapLiquidityPositionTest
         var expectedDate = DateOnly.FromDateTime(faker.Date.Future());
         const bool expectedIsInRange = true;
         var expectedToken0 = faker.Crypto().RandomTokenInfoWithFee(position.Token0);
-        var expectedToken1 = faker.Crypto().RandomTokenInfoWithFee(position.Token1);
+        var expectedToken1 = faker.Crypto().RandomTokenInfoWithFeeOtherThan(position.Token1);
 
         var actual = position.AddOrUpdateSnapshot(expectedDate, expectedIsInRange, expectedToken0, expectedToken1);
 
