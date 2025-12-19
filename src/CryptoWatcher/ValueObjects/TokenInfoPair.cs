@@ -1,5 +1,3 @@
-using CryptoWatcher.Shared.ValueObjects;
-
 namespace CryptoWatcher.ValueObjects;
 
 /// <summary>

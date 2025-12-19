@@ -137,7 +137,7 @@ public class AavePositionTest
         string eventName)
     {
         var eventType = CashFlowEvent.FromName(eventName);
-        var syncDate = DateOnly.FromDateTime(DateTime.Now);
+        var syncDate = DateOnly.FromDateTime(DateTime.UtcNow);
         var position = CreatePosition(positionType);
         var token = _fixture.Create<CryptoToken>();
 

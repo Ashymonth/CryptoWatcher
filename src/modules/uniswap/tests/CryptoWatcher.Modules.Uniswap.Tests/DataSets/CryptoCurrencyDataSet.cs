@@ -47,38 +47,7 @@ public class Crypto : DataSet
 {
     private int _evmAddressCounter = 0;
 
-    public CryptoToken TokenInfo()
-    {
-        var token = PickToken();
-        var amount = Random.Decimal(0.00000001m, 10_000m);
-        amount = Math.Round(amount, token.Decimals, MidpointRounding.AwayFromZero);
-
-        return new CryptoToken
-        {
-            Address = EvmAddress(),
-            Symbol = token.Symbol,
-            Amount = amount,
-            PriceInUsd = Random.Decimal(0.0001m, 200_000m)
-        };
-    }
-
-    public TokenInfoWithFee RandomTokenInfoWithFee(CryptoToken cryptoToken)
-    {
-        return TokenInfoWithFee.Create(cryptoToken, Random.Decimal(0.0001m, 200_000m), Random.Decimal(0, 20000));
-    }
-
-    public TokenInfoWithFee RandomTokenInfoWithFee(CryptoToken cryptoToken, decimal amount, decimal priceInUsd)
-    {
-        return TokenInfoWithFee.Create(cryptoToken, amount, priceInUsd);
-    }
-
-    public TokenInfoWithFee RandomTokenInfoWithFee()
-    {
-        var token = TokenInfo();
-        return TokenInfoWithFee.Create(token, Random.Decimal(0.0001m, 200_000m), Random.Decimal(0, 20000));
-    }
-
-    public CryptoToken RandomTokenInfoWithAddress()
+    public CryptoToken RandomCryptoToken()
     {
         var token = PickToken();
 
@@ -91,16 +60,21 @@ public class Crypto : DataSet
         };
     }
 
-    public CryptoToken RandomTokenInfoWithAddressOtherThan(CryptoToken cryptoToken)
+    public CryptoToken RandomCryptoTokenOtherThan(CryptoToken cryptoToken)
     {
         var address = EvmAddress();
 
-        while (address == cryptoToken.Address)
+        while (address.Equals(cryptoToken.Address))
         {
             address = EvmAddress();
         }
 
         var token = PickToken();
+
+        while (string.Equals(token.Symbol, cryptoToken.Symbol,  StringComparison.InvariantCultureIgnoreCase))
+        {
+            token = PickToken();
+        }
 
         return new CryptoToken
         {
@@ -111,40 +85,14 @@ public class Crypto : DataSet
         };
     }
 
-    public TokenInfoWithFee RandomTokenInfoWithFeeOtherThan(CryptoToken cryptoToken)
+    public CryptoTokenStatisticWithFee RandomCryptoTokenStatisticWithFee(decimal? amount = null,
+        decimal? priceInUsd = null)
     {
-        var address = EvmAddress();
-
-        while (address == cryptoToken.Address)
+        return new CryptoTokenStatisticWithFee
         {
-            address = EvmAddress();
-        }
-
-        return TokenInfoWithFee.Create(cryptoToken, Random.Decimal(0.0001m, 200_000m), Random.Decimal(0, 20000));
-    }
-
-    public CryptoToken TokenInfoOtherThan(CryptoToken previous)
-    {
-        var available = TheCryptoData.Tokens
-            .Where(t => t.Symbol != previous.Symbol)
-            .ToList();
-
-        if (available.Count == 0)
-        {
-            throw new InvalidOperationException("There is no other tokens.");
-        }
-
-        var token = Random.ListItem(available);
-
-        var amount = Random.Decimal(0.0001m, 10_000m);
-        amount = Math.Round(amount, token.Decimals, MidpointRounding.AwayFromZero);
-
-        return new CryptoToken
-        {
-            Address = EvmAddress(),
-            Symbol = token.Symbol,
-            Amount = amount,
-            PriceInUsd = Random.Decimal(0.0001m, 200_000m)
+            Fee = Random.Decimal(1),
+            Amount = amount ?? Random.Decimal(1),
+            PriceInUsd = priceInUsd ?? Random.Decimal(1)
         };
     }
 
@@ -155,6 +103,5 @@ public class Crypto : DataSet
 
     public string TxHash() => "0x" + Random.Hash(64).ToLower();
 
-    private TheCryptoData.TokenRecord PickToken() =>
-        Random.ListItem(TheCryptoData.Tokens);
+    private TheCryptoData.TokenRecord PickToken() => Random.ListItem(TheCryptoData.Tokens);
 }

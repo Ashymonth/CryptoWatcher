@@ -4,6 +4,7 @@ using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Modules.Uniswap.Tests.DataSets;
 using CryptoWatcher.Shared.ValueObjects;
+using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Uniswap.Tests.Fakers;
 

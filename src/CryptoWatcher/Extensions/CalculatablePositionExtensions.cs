@@ -38,8 +38,8 @@ public static class CalculatablePositionExtensions
             position,
             from,
             to,
-            snapshot => snapshot.Token0.FeeAmount * snapshot.Token0.PriceInUsd +
-                        snapshot.Token1.FeeAmount * snapshot.Token1.PriceInUsd,
+            snapshot => snapshot.Token0.Fee * snapshot.Token0.PriceInUsd +
+                        snapshot.Token1.Fee * snapshot.Token1.PriceInUsd,
             (cashFlow, snapshot) =>
             {
                 var cashFlowPair = (cashFlow as ITokenPairCashFlow);

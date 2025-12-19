@@ -1,4 +1,3 @@
-using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -22,18 +21,17 @@ public sealed class TokenInfoSymbolMaxLengthConvention : IModelFinalizingConvent
             foreach (var complexProperty in entityType.GetComplexProperties())
             {
                 var complexType = complexProperty.ComplexType;
-                if (complexType.ClrType != typeof(CryptoToken) && complexType.ClrType != typeof(TokenInfoWithFee) &&
-                    complexType.ClrType != typeof(CryptoToken))
+                if (complexType.ClrType != typeof(CryptoToken))
                 {
                     continue;
                 }
-                
+
                 var symbolProperty = complexType.FindProperty(nameof(CryptoToken.Symbol));
                 if (symbolProperty is null)
                 {
                     continue;
                 }
-                
+
                 symbolProperty.Builder.HasMaxLength(MaxLength);
                 symbolProperty.Builder.IsUnicode(false);
             }

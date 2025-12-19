@@ -82,20 +82,17 @@ public partial class UniswapLiquidityPositionTest
 
         var position = new UniswapLiquidityPositionFaker(new UniswapChainConfigurationFaker().Generate()).Generate();
 
-        var token0 = position.Token0;
-        var token1 = position.Token1;
-
         position.AddOrUpdateSnapshot(startDate, true,
-            _faker.Crypto().RandomTokenInfoWithFee(token0, 1, 100),
-            _faker.Crypto().RandomTokenInfoWithFee(token1, 1, 100));
+            _faker.Crypto().RandomCryptoTokenStatisticWithFee(1, 100),
+            _faker.Crypto().RandomCryptoTokenStatisticWithFee(1, 100));
 
         position.AddOrUpdateSnapshot(DateOnly.Parse("2025.01.02"), true,
-            _faker.Crypto().RandomTokenInfoWithFee(token0, 1, 200),
-            _faker.Crypto().RandomTokenInfoWithFee(token1, 1, 200));
+            _faker.Crypto().RandomCryptoTokenStatisticWithFee(1, 200),
+            _faker.Crypto().RandomCryptoTokenStatisticWithFee(1, 200));
 
         position.AddOrUpdateSnapshot(DateOnly.Parse("2025.01.03"), true,
-            _faker.Crypto().RandomTokenInfoWithFee(token0, 1, 400),
-            _faker.Crypto().RandomTokenInfoWithFee(token1, 1, 400));
+            _faker.Crypto().RandomCryptoTokenStatisticWithFee(1, 400),
+            _faker.Crypto().RandomCryptoTokenStatisticWithFee(1, 400));
 
         var claimedCashFlow = AddFeeClaimEvent(position, 0, testDate);
 
@@ -202,17 +199,14 @@ public partial class UniswapLiquidityPositionTest
 
     private UniswapLiquidityPosition CreatePositionWithSnapshots(DateOnly startDate, int daysCount)
     {
-        var token0 = _faker.Crypto().TokenInfo();
-        var token1 = _faker.Crypto().TokenInfoOtherThan(token0);
-
         var chain = new UniswapChainConfigurationFaker().Generate();
         var position = new UniswapLiquidityPositionFaker(chain).Generate();
 
         foreach (var i in Enumerable.Range(0, daysCount))
         {
             position.AddOrUpdateSnapshot(startDate.AddDays(i), true,
-                _faker.Crypto().RandomTokenInfoWithFee(token0),
-                _faker.Crypto().RandomTokenInfoWithFee(token1));
+                _faker.Crypto().RandomCryptoTokenStatisticWithFee(),
+                _faker.Crypto().RandomCryptoTokenStatisticWithFee());
         }
 
         return position;

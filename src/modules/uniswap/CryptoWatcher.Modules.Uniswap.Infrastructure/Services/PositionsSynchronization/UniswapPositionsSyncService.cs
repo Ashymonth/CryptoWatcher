@@ -3,7 +3,6 @@ using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Shared.Entities;
-using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 using Microsoft.Extensions.Logging;
 
@@ -97,7 +96,7 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
                     {
                         continue;
                     }
-                    
+
                     dbPoolPosition =
                         MapToLiquidityPoolPosition(chainConfiguration, wallet, uniswapPosition, tokensEnriched);
                     positions.Add(dbPoolPosition);
@@ -171,8 +170,17 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
         bool isInRange,
         DateOnly day)
     {
-        var token0 = TokenInfoWithFee.Create(poolPosition.Token0, feeInfo.Token0.Amount, feeInfo.Token0.PriceInUsd);
-        var token1 = TokenInfoWithFee.Create(poolPosition.Token1, feeInfo.Token1.Amount, feeInfo.Token1.PriceInUsd);
+        var token0 = new CryptoTokenStatisticWithFee
+        {
+            Amount = poolPosition.Token0.Amount, Fee = feeInfo.Token0.Amount,
+            PriceInUsd = poolPosition.Token0.PriceInUsd
+        };
+
+        var token1 = new CryptoTokenStatisticWithFee
+        {
+            Amount = poolPosition.Token1.Amount, Fee = feeInfo.Token1.Amount,
+            PriceInUsd = poolPosition.Token1.PriceInUsd
+        };
 
         return new UniswapLiquidityPositionSnapshot(position, day, isInRange, token0, token1);
     }

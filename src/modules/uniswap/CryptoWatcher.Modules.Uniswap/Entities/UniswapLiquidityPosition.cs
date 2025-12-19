@@ -158,8 +158,9 @@ public class
 
     public IReadOnlyCollection<UniswapLiquidityPositionCashFlow> CashFlows => _cashFlows;
 
-    public UniswapLiquidityPositionSnapshot AddOrUpdateSnapshot(DateOnly day, bool isInRange, TokenInfoWithFee token0,
-        TokenInfoWithFee token1)
+    public UniswapLiquidityPositionSnapshot AddOrUpdateSnapshot(DateOnly day, bool isInRange,
+        CryptoTokenStatisticWithFee token0,
+        CryptoTokenStatisticWithFee token1)
     {
         if (IsClosed)
         {

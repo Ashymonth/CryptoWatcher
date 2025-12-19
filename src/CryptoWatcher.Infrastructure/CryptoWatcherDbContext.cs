@@ -175,8 +175,8 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.ComplexProperties<CryptoToken>();
-        configurationBuilder.ComplexProperties<CryptoToken>();
-        configurationBuilder.ComplexProperties<TokenInfoWithFee>();
+        configurationBuilder.ComplexProperties<CryptoTokenStatistic>();
+        configurationBuilder.ComplexProperties<CryptoTokenStatisticWithFee>();
 
         configurationBuilder.Properties<EvmAddress>()
             .HaveConversion<EvmAddressConverter>()
