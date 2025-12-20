@@ -49,6 +49,8 @@ public class
     /// </remarks>
     public Wallet Wallet { get; init; } = null!;
 
+    public CryptoToken Token0 { get; init; } = null!;
+
     /// <summary>
     /// Represents the collection of events associated with the vault's activity.
     /// </summary>
@@ -87,8 +89,8 @@ public class
     {
         var existedSnapshot =
             _cashFlows.FirstOrDefault(positionSnapshot => positionSnapshot.Date == positionCashFlow.Date &&
-                                                            positionSnapshot.Token.Amount ==
-                                                            positionCashFlow.Token.Amount);
+                                                            positionSnapshot.Token0.Amount ==
+                                                            positionCashFlow.Token0.Amount);
 
         if (existedSnapshot is not null)
         {

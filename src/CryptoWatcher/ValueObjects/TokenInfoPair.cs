@@ -1,5 +1,3 @@
-using CryptoWatcher.Shared.ValueObjects;
-
 namespace CryptoWatcher.ValueObjects;
 
 /// <summary>
@@ -10,10 +8,10 @@ public record TokenInfoPair
     /// <summary>
     /// The first token with metadata.
     /// </summary>
-    public required TokenInfoWithAddress Token0 { get; init; } = null!;
+    public required CryptoToken Token0 { get; init; } = null!;
 
     /// <summary>
     /// The second token with metadata.
     /// </summary>
-    public required TokenInfoWithAddress Token1 { get; init; } = null!;
+    public required CryptoToken Token1 { get; init; } = null!;
 }

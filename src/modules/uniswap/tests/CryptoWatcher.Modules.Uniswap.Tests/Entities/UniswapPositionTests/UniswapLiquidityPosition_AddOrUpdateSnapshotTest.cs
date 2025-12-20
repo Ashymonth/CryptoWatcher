@@ -18,8 +18,8 @@ public partial class UniswapLiquidityPositionTest
         var faker = new Faker();
         var expectedDate = DateOnly.FromDateTime(faker.Date.Future());
         const bool expectedIsInRange = true;
-        var expectedToken0 = faker.Crypto().RandomTokenInfoWithFee(position.Token0);
-        var expectedToken1 = faker.Crypto().RandomTokenInfoWithFee(position.Token1);
+        var expectedToken0 = faker.Crypto().RandomCryptoTokenStatisticWithFee();
+        var expectedToken1 = faker.Crypto().RandomCryptoTokenStatisticWithFee();
 
         var actual = position.AddOrUpdateSnapshot(expectedDate, expectedIsInRange, expectedToken0, expectedToken1);
 
@@ -41,13 +41,13 @@ public partial class UniswapLiquidityPositionTest
         var expectedDate = DateOnly.FromDateTime(faker.Date.Future());
         const bool expectedIsInRange = true;
 
-        var firstToken0 = faker.Crypto().RandomTokenInfoWithFee(position.Token0);
-        var secondToken1 = faker.Crypto().RandomTokenInfoWithFee(position.Token1);
+        var firstToken0 = faker.Crypto().RandomCryptoTokenStatisticWithFee();
+        var secondToken1 = faker.Crypto().RandomCryptoTokenStatisticWithFee();
 
         var createdSnapshot = position.AddOrUpdateSnapshot(expectedDate, expectedIsInRange, firstToken0, secondToken1);
 
-        var updatedToken0 = faker.Crypto().RandomTokenInfoWithFee(position.Token0);
-        var updatedToken1 = faker.Crypto().RandomTokenInfoWithFee(position.Token1);
+        var updatedToken0 = faker.Crypto().RandomCryptoTokenStatisticWithFee();
+        var updatedToken1 = faker.Crypto().RandomCryptoTokenStatisticWithFee();
 
         var updatedSnapshot =
             position.AddOrUpdateSnapshot(expectedDate, !expectedIsInRange, updatedToken0, updatedToken1);
@@ -66,8 +66,8 @@ public partial class UniswapLiquidityPositionTest
         var position = CreatePositionWithSnapshots(_faker.Date.FutureDateOnly(), 10);
         position.ClosePosition(_faker.Date.FutureDateOnly());
 
-        var token0 = _faker.Crypto().RandomTokenInfoWithFee(position.Token0);
-        var token1 = _faker.Crypto().RandomTokenInfoWithFee(position.Token1);
+        var token0 = _faker.Crypto().RandomCryptoTokenStatisticWithFee();
+        var token1 = _faker.Crypto().RandomCryptoTokenStatisticWithFee();
 
         Should.Throw<DomainException>(
             () => { position.AddOrUpdateSnapshot(_faker.Date.FutureDateOnly(), false, token0, token1); },

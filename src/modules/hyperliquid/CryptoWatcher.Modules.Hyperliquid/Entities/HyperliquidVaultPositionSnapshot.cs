@@ -24,11 +24,10 @@ public class HyperliquidVaultPositionSnapshot : ITokenPositionSnapshot
         VaultAddress = vaultAddress;
         Balance = balance;
         Day = day;
-        Token = new TokenInfo
+        Token0 = new CryptoTokenStatistic
         {
             Amount = balance,
-            PriceInUsd = 1,
-            Symbol = "USDC"
+            PriceInUsd = 1
         };
     }
 
@@ -41,9 +40,8 @@ public class HyperliquidVaultPositionSnapshot : ITokenPositionSnapshot
     /// The day when the snapshot was taken
     /// </summary>
     public DateOnly Day { get; private set; }
-
-
-    public TokenInfo Token { get; private set; } = null !;
+    
+    public CryptoTokenStatistic Token0 { get; private set; } = null !;
 
     /// <summary>
     /// VaultAddress address

@@ -71,9 +71,9 @@ public class UniswapPositionDailyPerformance
     
     public decimal CumulativeCommissionInUsd { get; private set; }
     
-    public TokenInfoWithFee Token0 { get; private set; }
+    public CryptoTokenStatisticWithFee Token0 { get; private set; }
     
-    public TokenInfoWithFee Token1 { get; private set; }
+    public CryptoTokenStatisticWithFee Token1 { get; private set; }
 
     /// <summary>
     /// Indicates whether the associated liquidity position was actively within the range during the defined period.

@@ -11,7 +11,7 @@ public class UniswapLiquidityPositionSnapshot : ITokenPairPositionSnapshot
     }
 
     public UniswapLiquidityPositionSnapshot(UniswapLiquidityPosition position, DateOnly day, bool isInRange,
-        TokenInfoWithFee token0, TokenInfoWithFee token1)
+        CryptoTokenStatisticWithFee token0, CryptoTokenStatisticWithFee token1)
     {
         PoolPositionId = position.PositionId;
         NetworkName = position.NetworkName;
@@ -66,7 +66,7 @@ public class UniswapLiquidityPositionSnapshot : ITokenPairPositionSnapshot
     /// including its symbol, amount, fee amount, and price in USD. It is used to calculate
     /// the total value and fee-related metrics of the position for reporting and data analysis.
     /// </remarks>
-    public TokenInfoWithFee Token0 { get; private set; } = null!;
+    public CryptoTokenStatisticWithFee Token0 { get; private set; } = null!;
 
     /// <summary>
     /// Represents the secondary token of a liquidity pool position along with its associated fee details.
@@ -76,7 +76,7 @@ public class UniswapLiquidityPositionSnapshot : ITokenPairPositionSnapshot
     /// It includes details such as the token's symbol, amount, fee amount, and price in USD.
     /// This data is critical for accurately calculating the position’s overall performance and associated fees.
     /// </remarks>
-    public TokenInfoWithFee Token1 { get; private set; } = null!;
+    public CryptoTokenStatisticWithFee Token1 { get; private set; } = null!;
 
     /// <summary>
     /// Represents the total fee earned in USD for a specific pool position snapshot.
@@ -86,7 +86,7 @@ public class UniswapLiquidityPositionSnapshot : ITokenPairPositionSnapshot
     /// based on their respective fee amounts and prices in USD. It provides a monetary representation
     /// of the fees collected within the snapshot timeframe.
     /// </remarks>
-    public decimal FeeInUsd => Token0.FeeAmount * Token0.PriceInUsd + Token1.FeeAmount * Token1.PriceInUsd;
+    public decimal FeeInUsd => Token0.FeeInUsd + Token1.FeeInUsd;
 
     /// <summary>
     /// Calculates the total sum in USD of tokens held within the position snapshot by combining the USD values of token0 and token1.
@@ -96,23 +96,8 @@ public class UniswapLiquidityPositionSnapshot : ITokenPairPositionSnapshot
     /// </returns>
     public decimal TokenSumInUsd() => Token0.AmountInUsd + Token1.AmountInUsd;
 
-    public void Update(TokenInfoWithFee token0, TokenInfoWithFee token1, bool isInRange)
+    public void Update(CryptoTokenStatisticWithFee token0, CryptoTokenStatisticWithFee token1, bool isInRange)
     {
-        if (token0.Symbol == token1.Symbol)
-        {
-            throw new DomainException("Snapshot token0 and token1 are the same symbol");
-        }
-        
-        if (Token0.Symbol != token0.Symbol)
-        {
-            throw new DomainException("Snapshot token0 symbol doesn't match position token0 symbol");
-        }
-
-        if (Token1.Symbol != token1.Symbol)
-        {
-            throw new DomainException("Snapshot token1 symbol doesn't match position token1 symbol");
-        }
-        
         IsInRange = isInRange;
         Token0 = token0;
         Token1 = token1;

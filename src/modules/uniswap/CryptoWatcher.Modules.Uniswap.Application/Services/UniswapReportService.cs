@@ -49,7 +49,7 @@ public class UniswapReportService : IPlatformDailyReportDataProvider
                             Day = positionSnapshot.Day,
                             PositionInUsd = positionSnapshot.TokenSumInUsd(),
                             HoldInUsd = poolPosition.CalculateHoldValueInUsd(positionSnapshot.Day),
-                            TokenPairSymbols = $"{positionSnapshot.Token0.Symbol} / {positionSnapshot.Token1.Symbol}",
+                            TokenPairSymbols = $"{poolPosition.Token0.Symbol} / {poolPosition.Token1.Symbol}",
                             DailyProfitInUsd = poolPosition.CalculateDailyFeeProfit(positionSnapshot.Day),
                             DailyProfitInUsdPercent = 0
                         }).ToArray()

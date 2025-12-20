@@ -1,4 +1,4 @@
-namespace CryptoWatcher.Shared.ValueObjects;
+namespace CryptoWatcher.ValueObjects;
 
 /// <summary>
 /// Represents a pair of tokens with raw balances (e.g., liquidity or fees).

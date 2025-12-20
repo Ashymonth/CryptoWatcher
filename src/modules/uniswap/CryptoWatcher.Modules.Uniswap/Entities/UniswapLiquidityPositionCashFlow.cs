@@ -1,6 +1,5 @@
 using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Modules.Uniswap.Models;
-using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Uniswap.Entities;
@@ -13,7 +12,7 @@ public class UniswapLiquidityPositionCashFlow : ITokenPairCashFlow
 
     public UniswapLiquidityPositionCashFlow(
         UniswapLiquidityPosition position,
-        LiquidityPoolPositionEvent  positionEvent,
+        LiquidityPoolPositionEvent positionEvent,
         TokenInfoPair tokenInfoPair,
         DateTime date)
     {
@@ -21,14 +20,14 @@ public class UniswapLiquidityPositionCashFlow : ITokenPairCashFlow
         {
             throw new ArgumentException("Only UTC dates are supported.", nameof(date));
         }
-        
+
         PositionId = position.PositionId;
         NetworkName = position.NetworkName;
         Date = date;
         Event = positionEvent.Event;
         TransactionHash = positionEvent.TransactionHash;
-        Token0 = CreateFromEvent(tokenInfoPair.Token0, positionEvent.Event);
-        Token1 = CreateFromEvent(tokenInfoPair.Token1, positionEvent.Event);
+        Token0 = tokenInfoPair.Token0.ToStatistic();
+        Token1 = tokenInfoPair.Token0.ToStatistic();
     }
 
     public ulong PositionId { get; init; }
@@ -41,18 +40,9 @@ public class UniswapLiquidityPositionCashFlow : ITokenPairCashFlow
 
     public CashFlowEvent Event { get; init; } = null!;
 
-    public TokenInfoWithFee Token0 { get; set; } = null!;
+    public CryptoTokenStatistic Token0 { get; set; } = null!;
 
-    public TokenInfoWithFee Token1 { get; set; } = null!;
+    public CryptoTokenStatistic Token1 { get; set; } = null!;
 
-    public decimal FeeInUsd => Token0.FeeAmountInUsd + Token1.FeeAmountInUsd;
- 
-    private static TokenInfoWithFee CreateFromEvent(TokenInfoWithAddress infoWithAddress, CashFlowEvent @event)
-    {
-        var amount = @event != CashFlowEvent.FeeClaim ? infoWithAddress.Amount : 0;
-        var feeAmount = @event != CashFlowEvent.FeeClaim ? 0 : infoWithAddress.Amount;
-
-        return TokenInfoWithFee.CreateForEvent(@event, infoWithAddress.Symbol, amount, feeAmount,
-            infoWithAddress.PriceInUsd);
-    }
+    public decimal FeeInUsd => Event == CashFlowEvent.FeeClaim ? Token0.AmountInUsd + Token1.AmountInUsd : 0;
 }
