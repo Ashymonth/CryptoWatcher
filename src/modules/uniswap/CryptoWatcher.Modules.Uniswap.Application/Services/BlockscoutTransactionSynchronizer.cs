@@ -10,7 +10,7 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Services;
 public class BlockscoutTransactionSynchronizer : IBlockscoutTransactionSynchronizer
 {
     private const string ModifyLiquidityMethodName = "modifyLiquidities";
-    private const string CollectMethodName = "Collect";
+    private const string CollectMethodName = "collect";
 
     private readonly IBlockscoutTransactionFetcher _blockscoutTransactionFetcher;
     private readonly IUniswapCashFlowBlockRangeSynchronizer _blockRangeSynchronizer;
