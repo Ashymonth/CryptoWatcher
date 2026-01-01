@@ -29,7 +29,7 @@ public class HyperliquidReportDataService : IPlatformDailyReportDataProvider
         {
             foreach (var vaultPosition in vaultPositionByWallet)
             {
-                var vaultReportItems = vaultPosition.PositionSnapshots.OrderBy(snapshot => snapshot.Day)
+                var vaultReportItems = vaultPosition.Snapshots.OrderBy(snapshot => snapshot.Day)
                     .Select(vaultPositionSnapshot =>
                     {
                         var previousDay = vaultPositionSnapshot.Day.AddDays(-1);

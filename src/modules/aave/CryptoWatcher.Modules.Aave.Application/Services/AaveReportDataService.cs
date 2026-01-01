@@ -31,7 +31,7 @@ public class AaveReportDataService : IPlatformDailyReportDataProvider
             foreach (var position in positionsByWallet)
             {
                 var sign = position.PositionType == AavePositionType.Borrowed ? -1 : 1;
-                var reportItems = position.PositionSnapshots.OrderBy(static snapshot => snapshot.Day)
+                var reportItems = position.Snapshots.OrderBy(static snapshot => snapshot.Day)
                     .Select(snapshot =>
                     {
                         var previousDay = snapshot.Day.AddDays(-1);
@@ -58,7 +58,7 @@ public class AaveReportDataService : IPlatformDailyReportDataProvider
                     })
                     .ToArray();
 
-                var lastTokenPrice = position.PositionSnapshots.LastOrDefault()?.Token0.PriceInUsd ?? 0;
+                var lastTokenPrice = position.Snapshots.LastOrDefault()?.Token0.PriceInUsd ?? 0;
                 var profitInUsd = position.CalculateProfitInUsd(from, to);
 
                 var profitInToken = position.CalculateProfitInToken(from, to);

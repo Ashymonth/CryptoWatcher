@@ -154,7 +154,7 @@ public class
     /// These snapshots can be used to track changes and analyze the evolution of the position over time,
     /// including performance metrics, token balances, and other relevant data.
     /// </remarks>
-    public IReadOnlyCollection<UniswapLiquidityPositionSnapshot> PositionSnapshots => _positionSnapshots;
+    public IReadOnlyCollection<UniswapLiquidityPositionSnapshot> Snapshots => _positionSnapshots;
 
     public IReadOnlyCollection<UniswapLiquidityPositionCashFlow> CashFlows => _cashFlows;
 
@@ -213,12 +213,12 @@ public class
 
     public Money CalculateHoldValueInUsd(DateOnly to)
     {
-        if (PositionSnapshots.Count == 0)
+        if (Snapshots.Count == 0)
         {
             return 0;
         }
 
-        var lastPosition = PositionSnapshots.GetNearestSnapshot(to, true);
+        var lastPosition = Snapshots.GetNearestSnapshot(to, true);
 
         if (lastPosition is null)
         {
@@ -231,8 +231,8 @@ public class
 
     public Money CalculateFeeForPeriod(DateOnly from, DateOnly to)
     {
-        var snapshotAtStart = PositionSnapshots.GetLastSnapshotBefore(from);
-        var snapshotAtEnd = PositionSnapshots.GetLastSnapshotOnOrBefore(to);
+        var snapshotAtStart = Snapshots.GetLastSnapshotBefore(from);
+        var snapshotAtEnd = Snapshots.GetLastSnapshotOnOrBefore(to);
 
         if (snapshotAtEnd is null) return 0;
 
@@ -245,12 +245,12 @@ public class
 
     public Money CalculateDailyFeeProfit(DateOnly day)
     {
-        var todaySnapshot = PositionSnapshots.GetLastSnapshotOnOrBefore(day);
+        var todaySnapshot = Snapshots.GetLastSnapshotOnOrBefore(day);
 
         if (todaySnapshot is null)
             return 0;
 
-        var prevSnapshot = PositionSnapshots.GetLastSnapshotBefore(day);
+        var prevSnapshot = Snapshots.GetLastSnapshotBefore(day);
 
         var feeFromPosition = todaySnapshot.FeeInUsd - (prevSnapshot?.FeeInUsd ?? 0M);
 
@@ -276,12 +276,12 @@ public class
     /// <returns>The total lifetime fees as a Money value in USD.</returns>
     public Money CalculateLifetimeTotalFeeInUsd(DateOnly to)
     {
-        if (PositionSnapshots.Count == 0)
+        if (Snapshots.Count == 0)
         {
             return 0;
         }
 
-        var lastSnapshot = PositionSnapshots.GetNearestSnapshot(to, true);
+        var lastSnapshot = Snapshots.GetNearestSnapshot(to, true);
 
         if (lastSnapshot == null)
         {

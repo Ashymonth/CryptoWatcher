@@ -58,7 +58,7 @@ public static class CalculatablePositionExtensions
         where TSnapshot : IPositionSnapshot
         where TCashFlow : ICashFlow
     {
-        var snapshots = position.PositionSnapshots;
+        var snapshots = position.Snapshots;
         var cashFlows = position.CashFlows;
 
         var filteredSnapshots = snapshots

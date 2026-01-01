@@ -147,7 +147,7 @@ public class AavePositionsSyncServiceTest
 
             var expectedSnapshot = expectedMap[actualPosition.Token0.Address];
 
-            var actualSnapshot = actualPosition.PositionSnapshots.First();
+            var actualSnapshot = actualPosition.Snapshots.First();
             AssertThatSnapshotValid(expectedSnapshot, actualSnapshot, actualPosition.Id);
         }
     }
@@ -187,7 +187,7 @@ public class AavePositionsSyncServiceTest
             AssertThatAavePositionValid(actualPosition, expectedPositionType);
 
             var expectedSnapshot = expectedSnapshotTokens[index];
-            var actualSnapshot = actualPosition.PositionSnapshots.First();
+            var actualSnapshot = actualPosition.Snapshots.First();
 
             AssertThatSnapshotValid(expectedSnapshot, actualSnapshot, actualPosition.Id);
         }
@@ -230,7 +230,7 @@ public class AavePositionsSyncServiceTest
         Assert.Equal(TestNetwork.Name, actualPosition.Network);
         Assert.Equal(actualPosition.PositionType, expectedPositionType);
 
-        Assert.Single(actualPosition.PositionSnapshots);
+        Assert.Single(actualPosition.Snapshots);
     }
 
     [AssertionMethod]

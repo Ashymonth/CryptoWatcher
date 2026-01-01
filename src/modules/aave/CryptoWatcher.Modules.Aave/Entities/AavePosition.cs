@@ -100,7 +100,7 @@ public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCash
     /// Each snapshot captures token-specific metrics, such as balance or interactions, for a particular day.
     /// This property provides a historical view of the position's evolution in the Aave protocol.
     /// </remarks>
-    public IReadOnlyCollection<AavePositionSnapshot> PositionSnapshots => _positionSnapshots;
+    public IReadOnlyCollection<AavePositionSnapshot> Snapshots => _positionSnapshots;
 
     /// <summary>
     /// Provides a readonly collection of events associated with the Aave position.
@@ -154,7 +154,7 @@ public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCash
             _positionPeriods.Add(new AavePositionPeriod(Id, day));
         }
 
-        var existingSnapshot = PositionSnapshots.FirstOrDefault(s => s.Day == day);
+        var existingSnapshot = Snapshots.FirstOrDefault(s => s.Day == day);
         if (existingSnapshot != null)
         {
             existingSnapshot.UpdateToken(cryptoToken.Amount, cryptoToken.PriceInUsd);

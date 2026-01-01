@@ -1,12 +1,15 @@
-using System.Text;
-using System.Text.Json;
 using CryptoWatcher.Modules.Morpho.Infrastructure.MorphoApiClient.Contracts;
 using GraphQL;
 using GraphQL.Client.Abstractions;
 
 namespace CryptoWatcher.Modules.Morpho.Infrastructure;
 
-public class MorphoClient
+internal interface IMorphoClient
+{
+    Task<UserByAddressResponse> GetUserMarketPositionsAsync(string address, int chainId, CancellationToken ct = default);
+}
+
+internal class MorphoClient : IMorphoClient
 {
     private readonly IGraphQLClient _graphQlClient;
 
@@ -14,8 +17,9 @@ public class MorphoClient
     {
         _graphQlClient = graphQlClient;
     }
-
-    public async Task GetUserPositionsAsync(string address, int chainId, CancellationToken ct = default)
+ 
+    public async Task<UserByAddressResponse> GetUserMarketPositionsAsync(string address, int chainId,
+        CancellationToken ct = default)
     {
         var userByAddressRequest = new GraphQLRequest
         {
@@ -28,7 +32,8 @@ public class MorphoClient
             }
         };
 
-        var response =
-            await _graphQlClient.SendQueryAsync<UserByAddressResponse>(userByAddressRequest, ct);
+      var result = await _graphQlClient.SendQueryAsync<UserByAddressResponse>(userByAddressRequest, ct);
+
+      return result.Data;
     }
 }

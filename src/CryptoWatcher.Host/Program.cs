@@ -11,9 +11,11 @@ using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Aave;
 using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
+using CryptoWatcher.Modules.Morpho.Application.Abstractions;
 using CryptoWatcher.Modules.Morpho.Infrastructure;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Shared.Entities;
+using CryptoWatcher.ValueObjects;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -66,7 +68,9 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-     
+    var morpho = scope.ServiceProvider.GetRequiredService<IMorphoProvider>();
+
+    await morpho.GetUserMarketPositionsAsync(EvmAddress.Create("0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f"), 130);
     if (!app.Environment.IsDevelopment())
     {
         scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>().Database.Migrate();

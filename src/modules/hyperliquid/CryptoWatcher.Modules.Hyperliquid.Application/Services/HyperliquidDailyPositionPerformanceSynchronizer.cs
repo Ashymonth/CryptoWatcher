@@ -32,7 +32,7 @@ public class HyperliquidDailyPositionPerformanceSynchronizer :
         foreach (var vaultPosition in positions)
         {
             HyperliquidVaultPositionSnapshot? previousSnapshot = null;
-            foreach (var currentSnapshot in vaultPosition.PositionSnapshots)
+            foreach (var currentSnapshot in vaultPosition.Snapshots)
             {
                 previousSnapshot ??= currentSnapshot;
 

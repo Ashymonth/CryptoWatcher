@@ -86,9 +86,9 @@ public class AavePositionTest
         
         position.AddOrUpdateSnapshot(updateToken, expectedTokenAmount, TestDate, _timeProviderMock.Object);
 
-        var actualSnapshot = position.PositionSnapshots.First();
+        var actualSnapshot = position.Snapshots.First();
 
-        Assert.Single(position.PositionSnapshots);
+        Assert.Single(position.Snapshots);
         Assert.Equal(position.PreviousScaledAmount, expectedTokenAmount);
         Assert.Equivalent(expectedToken, actualSnapshot.Token0);
     }
@@ -104,10 +104,10 @@ public class AavePositionTest
 
         position.AddOrUpdateSnapshot(token, 1, syncDate, _timeProviderMock.Object);
 
-        var actualSnapshot = position.PositionSnapshots.First();
+        var actualSnapshot = position.Snapshots.First();
         var expectedSnapshot = new AavePositionSnapshot(position.Id, syncDate, token.ToStatistic());
 
-        Assert.Single(position.PositionSnapshots);
+        Assert.Single(position.Snapshots);
         Assert.Equivalent(expectedSnapshot, actualSnapshot);
     }
 

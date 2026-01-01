@@ -69,7 +69,7 @@ public class
     /// where each snapshot captures specific details of the vault position at a given point in time.
     /// It is utilized for analysis, reporting, and tracking historical position data within the Hyperliquid module.
     /// </remarks>
-    public IReadOnlyCollection<HyperliquidVaultPositionSnapshot> PositionSnapshots => _positionSnapshots;
+    public IReadOnlyCollection<HyperliquidVaultPositionSnapshot> Snapshots => _positionSnapshots;
 
     public void AddOrUpdateSnapshot(HyperliquidVaultPositionSnapshot snapshot)
     {

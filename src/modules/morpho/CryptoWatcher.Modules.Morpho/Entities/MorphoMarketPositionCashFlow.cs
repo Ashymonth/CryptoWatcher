@@ -3,7 +3,7 @@ using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Morpho.Entities;
 
-public class MorphoPositionCashFlow : ITokenCashFlow
+public class MorphoMarketPositionCashFlow : ITokenCashFlow
 {
     public DateTime Date { get; private set; }
 
