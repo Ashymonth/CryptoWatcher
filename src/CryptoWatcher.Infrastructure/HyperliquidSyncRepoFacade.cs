@@ -17,7 +17,7 @@ public class HyperliquidSyncRepoFacade : IHyperliquidSyncRepoFacade
     {
         await _context.BulkMergeAsync(vaults, ct);
 
-        await _context.BulkMergeAsync(vaults.SelectMany(vault => vault.PositionSnapshots), ct);
+        await _context.BulkMergeAsync(vaults.SelectMany(vault => vault.Snapshots), ct);
         await _context.BulkMergeAsync(vaults.SelectMany(vault => vault.CashFlows), ct);
     }
 }

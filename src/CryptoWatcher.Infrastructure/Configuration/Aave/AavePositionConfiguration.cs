@@ -11,7 +11,7 @@ public class AavePositionConfiguration : IEntityTypeConfiguration<AavePosition>
     {
         builder.Property(aavePosition => aavePosition.Network).HasMaxLength(32);
       
-        builder.Navigation(position => position.PositionSnapshots).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(position => position.Snapshots).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(position => position.CashFlows).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(position => position.PositionPeriods).UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -21,7 +21,7 @@ public class AavePositionConfiguration : IEntityTypeConfiguration<AavePosition>
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
         
-        builder.HasMany(aavePosition => aavePosition.PositionSnapshots)
+        builder.HasMany(aavePosition => aavePosition.Snapshots)
             .WithOne()
             .HasForeignKey(snapshot => snapshot.PositionId)
             .IsRequired()

@@ -41,7 +41,7 @@ public partial class UniswapLiquidityPositionTest
 
         AddFeeClaimEvent(position, 0, DateOnly.Parse(feeClaimDate).ToMinDateTime());
 
-        var expected = position.PositionSnapshots.Last();
+        var expected = position.Snapshots.Last();
 
         // Act
         var actual = position.CalculateFeeForPeriod(startDate, expected.Day);
@@ -59,7 +59,7 @@ public partial class UniswapLiquidityPositionTest
 
         var position = CreatePositionWithSnapshots(startDate, 10);
 
-        var expected = position.PositionSnapshots.Last();
+        var expected = position.Snapshots.Last();
 
         // Act
         var actual = position.CalculateFeeForPeriod(startDate, expected.Day);
@@ -113,9 +113,9 @@ public partial class UniswapLiquidityPositionTest
         var startDate = DateOnly.FromDateTime(DateTime.UtcNow);
 
         var position = CreatePositionWithSnapshots(startDate, 10);
-        var snapshots = position.PositionSnapshots.ToArray();
+        var snapshots = position.Snapshots.ToArray();
 
-        var expected = position.PositionSnapshots.Last();
+        var expected = position.Snapshots.Last();
 
         var claimFeeDate = _faker.PickRandom(snapshots).Day.ToMinDateTime();
 
@@ -140,7 +140,7 @@ public partial class UniswapLiquidityPositionTest
         var toDate = DateOnly.Parse("2025.01.10");
 
         var position = CreatePositionWithSnapshots(startDate, 10);
-        var snapshots = position.PositionSnapshots.ToArray();
+        var snapshots = position.Snapshots.ToArray();
 
         // Добавляем несколько claims на разные дни в диапазоне
         var claimDates = new[]
@@ -176,7 +176,7 @@ public partial class UniswapLiquidityPositionTest
         var toDate = DateOnly.Parse("2025.01.10");
 
         var position = CreatePositionWithSnapshots(startDate, 10);
-        var snapshots = position.PositionSnapshots.OrderBy(s => s.Day).ToArray();
+        var snapshots = position.Snapshots.OrderBy(s => s.Day).ToArray();
 
         var outOfRangeClaimDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         AddFeeClaimEvent(position, _faker.Random.Number(1), outOfRangeClaimDate);

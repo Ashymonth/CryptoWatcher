@@ -21,7 +21,7 @@ public sealed class HyperliquidPositionsForReportSpecification : Specification<H
             .Include(position => position.Wallet)
             .Include(position => position.CashFlows.Where(@event =>
                     @event.Date.Date >= from.ToMinDateTime() && @event.Date.Date <= to.ToMaxDateTime()))
-            .Include(position => position.PositionSnapshots
+            .Include(position => position.Snapshots
                 .OrderBy(snapshot => snapshot.Day)
                 .Where(snapshot => snapshot.Day >= from && snapshot.Day <= to));
     }

@@ -34,7 +34,7 @@ public class AaveDailyPositionPerformanceSynchronizer :
         foreach (var aavePosition in positions)
         {
             AavePositionSnapshot? previousSnapshot = null;
-            foreach (var currentSnapshot in aavePosition.PositionSnapshots)
+            foreach (var currentSnapshot in aavePosition.Snapshots)
             {
                 previousSnapshot ??= currentSnapshot;
 

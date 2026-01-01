@@ -19,7 +19,7 @@ namespace CryptoWatcher.Modules.Aave.Entities;
 /// </remarks>
 public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCashFlow>
 {
-    private readonly List<AavePositionSnapshot> _positionSnapshots = [];
+    private readonly List<AavePositionSnapshot> _snapshots = [];
     private readonly List<AavePositionCashFlow> _cashFlows = [];
     private readonly List<AavePositionPeriod> _positionPeriods = [];
 
@@ -100,7 +100,7 @@ public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCash
     /// Each snapshot captures token-specific metrics, such as balance or interactions, for a particular day.
     /// This property provides a historical view of the position's evolution in the Aave protocol.
     /// </remarks>
-    public IReadOnlyCollection<AavePositionSnapshot> PositionSnapshots => _positionSnapshots;
+    public IReadOnlyCollection<AavePositionSnapshot> Snapshots => _snapshots;
 
     /// <summary>
     /// Provides a readonly collection of events associated with the Aave position.
@@ -154,14 +154,14 @@ public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCash
             _positionPeriods.Add(new AavePositionPeriod(Id, day));
         }
 
-        var existingSnapshot = PositionSnapshots.FirstOrDefault(s => s.Day == day);
+        var existingSnapshot = Snapshots.FirstOrDefault(s => s.Day == day);
         if (existingSnapshot != null)
         {
             existingSnapshot.UpdateToken(cryptoToken.Amount, cryptoToken.PriceInUsd);
         }
         else
         {
-            _positionSnapshots.Add(new AavePositionSnapshot(Id, day, cryptoToken.ToStatistic()));
+            _snapshots.Add(new AavePositionSnapshot(Id, day, cryptoToken.ToStatistic()));
         }
 
         if (PreviousScaledAmount == positionScale)

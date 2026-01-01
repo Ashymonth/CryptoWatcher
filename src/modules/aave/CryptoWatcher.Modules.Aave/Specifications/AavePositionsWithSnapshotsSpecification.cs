@@ -21,7 +21,7 @@ public sealed class AavePositionsWithSnapshotsSpecification : Specification<Aave
         Query
             .Include(position => position.PositionPeriods)
             .Include(position =>
-                position.PositionSnapshots.Where(snapshot => snapshot.Day >= from && snapshot.Day <= to))
+                position.Snapshots.Where(snapshot => snapshot.Day >= from && snapshot.Day <= to))
             .Where(position => position.WalletAddress == wallet.Address && position.IsActive() &&
                                position.Network == chain.Name);
     }

@@ -17,7 +17,7 @@ public class AavePositionsWithSnapshotsAndEventsSpecification : Specification<Aa
                 .OrderBy(@event => @event.Date)
             )
             .Include(position =>
-                position.PositionSnapshots.Where(snapshot => snapshot.Day >= from && snapshot.Day <= to))
+                position.Snapshots.Where(snapshot => snapshot.Day >= from && snapshot.Day <= to))
             .Where(position => walletAddresses.Contains(position.WalletAddress));
     }
 }

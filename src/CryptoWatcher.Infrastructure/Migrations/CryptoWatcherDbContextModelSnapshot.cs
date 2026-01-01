@@ -407,6 +407,157 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("HyperliquidVaultPositionSnapshots");
                 });
 
+            modelBuilder.Entity("CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPosition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ChainId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MarketExternalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WalletAddress")
+                        .IsRequired()
+                        .HasMaxLength(42)
+                        .IsUnicode(false)
+                        .HasColumnType("character(42)")
+                        .IsFixedLength();
+
+                    b.ComplexProperty<Dictionary<string, object>>("CollateralToken", "CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPosition.CollateralToken#CryptoToken", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Address")
+                                .IsRequired()
+                                .HasMaxLength(42)
+                                .IsUnicode(false)
+                                .HasColumnType("character(42)")
+                                .IsFixedLength();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal>("PriceInUsd")
+                                .HasColumnType("numeric");
+
+                            b1.Property<string>("Symbol")
+                                .IsRequired()
+                                .HasMaxLength(16)
+                                .IsUnicode(false)
+                                .HasColumnType("character varying(16)");
+                        });
+
+                    b.ComplexProperty<Dictionary<string, object>>("LoanToken", "CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPosition.LoanToken#CryptoToken", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Address")
+                                .IsRequired()
+                                .HasMaxLength(42)
+                                .IsUnicode(false)
+                                .HasColumnType("character(42)")
+                                .IsFixedLength();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal>("PriceInUsd")
+                                .HasColumnType("numeric");
+
+                            b1.Property<string>("Symbol")
+                                .IsRequired()
+                                .HasMaxLength(16)
+                                .IsUnicode(false)
+                                .HasColumnType("character varying(16)");
+                        });
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MorphoMarketPositions");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPositionCashFlow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Event")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("MorphoMarketPositionId")
+                        .HasColumnType("uuid");
+
+                    b.ComplexProperty<Dictionary<string, object>>("Token0", "CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPositionCashFlow.Token0#CryptoTokenStatistic", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal>("PriceInUsd")
+                                .HasColumnType("numeric");
+                        });
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MorphoMarketPositionId");
+
+                    b.ToTable("MorphoMarketPositionCashFlow");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPositionSnapshot", b =>
+                {
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("MorphoMarketPositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("HealthFactor")
+                        .HasColumnType("double precision");
+
+                    b.ComplexProperty<Dictionary<string, object>>("CollateralToken", "CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPositionSnapshot.CollateralToken#CryptoTokenStatistic", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal>("PriceInUsd")
+                                .HasColumnType("numeric");
+                        });
+
+                    b.ComplexProperty<Dictionary<string, object>>("LoadToken", "CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPositionSnapshot.LoadToken#CryptoTokenStatistic", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal>("PriceInUsd")
+                                .HasColumnType("numeric");
+                        });
+
+                    b.HasKey("Day", "MorphoMarketPositionId");
+
+                    b.HasIndex("MorphoMarketPositionId");
+
+                    b.ToTable("MorphoMarketPositionSnapshots");
+                });
+
             modelBuilder.Entity("CryptoWatcher.Modules.Uniswap.Entities.UniswapChainConfiguration", b =>
                 {
                     b.Property<string>("Name")
@@ -970,7 +1121,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
             modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePositionSnapshot", b =>
                 {
                     b.HasOne("CryptoWatcher.Modules.Aave.Entities.AavePosition", null)
-                        .WithMany("PositionSnapshots")
+                        .WithMany("Snapshots")
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1007,9 +1158,25 @@ namespace CryptoWatcher.Infrastructure.Migrations
             modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPositionSnapshot", b =>
                 {
                     b.HasOne("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition", null)
-                        .WithMany("PositionSnapshots")
+                        .WithMany("Snapshots")
                         .HasForeignKey("VaultAddress", "WalletAddress")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPositionCashFlow", b =>
+                {
+                    b.HasOne("CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPosition", null)
+                        .WithMany("CashFlows")
+                        .HasForeignKey("MorphoMarketPositionId");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPositionSnapshot", b =>
+                {
+                    b.HasOne("CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPosition", null)
+                        .WithMany("Snapshots")
+                        .HasForeignKey("MorphoMarketPositionId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -1042,7 +1209,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
             modelBuilder.Entity("CryptoWatcher.Modules.Uniswap.Entities.UniswapLiquidityPositionSnapshot", b =>
                 {
                     b.HasOne("CryptoWatcher.Modules.Uniswap.Entities.UniswapLiquidityPosition", null)
-                        .WithMany("PositionSnapshots")
+                        .WithMany("Snapshots")
                         .HasForeignKey("PoolPositionId", "NetworkName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1094,14 +1261,21 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
                     b.Navigation("PositionPeriods");
 
-                    b.Navigation("PositionSnapshots");
+                    b.Navigation("Snapshots");
                 });
 
             modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition", b =>
                 {
                     b.Navigation("CashFlows");
 
-                    b.Navigation("PositionSnapshots");
+                    b.Navigation("Snapshots");
+                });
+
+            modelBuilder.Entity("CryptoWatcher.Modules.Morpho.Entities.MorphoMarketPosition", b =>
+                {
+                    b.Navigation("CashFlows");
+
+                    b.Navigation("Snapshots");
                 });
 
             modelBuilder.Entity("CryptoWatcher.Modules.Uniswap.Entities.UniswapChainConfiguration", b =>
@@ -1113,7 +1287,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                 {
                     b.Navigation("CashFlows");
 
-                    b.Navigation("PositionSnapshots");
+                    b.Navigation("Snapshots");
                 });
 
             modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>

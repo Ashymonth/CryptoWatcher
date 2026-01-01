@@ -4,6 +4,7 @@ using CryptoWatcher.Infrastructure.Configuration.Conventions;
 using CryptoWatcher.Infrastructure.Configuration.Converters;
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
+using CryptoWatcher.Modules.Morpho.Entities;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.Shared.ValueObjects;
@@ -172,6 +173,14 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
 
     #endregion
 
+    #region Morpho
+
+    public DbSet<MorphoMarketPosition> MorphoMarketPositions => Set<MorphoMarketPosition>();
+
+    public DbSet<MorphoMarketPositionSnapshot> MorphoMarketPositionSnapshots => Set<MorphoMarketPositionSnapshot>();
+    
+    #endregion
+    
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.ComplexProperties<CryptoToken>();
