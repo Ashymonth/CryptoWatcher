@@ -61,7 +61,7 @@ public class MorphoMarketPosition : IDeFiPosition<MorphoMarketPositionSnapshot, 
 
     public EvmAddress WalletAddress { get; private set; } = null!;
     
-    public bool IsActive => ClosedAt is not null;
+    public bool IsClosed => ClosedAt is not null;
     
     public IReadOnlyCollection<MorphoMarketPositionSnapshot> Snapshots => _snapshots;
 
@@ -71,7 +71,7 @@ public class MorphoMarketPosition : IDeFiPosition<MorphoMarketPositionSnapshot, 
     public void AddSnapshot(DateOnly day, CryptoTokenStatistic load, CryptoTokenStatistic collateralToken,
         double healthFactor)
     {
-        if (IsActive)
+        if (IsClosed)
         {
             throw new DomainException(PositionClosedException);
         }
@@ -83,17 +83,17 @@ public class MorphoMarketPosition : IDeFiPosition<MorphoMarketPositionSnapshot, 
             return;
         }
 
-        _snapshots.Add(new MorphoMarketPositionSnapshot(MarketExternalId, day, load, collateralToken, healthFactor));
+        _snapshots.Add(new MorphoMarketPositionSnapshot(Id, day, load, collateralToken, healthFactor));
     }
     
     public void ClosePosition(DateTime closedAt)
     {
-        if (closedAt > CreatedAt)
+        if (closedAt < CreatedAt)
         {
             throw new DomainException(ClosedAtGreatestThatCreatedAtException);
         }
 
-        if (!IsActive)
+        if (IsClosed)
         {
             throw new DomainException(PositionClosedException);
         }

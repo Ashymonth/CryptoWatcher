@@ -6,8 +6,10 @@ namespace CryptoWatcher.Modules.Morpho.Specifications;
 
 public sealed class MorphoMarketActivePositions : Specification<MorphoMarketPosition>
 {
-    public MorphoMarketActivePositions(EvmAddress walletAddress)
+    public MorphoMarketActivePositions(EvmAddress walletAddress, DateOnly from, DateOnly to)
     {
-        Query.Where(position => position.WalletAddress.Value == walletAddress.Value && !position.ClosedAt.HasValue);
+        Query
+            .Include(position => position.Snapshots.Where(snapshot => snapshot.Day >= from && snapshot.Day <= to))
+            .Where(position => position.WalletAddress == walletAddress && !position.ClosedAt.HasValue);
     }
 }

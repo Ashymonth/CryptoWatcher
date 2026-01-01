@@ -6,7 +6,7 @@ namespace CryptoWatcher.Modules.Morpho.Infrastructure;
 
 internal interface IMorphoClient
 {
-    Task<UserByAddressResponse> GetUserMarketPositionsAsync(string address, int chainId, CancellationToken ct = default);
+    Task<UserByAddressResponse?> GetUserMarketPositionsAsync(string address, int chainId, CancellationToken ct = default);
 }
 
 internal class MorphoClient : IMorphoClient
@@ -18,7 +18,7 @@ internal class MorphoClient : IMorphoClient
         _graphQlClient = graphQlClient;
     }
  
-    public async Task<UserByAddressResponse> GetUserMarketPositionsAsync(string address, int chainId,
+    public async Task<UserByAddressResponse?> GetUserMarketPositionsAsync(string address, int chainId,
         CancellationToken ct = default)
     {
         var userByAddressRequest = new GraphQLRequest

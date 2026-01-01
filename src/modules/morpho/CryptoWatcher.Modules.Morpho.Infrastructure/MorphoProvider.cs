@@ -21,6 +21,11 @@ internal class MorphoProvider : IMorphoProvider
     {
         var result = await _morphoClient.GetUserMarketPositionsAsync(address.Value, chainId, ct);
 
+        if (result is null)
+        {
+            return [];
+        }
+        
         return result.UserByAddress.MarketPositions
             .Select(position =>
             {
