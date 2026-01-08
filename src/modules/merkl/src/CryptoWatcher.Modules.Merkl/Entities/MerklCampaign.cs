@@ -57,4 +57,13 @@ public class MerklCampaign
 
         _snapshots.Add(snapshot);
     }
+
+    public bool IsUniswapRewards() => Reason.StartsWith("UNISWAP_V3") || Reason.StartsWith("UniswapV4");
+
+    public ulong GetUniswapId()
+    {
+        var lastSlashIndex = Reason.LastIndexOf('_');
+
+        return ulong.Parse(Reason[(lastSlashIndex + 1)..]);
+    }
 }

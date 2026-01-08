@@ -30,7 +30,7 @@ public class MerklCampaignSnapshot
 
     public Guid MerklCampaignId { get; private init; }
     
-    public decimal NetAmount => ClaimedAmount - ClaimabelAmount + PendingAmout;
+    public decimal NetAmount => ClaimabelAmount - ClaimedAmount + PendingAmout;
 
     public void Update(RewardStatus rewardStatus, decimal priceInUsd)
     {
