@@ -8,6 +8,8 @@ A robust backend service and web application for automatically tracking portfoli
   - **Aave** (on Avalanche, Celo, and Sonic networks)
   - **Hyperliquid** (Perpetual DEX & L1)
   - **Uniswap** (DEX positions)
+  - **Morpho** (Perpetual DEX & L2)
+  - **Merkl** (Rewards ditributor)
 
 - **Multi-Wallet Management**: Track performance across multiple cryptocurrency wallet addresses simultaneously from a single dashboard.
 
