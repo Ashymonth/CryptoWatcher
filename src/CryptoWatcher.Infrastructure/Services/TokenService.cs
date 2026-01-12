@@ -1,6 +1,7 @@
-using CryptoWatcher.Application;
 using CryptoWatcher.Integrations;
+using CryptoWatcher.ValueObjects;
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Logging;
 using Nethereum.Web3;
 
 namespace CryptoWatcher.Infrastructure.Services;
@@ -9,17 +10,16 @@ public class TokenService
 {
     private readonly ICoinPriceProvider _coinGeckoCoinPriceProvider;
     private readonly HybridCache _cache;
-    private readonly CoinNormalizer _coinNormalizer;
+    private readonly ILogger<TokenService> _logger;
 
-    public TokenService(ICoinPriceProvider coinGeckoCoinPriceProvider, HybridCache cache,
-        CoinNormalizer coinNormalizer)
+    public TokenService(ICoinPriceProvider coinGeckoCoinPriceProvider, HybridCache cache, ILogger<TokenService> logger)
     {
         _coinGeckoCoinPriceProvider = coinGeckoCoinPriceProvider;
         _cache = cache;
-        _coinNormalizer = coinNormalizer;
+        _logger = logger;
     }
 
-    public async ValueTask<string> GetTokenSymbolAsync(IWeb3 web3, string tokenAddress)
+    public async ValueTask<string> GetTokenSymbolAsync(IWeb3 web3, EvmAddress tokenAddress)
     {
         var cacheKey = string.Format(CacheKeys.TokenSymbol.TokenSymbolByTokenAddressTemplate, tokenAddress);
         return await _cache.GetOrCreateAsync(cacheKey, web3, async (web, _) =>
@@ -36,9 +36,7 @@ public class TokenService
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
-                        Console.WriteLine(cacheKey);
-                        Console.WriteLine(tokenAddress);
+                        _logger.LogError(e,"Unable to get token symbol");
                         throw;
                     }
                 },
@@ -47,7 +45,7 @@ public class TokenService
             .ConfigureAwait(false);
     }
 
-    public async ValueTask<byte> GetTokenDecimalsAsync(IWeb3 web3, string tokenAddress, CancellationToken ct = default)
+    public async ValueTask<byte> GetTokenDecimalsAsync(IWeb3 web3, EvmAddress tokenAddress, CancellationToken ct = default)
     {
         var cacheKey = string.Format(CacheKeys.TokenDecimals.TokenDecimalsByTokenAddressTemplate, tokenAddress);
         return (byte)await _cache.GetOrCreateAsync(cacheKey, web3,
@@ -65,9 +63,7 @@ public class TokenService
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
-                    Console.WriteLine(cacheKey);
-                    Console.WriteLine(tokenAddress);
+                    _logger.LogError(e,"Unable to get token decimals");
                     throw;
                 }
             },
@@ -76,21 +72,16 @@ public class TokenService
             cancellationToken: ct);
     }
 
-    public async ValueTask<decimal> GetTokenPriceByTokenAddressAsync(string platform, string address,
+    public async ValueTask<decimal> GetTokenPriceByTokenAddressAsync(string platform, EvmAddress address,
+        string symbol,
         CancellationToken ct)
     {
-        var result = await _coinGeckoCoinPriceProvider.GetTokenPriceInUsdAsync(platform, address, ct);
-
-        return result;
-    }
-
-    public async ValueTask<decimal> GetTokenPriceByTokenSymbolAsync(string symbol, CancellationToken ct)
-    {
+        // we need to cahe symbol instead of address to avoid additional requests to api
         var cacheKey = string.Format(CacheKeys.TokenPrice.TokenPriceInUsdByTokenSymbolCacheKeyTemplate, symbol);
-        return await _cache.GetOrCreateAsync(cacheKey, symbol, async (coinSymbol, token) =>
+        
+        return await _cache.GetOrCreateAsync(cacheKey, address, async (s, token) =>
             {
-                var normalizedSymbol = _coinNormalizer.NormalizeSymbol(coinSymbol);
-                var result = await _coinGeckoCoinPriceProvider.GetTokenPriceInUsdAsync(normalizedSymbol, token);
+                var result = await _coinGeckoCoinPriceProvider.GetTokenPriceInUsdAsync(platform, s, token);
 
                 return result;
             },

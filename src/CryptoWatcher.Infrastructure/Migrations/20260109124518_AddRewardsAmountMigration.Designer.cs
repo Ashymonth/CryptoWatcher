@@ -5,6 +5,7 @@ using System.Numerics;
 using CryptoWatcher.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -13,9 +14,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CryptoWatcher.Infrastructure.Migrations
 {
     [DbContext(typeof(CryptoWatcherDbContext))]
-    partial class CryptoWatcherDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260109124518_AddRewardsAmountMigration")]
+    partial class AddRewardsAmountMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -447,36 +450,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("MerklCampaigns");
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaignCashFlow", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("ClaimDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("MerklCampaignId")
-                        .HasColumnType("uuid");
-
-                    b.ComplexProperty<Dictionary<string, object>>("ClaimedAmount", "CryptoWatcher.Modules.Merkl.Entities.MerklCampaignCashFlow.ClaimedAmount#CryptoTokenStatistic", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
-
-                            b1.Property<decimal>("PriceInUsd")
-                                .HasColumnType("numeric");
-                        });
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MerklCampaignId");
-
-                    b.ToTable("MerklCampaignCashFlows");
-                });
-
             modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaignSnapshot", b =>
                 {
                     b.Property<DateOnly>("Day")
@@ -485,13 +458,13 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Property<Guid>("MerklCampaignId")
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("ClaimableAmount")
+                    b.Property<decimal>("ClaimabelAmount")
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("ClaimedAmount")
                         .HasColumnType("numeric");
 
-                    b.Property<decimal>("PendingAmount")
+                    b.Property<decimal>("PendingAmout")
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("PriceInUsd")
@@ -1264,15 +1237,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaignCashFlow", b =>
-                {
-                    b.HasOne("CryptoWatcher.Modules.Merkl.Entities.MerklCampaign", null)
-                        .WithMany("CashFlows")
-                        .HasForeignKey("MerklCampaignId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaignSnapshot", b =>
                 {
                     b.HasOne("CryptoWatcher.Modules.Merkl.Entities.MerklCampaign", null)
@@ -1391,8 +1355,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
             modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaign", b =>
                 {
-                    b.Navigation("CashFlows");
-
                     b.Navigation("Snapshots");
                 });
 
