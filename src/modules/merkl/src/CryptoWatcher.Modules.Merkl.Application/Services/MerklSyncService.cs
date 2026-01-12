@@ -13,13 +13,15 @@ public class MerklSyncService : IMerklSyncService
     private readonly IMerklProvider _provider;
     private readonly IRepository<MerklCampaign> _campaignRepo;
     private readonly IRepository<MerklCampaignSnapshot> _snapshotsRepo;
+    private readonly IRepository<MerklCampaignCashFlow> _cashFlowRepo;
 
     public MerklSyncService(IMerklProvider provider, IRepository<MerklCampaign> campaignRepo,
-        IRepository<MerklCampaignSnapshot> snapshotsRepo)
+        IRepository<MerklCampaignSnapshot> snapshotsRepo, IRepository<MerklCampaignCashFlow> cashFlowRepo)
     {
         _provider = provider;
         _campaignRepo = campaignRepo;
         _snapshotsRepo = snapshotsRepo;
+        _cashFlowRepo = cashFlowRepo;
     }
 
     public async Task SyncRewardsAsync(EvmAddress walletAddress, int chainId,
@@ -57,14 +59,29 @@ public class MerklSyncService : IMerklSyncService
             }
 
             var asset = campaignInfo.First().Asset;
-            campaign.AddOrdUpdateSnapshot(day, rewardStatus, asset.PriceInUsd);
+            campaign.AddOrUpdateSnapshot(day, rewardStatus, asset.PriceInUsd);
             result.Add(campaign);
         }
 
-        await _campaignRepo.BulkMergeAsync(result, ct);
+        await _campaignRepo.UnitOfWork.BeginTransactionAsync(ct);
+        try
+        {
+            await _campaignRepo.BulkMergeAsync(result, ct);
 
-        var snaphots = result.SelectMany(campaign => campaign.Snapshots).ToArray();
+            var snapshots = result.SelectMany(campaign => campaign.Snapshots).ToArray();
 
-        await _snapshotsRepo.BulkMergeAsync(snaphots, ct);
+            await _snapshotsRepo.BulkMergeAsync(snapshots, ct);
+
+            var cashFlows = result.SelectMany(campaign => campaign.CashFlows).ToArray();
+
+            await _cashFlowRepo.BulkMergeAsync(cashFlows, ct);
+
+            await _campaignRepo.UnitOfWork.CommitTransactionAsync(ct);
+        }
+        catch (Exception e)
+        {
+            await _campaignRepo.UnitOfWork.RollbackTransactionAsync(ct);
+            throw;
+        }
     }
 }

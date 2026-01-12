@@ -187,6 +187,8 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     public DbSet<MerklCampaign> MerklCampaigns => Set<MerklCampaign>();
     
     public DbSet<MerklCampaignSnapshot> MerklCampaignSnapshots => Set<MerklCampaignSnapshot>();
+    
+    public DbSet<MerklCampaignCashFlow> MerklCampaignCashFlows => Set<MerklCampaignCashFlow>();
 
     #endregion
     

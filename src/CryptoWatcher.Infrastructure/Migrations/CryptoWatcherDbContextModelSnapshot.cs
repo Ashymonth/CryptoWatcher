@@ -447,6 +447,36 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.ToTable("MerklCampaigns");
                 });
 
+            modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaignCashFlow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ClaimDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MerklCampaignId")
+                        .HasColumnType("uuid");
+
+                    b.ComplexProperty<Dictionary<string, object>>("ClaimedAmount", "CryptoWatcher.Modules.Merkl.Entities.MerklCampaignCashFlow.ClaimedAmount#CryptoTokenStatistic", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal>("PriceInUsd")
+                                .HasColumnType("numeric");
+                        });
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MerklCampaignId");
+
+                    b.ToTable("MerklCampaignCashFlows");
+                });
+
             modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaignSnapshot", b =>
                 {
                     b.Property<DateOnly>("Day")
@@ -1234,6 +1264,15 @@ namespace CryptoWatcher.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaignCashFlow", b =>
+                {
+                    b.HasOne("CryptoWatcher.Modules.Merkl.Entities.MerklCampaign", null)
+                        .WithMany("CashFlows")
+                        .HasForeignKey("MerklCampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaignSnapshot", b =>
                 {
                     b.HasOne("CryptoWatcher.Modules.Merkl.Entities.MerklCampaign", null)
@@ -1352,6 +1391,8 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
             modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaign", b =>
                 {
+                    b.Navigation("CashFlows");
+
                     b.Navigation("Snapshots");
                 });
 

@@ -1,3 +1,4 @@
+using CryptoWatcher.Exceptions;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Modules.Merkl.ValueObjects;
 using CryptoWatcher.ValueObjects;
@@ -7,6 +8,7 @@ namespace CryptoWatcher.Modules.Merkl.Entities;
 public class MerklCampaign
 {
     private readonly List<MerklCampaignSnapshot> _snapshots = [];
+    private readonly List<MerklCampaignCashFlow> _cashFlows = [];
 
     private MerklCampaign()
     {
@@ -45,18 +47,37 @@ public class MerklCampaign
 
     public IReadOnlyCollection<MerklCampaignSnapshot> Snapshots => _snapshots;
 
-    public void AddOrdUpdateSnapshot(DateOnly day, RewardStatus rewardStatus, decimal priceInUsd)
+    public IReadOnlyCollection<MerklCampaignCashFlow> CashFlows => _cashFlows;
+
+    public void AddOrUpdateSnapshot(DateOnly day, RewardStatus rewardStatus, decimal currentUsdPrice)
     {
-        var existedSnapshot = _snapshots.FirstOrDefault(snapshot => snapshot.Day == day);
-        if (existedSnapshot is not null)
+        var snapshot = _snapshots.Find(s => s.Day == day);
+
+        decimal oldClaimed = 0;
+
+        if (snapshot is null)
         {
-            existedSnapshot.Update(rewardStatus, priceInUsd);
-            return;
+            snapshot = new MerklCampaignSnapshot(day, rewardStatus, currentUsdPrice, Id);
+            _snapshots.Add(snapshot);
+        }
+        else
+        {
+            oldClaimed = snapshot.ClaimedAmount;
+            snapshot.Update(rewardStatus, currentUsdPrice);
         }
 
-        var snapshot = new MerklCampaignSnapshot(day, rewardStatus, priceInUsd, Id);
+        var delta = snapshot.ClaimedAmount - oldClaimed;
 
-        _snapshots.Add(snapshot);
+        if (delta != 0)
+        {
+            var cashFlow = new MerklCampaignCashFlow(Id, DateTime.UtcNow, new CryptoTokenStatistic()
+            {
+                Amount = delta,
+                PriceInUsd = currentUsdPrice
+            });
+
+            _cashFlows.Add(cashFlow);
+        }
     }
 
     public decimal CalculateDailyRewardsInUsd(DateOnly day)

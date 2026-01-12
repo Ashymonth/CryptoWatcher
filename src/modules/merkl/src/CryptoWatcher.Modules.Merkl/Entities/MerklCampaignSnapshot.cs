@@ -48,16 +48,16 @@ public class MerklCampaignSnapshot : IPositionSnapshot
         {
             return;
         }
-        
-        // user claimed only avilabel rewarads and still has pending rewards
-        if (ClaimabelAmount == rewardStatus.ClaimabelAmount &&
-            PendingAmout == rewardStatus.PendingAmount &&
-            ClaimedAmount != rewardStatus.ClaimedAmount)
-        {
-            ClaimabelAmount = rewardStatus.ClaimabelAmount;
-            return;
-        }
-        
+        //
+        // // user claimed only avilabel rewarads and still has pending rewards
+        // if (ClaimabelAmount == rewardStatus.ClaimabelAmount &&
+        //     PendingAmout == rewardStatus.PendingAmount &&
+        //     ClaimedAmount != rewardStatus.ClaimedAmount)
+        // {
+        //     ClaimabelAmount = rewardStatus.ClaimabelAmount;
+        //     return;
+        // }
+        //
         //user has only avilable rewards without any pending rewards
         
         RewardsAmount += rewardStatus.ClaimabelAmount - rewardStatus.ClaimedAmount + rewardStatus.PendingAmount;
