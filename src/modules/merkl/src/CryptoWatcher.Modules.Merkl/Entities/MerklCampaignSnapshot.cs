@@ -42,14 +42,7 @@ public class MerklCampaignSnapshot : IPositionSnapshot
     private void UpdateFromRewards(RewardStatus rewardStatus)
     {
         // no changes in rewards
-        if (ClaimableAmount == rewardStatus.ClaimabelAmount &&
-            PendingAmount == rewardStatus.PendingAmount &&
-            ClaimedAmount == rewardStatus.ClaimedAmount)
-        {
-            return;
-        }
-        
-        RewardsAmount += rewardStatus.ClaimabelAmount - rewardStatus.ClaimedAmount + rewardStatus.PendingAmount;
+        RewardsAmount = rewardStatus.ClaimabelAmount - rewardStatus.ClaimedAmount + rewardStatus.PendingAmount;
         ClaimableAmount = rewardStatus.ClaimabelAmount;
         PendingAmount = rewardStatus.PendingAmount;
         ClaimedAmount = rewardStatus.ClaimedAmount;

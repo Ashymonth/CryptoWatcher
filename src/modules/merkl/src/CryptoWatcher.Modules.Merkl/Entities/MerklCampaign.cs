@@ -51,7 +51,7 @@ public class MerklCampaign
 
     public void AddOrUpdateSnapshot(DateOnly day, RewardStatus rewardStatus, decimal currentUsdPrice)
     {
-        var snapshot = _snapshots.Find(s => s.Day == day);
+        var snapshot = _snapshots.FirstOrDefault(s => s.Day == day);
 
         decimal oldClaimed = 0;
 
