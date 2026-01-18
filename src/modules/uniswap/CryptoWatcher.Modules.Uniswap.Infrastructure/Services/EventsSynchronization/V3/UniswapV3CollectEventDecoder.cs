@@ -2,7 +2,6 @@ using System.Numerics;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Models;
-using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 using Nethereum.ABI.FunctionEncoding;
 using Nethereum.ABI.Model;

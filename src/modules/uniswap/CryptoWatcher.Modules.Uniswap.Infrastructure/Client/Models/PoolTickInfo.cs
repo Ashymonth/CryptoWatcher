@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace UniswapClient.Models;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Client.Models;
 
 /// <summary>
 /// Represents fee growth data for a specific tick boundary in a liquidity pool.

@@ -11,11 +11,14 @@ using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.LogEventDecoders;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Nethereum.Web3;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
@@ -62,6 +65,15 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
 
+    var config = db.UniswapChainConfigurations.First(x => x.Name == "Monad");
+
+    var web = new Web3(config.RpcUrlWithAuthToken.ToString());
+
+    var tr = await web.Eth.Transactions.GetTransactionReceipt.SendRequestAsync("0xee098092bd920139cbab493de151cacb2e8185646948c25f9817e83062b5ff85");
+
+    new UniswapV3DecreaseLiquidityLogEventDecoder().CanDecode(tr);
+    new UniswapV3DecreaseLiquidityLogEventDecoder().GetOperation(tr);
+    
     if (!app.Environment.IsDevelopment())
     {
         db.Database.Migrate();

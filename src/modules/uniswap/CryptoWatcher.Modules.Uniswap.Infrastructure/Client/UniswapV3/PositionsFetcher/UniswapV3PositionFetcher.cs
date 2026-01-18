@@ -9,7 +9,6 @@ using Nethereum.Contracts.QueryHandlers.MultiCall;
 using Nethereum.Contracts.Standards.ERC721.ContractDefinition;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Web3;
-using UniswapClient.Models;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3.PositionsFetcher;
 

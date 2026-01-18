@@ -17,7 +17,7 @@ internal class UniswapV3BlockchainLogProvider : BlockchainLogProviderBase, IBloc
             new[]
             {
                 UniswapWellKnownField.V3CollectSignature,
-                // UniswapWellKnownField.V3MintSignature,
+                UniswapWellKnownField.V3MintSignature,
                 // UniswapWellKnownField.V3DecreaseLiquiditySignature,
                 // UniswapWellKnownField.V3IncreaseLiquiditySignature,
             },

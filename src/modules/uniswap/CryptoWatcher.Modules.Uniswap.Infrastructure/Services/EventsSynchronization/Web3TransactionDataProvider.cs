@@ -1,8 +1,10 @@
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Entities;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.Models.Events;
 using CryptoWatcher.ValueObjects;
 using Microsoft.Extensions.Logging;
+using Nethereum.Contracts;
 using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services.EventsSynchronization;
@@ -44,7 +46,13 @@ internal class Web3TransactionDataProvider : ITransactionDataProvider
         {
             return null;
         }
+
         
+        var mintEvents = receipt.DecodeAllEvents<MintEvent>();
+        if (mintEvents.Count > 0)
+        {
+        }
+
         var liquidityEventLogs = receipt.Logs.Select(log => new LiquidityEventLog
         {
             Address = log.Address,

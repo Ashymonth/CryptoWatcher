@@ -1,9 +1,7 @@
 using CryptoWatcher.Modules.Uniswap.Application;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
-using CryptoWatcher.Modules.Uniswap.Application.Services;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 using Microsoft.Extensions.Logging;
 
@@ -83,27 +81,6 @@ internal class LiquidityEventLogEnricher : ILiquidityEventLogEnricher
     {
         var timeStamp = await _blockscoutProvider.GetTransactionTimestampAsync(chain, transactionHash, ct);
 
-        var token0 = CreateTokenFromLogs(logs, FirstTokenIndex);
-
-        var token1 = CreateTokenFromLogs(logs, SecondTokenIndex);
-
-        return new LiquidityEventEnrichment
-        {
-            TimeStamp = timeStamp,
-            TokenPair = new TokenPair { Token0 = token0, Token1 = token1 }
-        };
-    }
-    
-    private async Task<LiquidityEventEnrichment> CreateTokenPairFromLogsV3(
-        UniswapChainConfiguration chain,
-        TransactionHash transactionHash,
-        LiquidityEventLog[] logs,
-        CancellationToken ct)
-    {
-        var timeStamp = await _blockscoutProvider.GetTransactionTimestampAsync(chain, transactionHash, ct);
-
-        var logTopic = logs.Last();
-        
         var token0 = CreateTokenFromLogs(logs, FirstTokenIndex);
 
         var token1 = CreateTokenFromLogs(logs, SecondTokenIndex);

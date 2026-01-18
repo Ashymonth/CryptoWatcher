@@ -1,4 +1,4 @@
-namespace UniswapClient.Models;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Client.Models;
 
 public class NetworkInfo
 {

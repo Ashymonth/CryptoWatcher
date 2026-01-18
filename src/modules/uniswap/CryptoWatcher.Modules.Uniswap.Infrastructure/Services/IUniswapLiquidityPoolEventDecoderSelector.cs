@@ -1,9 +1,8 @@
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Models;
-using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 
 public interface IUniswapLiquidityPoolEventDecoderSelector
 {
