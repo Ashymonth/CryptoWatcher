@@ -15,7 +15,7 @@ public class MintPositionOperationApplier : IMintPositionOperationApplier
         _tokenEnricher = tokenEnricher;
     }
 
-    public async Task<UniswapLiquidityPosition> ReadOperationAsync(EvmAddress walletAddress,
+    public async Task<UniswapLiquidityPosition> CreatePositionAsync(EvmAddress walletAddress,
         MintPositionOperation operation,
         UniswapChainConfiguration chainConfiguration,
         DateTime timestamp,

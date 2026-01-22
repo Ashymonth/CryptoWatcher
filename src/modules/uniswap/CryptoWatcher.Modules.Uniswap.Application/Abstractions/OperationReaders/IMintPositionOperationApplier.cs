@@ -6,7 +6,7 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions.OperationReader
 
 public interface IMintPositionOperationApplier
 {
-    Task<UniswapLiquidityPosition> ReadOperationAsync(
+    Task<UniswapLiquidityPosition> CreatePositionAsync(
         EvmAddress walletAddress,
         MintPositionOperation mintPositionOperation,
         UniswapChainConfiguration chainConfiguration,

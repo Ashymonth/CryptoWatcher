@@ -26,7 +26,7 @@ public class PositionOperationOrchestrator
     {
         if (operationInfo.Operation is MintPositionOperation mintPositionOperation)
         {
-            return await _mintPositionOperationApplier.ReadOperationAsync(walletAddress, mintPositionOperation,
+            return await _mintPositionOperationApplier.CreatePositionAsync(walletAddress, mintPositionOperation,
                 chainConfiguration, operationInfo.OperationDate, ct);
         }
 
