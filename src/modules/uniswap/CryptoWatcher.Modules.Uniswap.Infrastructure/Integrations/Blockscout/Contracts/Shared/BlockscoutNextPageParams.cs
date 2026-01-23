@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Client.Blockscout.Contracts;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout.Contracts.Shared;
 
-public class NextPageParams
+public class BlockscoutNextPageParams
 {
     [JsonPropertyName("index")] public int Index { get; set; }
 

@@ -1,57 +1,30 @@
-using System.Net.Http.Json;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
-using CryptoWatcher.ValueObjects;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan.Api;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan.Contracts.TransactionHistory;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 
-public class EterhscanResponse
-{
-    public EtherscanTransaction[] Result { get; init; } = [];
-}
-
-public class EtherscanTransaction
-{
-    public long Timestamp { get; set; }
-
-    public string Hash { get; set; } = null!;
-
-    public string FunctionName { get; set; } = null!;
-    
-    public string To { get; set; } = null!;
-}
-
 public class EtherscanTransactionSource : IWalletTransactionSource
 {
-    private const string TransactionsUrlTemplate =
-        "v2/api?page={0}&offset={1}&apikey={2}&chainid={3}&module=account&action=txlist&address={4}";
+    private readonly IEtherscanApi _etherscanApi;
 
-    private readonly HttpClient _httpClient;
-
-    public EtherscanTransactionSource(HttpClient httpClient)
+    public EtherscanTransactionSource(IEtherscanApi etherscanApi)
     {
-        _httpClient = httpClient;
+        _etherscanApi = etherscanApi;
     }
 
     public async Task<IReadOnlyCollection<BlockchainTransaction>> GetWalletTransactionsAsync(
-        EvmAddress walletAddress, int chainId, string apiKey, int page, int offset, CancellationToken ct = default)
+        EtherscanTransactionQuery etherscanTransactionQuery,
+        CancellationToken ct = default)
     {
-        var url = string.Format(TransactionsUrlTemplate, page, offset, apiKey, chainId, walletAddress.Value);
+        var transactions = await _etherscanApi.GetAccountTransactionsAsync(etherscanTransactionQuery.MapQuery(), ct);
 
-        var transactions = await _httpClient.GetFromJsonAsync<EterhscanResponse>(url, ct);
-
-        if (transactions!.Result.Length == 0)
+        if (transactions.Result.Length == 0)
         {
             return [];
         }
 
-        return transactions.Result.Select(transaction => new BlockchainTransaction
-            {
-                Hash = TransactionHash.FromString(transaction.Hash),
-                FunctionName = transaction.FunctionName,
-                To = EvmAddress.Create(transaction.To),
-                Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(transaction.Timestamp).UtcDateTime,
-            })
-            .ToArray();
+        return transactions.Result.Select(item => item.MapToBlockchainTransaction()).ToArray();
     }
 }

@@ -20,10 +20,12 @@
       <PackageReference Include="Polly" Version="8.6.4" />
       <PackageReference Include="Polly.Extensions" Version="8.6.4" />
       <PackageReference Include="Polly.RateLimiting" Version="8.6.4" />
+      <PackageReference Include="Refit.HttpClientFactory" Version="9.0.2" />
       <PackageReference Include="Riok.Mapperly" Version="4.3.0-next.3" />
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Client\Etherscan\" />
       <Folder Include="UniswapV3\Models\" />
     </ItemGroup>
 

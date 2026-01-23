@@ -10,4 +10,6 @@ public class BlockscoutNextPageParams
     public TransactionHash Hash { get; init; } = null!;
 
     public BigInteger BlockNumber { get; init; }
+
+    public int ItemsCount { get; set; }
 }
