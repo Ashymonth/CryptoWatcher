@@ -35,7 +35,7 @@ public class UniswapWalletSyncOrchestrator : IUniswapWalletSyncOrchestrator
 
         foreach (var wallet in wallets)
         {
-            foreach (var chain in chainConfigurations.Where(x => x.Name == "Monad"))
+            foreach (var chain in chainConfigurations.Where(x => x.ProtocolVersion == UniswapProtocolVersion.V3))
             {
                 var state = await _synchronizationStateRepository.FirstOrDefaultAsync(
                                 new UniswapSynchronizationStateByWalletAndChain(chain, wallet), ct) ??
