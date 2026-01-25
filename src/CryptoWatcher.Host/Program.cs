@@ -64,10 +64,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
 
-    var config = db.UniswapChainConfigurations.First(x => x.Name == "Monad");
-
-    var manager = scope.ServiceProvider.GetRequiredService<UniswapV3PositionOperationsSource>();
  
+    await scope.ServiceProvider.GetRequiredService<IUniswapWalletSyncOrchestrator>().SyncWalletAsync();
 
     if (!app.Environment.IsDevelopment())
     {

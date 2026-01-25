@@ -5,6 +5,6 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 
 public interface IUniswapWalletSyncStore
 {
-    Task SaveWalletSyncBatchAsync(UniswapSynchronizationState state, WalletUniswapEventsSyncBatchResult batch,
+    Task SaveWalletSyncBatchAsync(UniswapSynchronizationState state, WalletEventExtractionResult batch,
         CancellationToken ct = default);
 }

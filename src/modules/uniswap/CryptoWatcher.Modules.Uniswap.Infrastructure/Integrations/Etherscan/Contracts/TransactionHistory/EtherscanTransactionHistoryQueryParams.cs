@@ -11,6 +11,8 @@ public class EtherscanTransactionHistoryQueryParams
         Sort = "desc";
     }
 
+    public string Address { get; set; } = null!;
+    
     public string ApiKey { get; set; } = null!;
 
     public int ChainId { get; set; }

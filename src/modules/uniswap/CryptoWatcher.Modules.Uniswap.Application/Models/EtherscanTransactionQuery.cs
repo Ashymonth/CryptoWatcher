@@ -5,15 +5,15 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Models;
 
 public class EtherscanTransactionQuery
 {
-    public EvmAddress WalletAddress { get; init; } = null!;
+    public required EvmAddress Address { get; init; } = null!;
 
-    public int ChainId { get; init; }
+    public required int ChainId { get; init; }
 
-    public string ApiKey { get; init; } = null!;
+    public required string ApiKey { get; init; } = null!;
 
-    public int Page { get; init; }
+    public required int Page { get; init; }
 
-    public int Offset { get; init; }
+    public required int Offset { get; init; }
 
-    public BigInteger StartBlock { get; init; }
+    public required BigInteger StartBlock { get; init; }
 }

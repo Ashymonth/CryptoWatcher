@@ -1,11 +1,10 @@
-using CryptoWatcher.Modules.Uniswap.Application.UniswapV3.Models.Operations;
 using CryptoWatcher.Modules.Uniswap.Entities;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Models;
 
-public record WalletUniswapEventsSyncBatchResult
+public record WalletEventExtractionResult
 {
     public required UniswapLiquidityPosition[] UpdatedPositions { get; init; }
 
-    public required UniswapEvent LastEvent { get; init; }
+    public required BlockchainTransaction LastScannedTransaction { get; init; }
 }

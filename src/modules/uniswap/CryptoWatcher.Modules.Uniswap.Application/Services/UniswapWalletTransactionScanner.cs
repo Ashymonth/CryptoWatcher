@@ -1,38 +1,38 @@
 using System.Runtime.CompilerServices;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
-using CryptoWatcher.Modules.Uniswap.Application.UniswapV3.Models.Operations;
+using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services;
 
-public class UniswapWalletEventExtractor : IUniswapWalletEventExtractor
+public class UniswapWalletTransactionScanner : IUniswapWalletTransactionScanner
 {
     private readonly IUnprocessedWalletTransactions _unprocessedWalletTransactions;
     private readonly IUniswapTransactionEnricher _uniswapTransactionEnricher;
 
-    public UniswapWalletEventExtractor(IUnprocessedWalletTransactions unprocessedWalletTransactions,
+    public UniswapWalletTransactionScanner(IUnprocessedWalletTransactions unprocessedWalletTransactions,
         IUniswapTransactionEnricher uniswapTransactionEnricher)
     {
         _unprocessedWalletTransactions = unprocessedWalletTransactions;
         _uniswapTransactionEnricher = uniswapTransactionEnricher;
     }
 
-    public async IAsyncEnumerable<UniswapEvent> ExtractUniswapEventsAsync(UniswapChainConfiguration chain,
+    public async IAsyncEnumerable<WalletTransactionScanResult> ScanWalletTransactionsAsync(
+        UniswapChainConfiguration chain,
         UniswapSynchronizationState synchronizationState, EvmAddress wallet,
         [EnumeratorCancellation] CancellationToken ct = default)
     {
         await foreach (var transaction in _unprocessedWalletTransactions.GetTransactionsAsync(chain,
                            synchronizationState, wallet, ct))
         {
-            var operation = await _uniswapTransactionEnricher.TryEnrichAsync(chain, transaction, ct);
+            var uniswapEvent = await _uniswapTransactionEnricher.TryEnrichAsync(chain, transaction, ct);
 
-            if (operation is null)
+            yield return new WalletTransactionScanResult
             {
-                continue;
-            }
-
-            yield return operation;
+                Event = uniswapEvent,
+                Transaction = transaction
+            };
         }
     }
 }

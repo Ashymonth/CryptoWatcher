@@ -2,13 +2,13 @@ namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan.Co
 
 public class EtherscanTransactionHistoryItem
 {
-    public long Timestamp { get; set; }
+    public string Timestamp { get; set; } = null!;
 
     public string Hash { get; set; } = null!;
 
     public string FunctionName { get; set; } = null!;
 
-    public long BlockNumber { get; set; }
-    
+    public string BlockNumber { get; set; } = null!;
+
     public string To { get; set; } = null!;
 }

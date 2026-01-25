@@ -11,10 +11,12 @@ public class WalletTransactionPaginator : IWalletTransactionPaginator
     private const int PageSize = 100;
 
     private readonly IWalletTransactionGateway _transactionGateway;
+    private readonly IEtherscanApiKeyProvider _apiKeyProvider;
 
-    public WalletTransactionPaginator(IWalletTransactionGateway transactionGateway)
+    public WalletTransactionPaginator(IWalletTransactionGateway transactionGateway, IEtherscanApiKeyProvider apiKeyProvider)
     {
         _transactionGateway = transactionGateway;
+        _apiKeyProvider = apiKeyProvider;
     }
 
     public async IAsyncEnumerable<IReadOnlyCollection<BlockchainTransaction>> PaginateWalletTransactionsAsync(
@@ -24,10 +26,12 @@ public class WalletTransactionPaginator : IWalletTransactionPaginator
     {
         var transactions = await _transactionGateway.GetWalletTransactionsAsync(new EtherscanTransactionQuery
         {
+            ApiKey = _apiKeyProvider.ApiKey(),
             ChainId = chainConfiguration.ChainId,
             Page = PageSize,
             StartBlock = chainConfiguration.LastProcessedBlock,
-            WalletAddress = walletAddress
+            Address = walletAddress,
+            Offset = 0
         }, ct);
 
         yield return transactions;
@@ -44,7 +48,8 @@ public class WalletTransactionPaginator : IWalletTransactionPaginator
                 Offset = offset,
                 Page = PageSize,
                 StartBlock = chainConfiguration.LastProcessedBlock,
-                WalletAddress = walletAddress
+                Address = walletAddress,
+                ApiKey = _apiKeyProvider.ApiKey()
             }, ct);
 
             yield return transactions;

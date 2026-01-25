@@ -12,6 +12,6 @@ public static partial class EtherscanTransactionHistoryMapper
         Use = nameof(MapDateTime))]
     public static partial BlockchainTransaction MapToBlockchainTransaction(this EtherscanTransactionHistoryItem item);
 
-    private static DateTime MapDateTime(this long timestamp) =>
-        DateTimeOffset.FromUnixTimeSeconds(timestamp).UtcDateTime;
+    private static DateTime MapDateTime(this string timestamp) =>
+        DateTimeOffset.FromUnixTimeSeconds(long.Parse(timestamp)).UtcDateTime;
 }

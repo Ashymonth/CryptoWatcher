@@ -20,14 +20,16 @@ public class UniswapWalletSyncStore : IUniswapWalletSyncStore
     }
 
     public async Task SaveWalletSyncBatchAsync(UniswapSynchronizationState state,
-        WalletUniswapEventsSyncBatchResult batch, CancellationToken ct = default)
+        WalletEventExtractionResult batch, CancellationToken ct = default)
     {
         await _positionsRepository.BulkMergeAsync(batch.UpdatedPositions, ct);
 
-        var lastTransactionHash = batch.LastEvent.Operation.TransactionHash;
-        var blockNumber = batch.LastEvent.Operation.BlockNumber;
+        var lastTransactionHash = batch.LastScannedTransaction.Hash;
+        var blockNumber = batch.LastScannedTransaction.BlockNumber;
 
         state.UpdateLastSynchronizedTransaction(lastTransactionHash, blockNumber, _timeProvider);
         _synchronizationStateRepository.Update(state);
+        
+        await _synchronizationStateRepository.UnitOfWork.SaveChangesAsync(ct);
     }
 }

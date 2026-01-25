@@ -21,6 +21,7 @@ using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.PositionsFet
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.StateView;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.UniswapAppApiClient;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout.Api;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan.Api;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.EventsSynchronization;
@@ -93,13 +94,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWalletTransactionPaginator, WalletTransactionPaginator>();
         services.AddScoped<IUnprocessedWalletTransactions, UnprocessedWalletTransactions>();
         services.AddScoped<IUniswapTransactionEnricher, UniswapTransactionEnricher>();
-        services.AddScoped<IUniswapWalletEventExtractor, UniswapWalletEventExtractor>();
+        services.AddScoped<IUniswapWalletTransactionScanner, UniswapWalletTransactionScanner>();
         services.AddScoped<IUniswapWalletEventSynchronizer, UniswapWalletEventSynchronizer>();
         services.AddScoped<IUniswapWalletSyncStore, UniswapWalletSyncStore>();
         services.AddScoped<IUniswapWalletSyncOrchestrator, UniswapWalletSyncOrchestrator>();
 
         services.AddRefitClient<IEtherscanApi>()
             .ConfigureHttpClient(client => client.BaseAddress = new Uri("https://api.etherscan.io"));
+        
+        services.AddSingleton<IEtherscanApiKeyProvider, EtherscanApiKeyProvider>();
         
         services.AddRefitClient<IBlockscoutApi>()
             .ConfigureHttpClient(client => client.BaseAddress = new Uri("https://api.etherscan.io"));

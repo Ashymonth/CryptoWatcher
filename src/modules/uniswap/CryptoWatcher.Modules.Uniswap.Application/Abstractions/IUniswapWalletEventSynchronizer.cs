@@ -6,7 +6,7 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 
 public interface IUniswapWalletEventSynchronizer
 {
-    IAsyncEnumerable<WalletUniswapEventsSyncBatchResult> SynchronizeWalletEventsAsync(
+    IAsyncEnumerable<WalletEventExtractionResult> SynchronizeWalletEventsAsync(
         UniswapChainConfiguration chainConfiguration,
         UniswapSynchronizationState synchronizationState,
         Wallet wallet,
