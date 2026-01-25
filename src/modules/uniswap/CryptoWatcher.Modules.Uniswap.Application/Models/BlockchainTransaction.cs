@@ -5,7 +5,7 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Models;
 
 public class BlockchainTransaction
 {
-    public required string FunctionName { get; init; } = null!;
+    public required string? FunctionName { get; init; } = null!;
 
     public required TransactionHash Hash { get; init; } = null!;
 

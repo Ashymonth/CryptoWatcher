@@ -58,14 +58,12 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddEndpointsApiExplorer().AddSwaggerGen();
 
-var app = builder.Build();
+var app = builder.Build();  
 
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
-    
-    await scope.ServiceProvider.GetRequiredService<IUniswapWalletSyncOrchestrator>().SyncWalletPositionsAsync();
-
+     
     if (!app.Environment.IsDevelopment())
     {
         db.Database.Migrate();

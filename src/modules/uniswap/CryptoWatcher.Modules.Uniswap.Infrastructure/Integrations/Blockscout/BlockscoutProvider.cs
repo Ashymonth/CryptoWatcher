@@ -6,7 +6,7 @@ using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout.Api;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout.Contracts.TransactionHistory;
 using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout;
 
 public class BlockscoutProvider : IBlockscoutProvider
 {

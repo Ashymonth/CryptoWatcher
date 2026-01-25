@@ -25,7 +25,7 @@ public class UniswapWalletEventSynchronizer : IUniswapWalletEventSynchronizer
         _positionsRepository = positionsRepository;
     }
 
-    public async IAsyncEnumerable<WalletEventExtractionResult>  SynchronizeWalletEventsAsync(
+    public async IAsyncEnumerable<WalletEventExtractionResult> SynchronizeWalletEventsAsync(
         UniswapChainConfiguration chainConfiguration,
         UniswapSynchronizationState synchronizationState,
         Wallet wallet,

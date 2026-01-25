@@ -14,7 +14,7 @@ public class UnprocessedWalletTransactions : IUnprocessedWalletTransactions
     {
         _walletTransactionPaginator = walletTransactionPaginator;
     }
-
+    
     public async IAsyncEnumerable<BlockchainTransaction> GetTransactionsAsync(
         UniswapChainConfiguration chainConfiguration,
         UniswapSynchronizationState synchronizationState,

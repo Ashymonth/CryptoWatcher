@@ -3,7 +3,7 @@ using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan.Api;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan.Contracts.TransactionHistory;
 
-namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan;
 
 public class EtherscanTransactionGateway : IWalletTransactionGateway
 {
