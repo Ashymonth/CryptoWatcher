@@ -1,4 +1,5 @@
 using CryptoWatcher.Modules.Uniswap.Application.UniswapV3.Models.Operations;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.Models.Events;
@@ -33,21 +34,16 @@ public class UniswapV3IncreaseLiquidityLogEventDecoder : ITransactionLogEventDec
 
         var tokenTransfers = transactionReceipt.DecodeAllEvents<TransferEventDTO>();
 
+        var (token0, token1) =
+            tokenTransfers.MapEventToTokens(increaseLiquidity.Event.Amount0, increaseLiquidity.Event.Amount1);
+        
         return new IncreaseLiquidityOperation
         {
             PositionId = (ulong)increaseLiquidity.Event.TokenId,
             TransactionHash = transactionReceipt.TransactionHash,
             BlockNumber = transactionReceipt.BlockNumber,
-            Token0 = new Token
-            {
-                Address = EvmAddress.Create(tokenTransfers[0].Log.Address),
-                Balance = increaseLiquidity.Event.Amount0
-            },
-            Token1 = new Token
-            {
-                Address = EvmAddress.Create(tokenTransfers[1].Log.Address),
-                Balance = increaseLiquidity.Event.Amount1
-            }
+            Token0 = token0,
+            Token1 = token1
         };
     }
 }

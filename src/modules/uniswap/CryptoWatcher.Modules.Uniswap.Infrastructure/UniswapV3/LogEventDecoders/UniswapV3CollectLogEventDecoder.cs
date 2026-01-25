@@ -1,4 +1,5 @@
 using CryptoWatcher.Modules.Uniswap.Application.UniswapV3.Models.Operations;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.Models.Events;
 using CryptoWatcher.ValueObjects;
@@ -28,21 +29,16 @@ public class UniswapV3CollectLogEventDecoder : ITransactionLogEventDecoder
     {
         var collectEvents = transactionReceipt.DecodeAllEvents<ManagerCollectEvent>().Single();
 
-        var transferEvents = transactionReceipt.DecodeAllEvents<TransferEventDTO>();
+        var tokenTransfers = transactionReceipt.DecodeAllEvents<TransferEventDTO>();
+
+        var (token0, token1) =
+            tokenTransfers.MapEventToTokens(collectEvents.Event.Amount0, collectEvents.Event.Amount1);
 
         return new CollectFeesOperation
         {
             PositionId = (ulong)collectEvents.Event.TokenId,
-            Token0 = new Token
-            {
-                Address = EvmAddress.Create(transferEvents[0].Log.Address),
-                Balance = collectEvents.Event.Amount0
-            },
-            Token1 = new Token
-            {
-                Address = EvmAddress.Create(transferEvents[0].Log.Address),
-                Balance = collectEvents.Event.Amount1
-            },
+            Token0 = token0,
+            Token1 = token1,
             TransactionHash = transactionReceipt.TransactionHash,
             BlockNumber = transactionReceipt.BlockNumber
         };

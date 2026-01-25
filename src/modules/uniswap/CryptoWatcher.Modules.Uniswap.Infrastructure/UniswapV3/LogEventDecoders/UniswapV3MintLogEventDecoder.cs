@@ -26,6 +26,8 @@ public class UniswapV3MintLogEventDecoder : ITransactionLogEventDecoder
         var tokenTransfers = transactionReceipt
             .DecodeAllEvents<Nethereum.Contracts.Standards.ERC20.ContractDefinition.TransferEventDTO>();
 
+        var (token0, token1) = tokenTransfers.MapEventToTokens();
+
         return new MintPositionOperation
         {
             PositionId = (ulong)nftTransfer.Event.TokenId,
@@ -33,8 +35,8 @@ public class UniswapV3MintLogEventDecoder : ITransactionLogEventDecoder
             BlockNumber = transactionReceipt.BlockNumber,
             TickLower = mintEvent.Event.TickLower,
             TickUpper = mintEvent.Event.TickUpper,
-            Token0 = tokenTransfers[0].MapEventToToken(),
-            Token1 = tokenTransfers[1].MapEventToToken()
+            Token0 = token0,
+            Token1 = token1,
         };
     }
 }

@@ -22,13 +22,16 @@ public class UniswapV3DecreaseLiquidityLogEventDecoder : ITransactionLogEventDec
 
         var collectEvents = transactionReceipt.DecodeAllEvents<ManagerCollectEvent>().Single();
 
-        var transferEvents = transactionReceipt.DecodeAllEvents<TransferEventDTO>();
+        var tokenTransfers = transactionReceipt.DecodeAllEvents<TransferEventDTO>();
 
+        var (token0, token1) =
+            tokenTransfers.MapEventToTokens(decreaseEvent.Event.Amount0, decreaseEvent.Event.Amount1);
+        
         return new DecreaseLiquidityOperation
         {
             PositionId = (ulong)decreaseEvent.Event.TokenId,
-            Token0 = transferEvents[0].MapEventToToken(decreaseEvent.Event.Amount0),
-            Token1 = transferEvents[1].MapEventToToken(decreaseEvent.Event.Amount1),
+            Token0 = token0,
+            Token1 = token1,
             Commission0 = collectEvents.Event.Amount0,
             Commission1 = collectEvents.Event.Amount1,
             TransactionHash = transactionReceipt.TransactionHash,
