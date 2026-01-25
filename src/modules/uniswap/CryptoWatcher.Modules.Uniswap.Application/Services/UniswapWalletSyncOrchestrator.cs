@@ -17,7 +17,8 @@ public class UniswapWalletSyncOrchestrator : IUniswapWalletSyncOrchestrator
     public UniswapWalletSyncOrchestrator(IRepository<Wallet> walletRepository,
         IRepository<UniswapChainConfiguration> chainConfigurationRepository,
         IRepository<UniswapSynchronizationState> synchronizationStateRepository,
-        IUniswapWalletEventSynchronizer synchronizer, IUniswapWalletSyncStore syncStore)
+        IUniswapWalletEventSynchronizer synchronizer, 
+        IUniswapWalletSyncStore syncStore)
     {
         _walletRepository = walletRepository;
         _chainConfigurationRepository = chainConfigurationRepository;
