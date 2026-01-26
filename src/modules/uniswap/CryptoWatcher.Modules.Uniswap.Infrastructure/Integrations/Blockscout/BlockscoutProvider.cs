@@ -1,67 +1,22 @@
-using System.Net.Http.Json;
 using System.Numerics;
-using System.Text.Json.Serialization;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.Blockscout.Contracts;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout.Api;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout.Contracts.TransactionHistory;
 using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
-
-public class Sender
-{
-    public string Hash { get; set; } = null!;
-}
-
-public class Item
-{
-    public string Type { get; set; } = null!;
-
-    public string Value { get; set; } = null!;
-
-    public Sender To { get; set; } = null!;
-
-    public DateTime TimeStamp { get; set; }
-}
-
-public class Root
-{
-    public List<Item> Items { get; init; } = [];
-}
-
-public class TransactionInfoResponse
-{
-    public DateTimeOffset TimeStamp { get; init; }
-}
-
-public class BlockscoutResponse
-{
-    public List<BlockscoutTransactionItem> Items { get; init; } = [];
-
-    [JsonPropertyName("next_page_params")] public NextPageParams? NextPageParams { get; init; }
-}
-
-public class BlockscoutTransactionItem
-{
-    public Sender From { get; set; } = null!;
-
-    public string Hash { get; set; } = null!;
-
-    public string? Method { get; set; }
-
-    [JsonPropertyName("block_number")] public long BlockNumber { get; set; }
-}
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout;
 
 public class BlockscoutProvider : IBlockscoutProvider
 {
     private const string CallType = "call";
 
-    private readonly HttpClient _httpClient;
+    private readonly IBlockscoutApi _blockscoutApi;
 
-    public BlockscoutProvider(HttpClient httpClient)
+    public BlockscoutProvider(IBlockscoutApi blockscoutApi)
     {
-        _httpClient = httpClient;
+        _blockscoutApi = blockscoutApi;
     }
 
     public async Task<BlockscoutPage> GetAccountTransactionsAsync(
@@ -70,19 +25,12 @@ public class BlockscoutProvider : IBlockscoutProvider
         BlockscoutNextPageParams? nextPageParams,
         CancellationToken ct = default)
     {
-        var query = nextPageParams is not null
-            ? $"?index={nextPageParams.Index}" +
-              $"&hash={nextPageParams.Hash.Value}" +
-              $"&block_number={nextPageParams.BlockNumber}" +
-              $"&items_count=50"
-            : null;
-
-        var blockscoutResponse = await _httpClient.GetFromJsonAsync<BlockscoutResponse>(
-            $"{chain.BlockscoutUrl}/api/v2/addresses/{walletAddress.Value}/transactions{query}", cancellationToken: ct);
+        var blockscoutResponse =
+            await _blockscoutApi.GetTransactionHistoryAsync(walletAddress, nextPageParams?.MapToQueryParams(), ct);
 
         var result = new BlockscoutPage
         {
-            Transactions = blockscoutResponse!.Items.Select(item => new BlockscoutTransaction
+            Transactions = blockscoutResponse.Items.Select(item => new BlockscoutTransaction
             {
                 Method = item.Method,
                 BlockNumber = item.BlockNumber,
@@ -105,8 +53,7 @@ public class BlockscoutProvider : IBlockscoutProvider
         TransactionHash transactionHash,
         CancellationToken ct = default)
     {
-        var internalTransactionsResponse = await _httpClient.GetFromJsonAsync<TransactionInfoResponse>(
-            $"{chainConfiguration.BlockscoutUrl}/api/v2/transactions/{transactionHash}", ct);
+        var internalTransactionsResponse = await _blockscoutApi.GetTransactionTimestampAsync(transactionHash.Value, ct);
 
         if (internalTransactionsResponse is null)
         {
@@ -123,8 +70,7 @@ public class BlockscoutProvider : IBlockscoutProvider
         TransactionHash transactionHash,
         CancellationToken ct = default)
     {
-        var internalTransactionsResponse = await _httpClient.GetFromJsonAsync<Root>(
-            $"{chainConfiguration.BlockscoutUrl}/api/v2/transactions/{transactionHash}/internal-transactions", ct);
+        var internalTransactionsResponse = await _blockscoutApi.GetInternalTransactionsAsync(transactionHash.Value, ct);
 
         //there should be only one internal transaction with a call and not 0 value for wallet address
         var internalTransactionsWithEth = internalTransactionsResponse!.Items.SingleOrDefault(item =>

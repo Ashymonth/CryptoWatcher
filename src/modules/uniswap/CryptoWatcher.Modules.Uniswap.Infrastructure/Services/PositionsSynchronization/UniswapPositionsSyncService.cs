@@ -36,7 +36,6 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
     private readonly IUniswapProvider _providerFactory;
     private readonly IUniswapMath _math;
     private readonly IPoolHistorySyncRepositoryFacade _repositoryFacade;
-    private readonly TimeProvider _timeProvider;
     private readonly ILogger<UniswapPositionsSyncService> _logger;
 
     public UniswapPositionsSyncService(
@@ -44,14 +43,12 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
         IUniswapProvider providerFactory,
         IUniswapMath math,
         IPoolHistorySyncRepositoryFacade repositoryFacade,
-        TimeProvider timeProvider,
         ILogger<UniswapPositionsSyncService> logger)
     {
         _enricher = enricher;
         _providerFactory = providerFactory;
         _math = math;
         _repositoryFacade = repositoryFacade;
-        _timeProvider = timeProvider;
         _logger = logger;
     }
 
@@ -93,20 +90,13 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
                 var positionKey = new PositionKey((ulong)uniswapPosition.PositionId, chainConfiguration.Name);
                 if (!existedPositions.TryGetValue(positionKey, out var dbPoolPosition))
                 {
-                    if (uniswapPosition.Liquidity == 0)
-                    {
-                        continue;
-                    }
-
-                    dbPoolPosition =
-                        MapToLiquidityPoolPosition(chainConfiguration, wallet, uniswapPosition, tokensEnriched);
-                    positions.Add(dbPoolPosition);
+                    // we don't have a position in the database yet, so we ignore it for now and will wait for the next synchronization cycle
+                    continue;
                 }
 
                 if (uniswapPosition.Liquidity == 0)
                 {
-                    dbPoolPosition.ClosePosition(DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime));
-                    positions.Add(dbPoolPosition);
+                    // position closed. event synchronizer will close it
                     continue;
                 }
 
@@ -146,22 +136,6 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
         var fee = _math.CalculateClaimableFee(pool, uniswapPosition);
 
         return await _enricher.EnrichAsync(chain.Name, chain.RpcUrlWithAuthToken, fee, ct);
-    }
-
-    private UniswapLiquidityPosition MapToLiquidityPoolPosition(UniswapChainConfiguration chain, Wallet wallet,
-        IUniswapPosition position, TokenInfoPair tokensEnriched)
-    {
-        return new UniswapLiquidityPosition
-        (
-            (ulong)position.PositionId,
-            position.TickLower,
-            position.TickUpper,
-            tokensEnriched.Token0,
-            tokensEnriched.Token1,
-            wallet.Address,
-            chain,
-            DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime)
-        );
     }
 
     private static UniswapLiquidityPositionSnapshot MapToLiquidityPoolPositionSnapshot(

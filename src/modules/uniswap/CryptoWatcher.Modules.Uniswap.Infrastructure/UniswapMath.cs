@@ -12,6 +12,69 @@ internal class UniswapMath : IUniswapMath
 {
     private static readonly BigInteger Q96 = BigInteger.Pow(2, 96);
 
+    public decimal GetSpotPrice(
+        BigInteger sqrtPriceX96,
+        int decimals0,
+        int decimals1)
+    {
+        // priceX192 / Q192 = token1 / token0
+        var numerator = sqrtPriceX96 * sqrtPriceX96;
+        var denominator = BigInteger.Pow(2, 192);
+
+        var scaleFactor = BigInteger.Pow(10, 18);
+
+        var scaledPrice = numerator * scaleFactor / denominator;
+
+        // ТОЛЬКО ТУТ приводим к decimal
+        var price = (decimal)scaledPrice / 1_000_000_000_000_000_000m;
+
+        var decimalScale = Math.Pow(10, decimals0 - decimals1);
+        return price * (decimal)decimalScale;
+    }
+
+    public decimal GetMintValueInUsd(BigInteger amount0, BigInteger amount1, int decimals0, int decimals1, bool token0IsUsd)
+    {
+        decimal a0 = (decimal)amount0 / (decimal)BigInteger.Pow(10, decimals0);
+        decimal a1 = (decimal)amount1 / (decimal)BigInteger.Pow(10, decimals1);
+
+        decimal usdAmount;
+        decimal tokenAmount;
+        decimal tokenPrice;
+
+        if (token0IsUsd)
+        {
+            usdAmount = a0;
+            tokenAmount = a1;
+            tokenPrice = usdAmount / tokenAmount;
+        }
+        else
+        {
+            usdAmount = a1;
+            tokenAmount = a0;
+            tokenPrice = usdAmount / tokenAmount;
+        }
+
+        // стоимость в USD = usdAmount + tokenAmount * tokenPrice
+        return usdAmount + tokenAmount * tokenPrice;
+    }
+    
+    public (BigInteger amount0, BigInteger amount1) CalculateTokenBalance(BigInteger sqrtPriceX96,
+        BigInteger liquidity,
+        int tickLower, 
+        int tickUpper)
+    {
+        var sqrtPriceAx96 = TickMath.GetSqrtRatioAtTick(tickLower);
+        var sqrtPriceBx96 = TickMath.GetSqrtRatioAtTick(tickUpper);
+
+        var (amount0, amount1) = CalculateTokenAmounts(
+            sqrtPriceX96,
+            sqrtPriceAx96,
+            sqrtPriceBx96,
+            liquidity);
+
+        return (amount0, amount1);
+    }
+
     public PositionInPool CalculatePosition(LiquidityPool pool, IUniswapPosition position)
     {
         var sqrtPriceX96 = pool.SqrtPriceX96;
@@ -130,7 +193,7 @@ internal class UniswapMath : IUniswapMath
     }
 
     private static BigInteger GetAmount0ForLiquidity(BigInteger sqrtRatioAx96, BigInteger sqrtRatioBx96,
-        BigInteger liquidity)
+        BigInteger liquidity)   
     {
         var numerator = BigInteger.Multiply(liquidity << 96, sqrtRatioBx96 - sqrtRatioAx96);
         var denominator = BigInteger.Multiply(sqrtRatioBx96, sqrtRatioAx96);
