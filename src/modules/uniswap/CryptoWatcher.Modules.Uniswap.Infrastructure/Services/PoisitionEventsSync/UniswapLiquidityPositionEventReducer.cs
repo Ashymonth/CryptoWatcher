@@ -1,9 +1,9 @@
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
-using CryptoWatcher.Modules.Uniswap.Application.UniswapV3.Models.Operations;
+using CryptoWatcher.Modules.Uniswap.Application.Services.PoisitionEventsSync.UniswapV3.Models.Operations;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services.PoisitionEventsSync;
 
 public class UniswapLiquidityPositionEventReducer : IUniswapLiquidityPositionEventReducer
 {

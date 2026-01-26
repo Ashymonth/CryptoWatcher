@@ -1,6 +1,6 @@
 using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Uniswap.Application.UniswapV3.Models.Operations;
+namespace CryptoWatcher.Modules.Uniswap.Application.Services.PoisitionEventsSync.UniswapV3.Models.Operations;
 
 public class MintPositionOperation : PositionOperation
 {

@@ -2,7 +2,7 @@ using CryptoWatcher.Modules.Uniswap.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using Nethereum.Web3;
 
-namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
+namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain;
 
 public interface IWeb3Factory
 {

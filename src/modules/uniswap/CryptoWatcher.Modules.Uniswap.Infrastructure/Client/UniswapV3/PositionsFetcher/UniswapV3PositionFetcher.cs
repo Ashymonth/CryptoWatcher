@@ -3,6 +3,7 @@ using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3.PositionsFetcher.Contracts;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 using Nethereum.Contracts;
 using Nethereum.Contracts.QueryHandlers.MultiCall;

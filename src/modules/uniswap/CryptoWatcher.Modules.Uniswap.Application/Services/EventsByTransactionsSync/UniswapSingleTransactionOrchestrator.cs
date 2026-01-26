@@ -5,7 +5,7 @@ using CryptoWatcher.Modules.Uniswap.Specifications;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Uniswap.Application.Services;
+namespace CryptoWatcher.Modules.Uniswap.Application.Services.EventsByTransactionsSync;
 
 public class UniswapSingleTransactionOrchestrator : IUniswapSingleTransactionOrchestrator
 {

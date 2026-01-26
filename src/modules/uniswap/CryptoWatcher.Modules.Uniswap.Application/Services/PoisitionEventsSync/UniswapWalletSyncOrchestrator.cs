@@ -4,7 +4,7 @@ using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Specifications;
 using CryptoWatcher.Shared.Entities;
 
-namespace CryptoWatcher.Modules.Uniswap.Application.Services;
+namespace CryptoWatcher.Modules.Uniswap.Application.Services.PoisitionEventsSync;
 
 public class UniswapWalletSyncOrchestrator : IUniswapWalletSyncOrchestrator
 {

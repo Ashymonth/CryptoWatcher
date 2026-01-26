@@ -3,6 +3,7 @@ using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.Models;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Mappers;
 using CryptoWatcher.Modules.Uniswap.Models;
 using CryptoWatcher.Shared.Entities;

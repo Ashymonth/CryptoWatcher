@@ -1,6 +1,7 @@
 using System.Numerics;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.StateView.Contracts;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 using Nethereum.ABI;
 using Nethereum.Web3;

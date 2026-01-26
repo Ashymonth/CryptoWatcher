@@ -1,7 +1,7 @@
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions.OperationReaders;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
-using CryptoWatcher.Modules.Uniswap.Application.UniswapV3.Models.Operations;
+using CryptoWatcher.Modules.Uniswap.Application.Services.PoisitionEventsSync.UniswapV3.Models.Operations;
 using CryptoWatcher.Modules.Uniswap.Entities;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
