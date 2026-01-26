@@ -2,6 +2,7 @@ using CryptoWatcher.Modules.Uniswap.Application.UniswapV3.Models.Operations;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.Models.Events;
+using CryptoWatcher.ValueObjects;
 using Nethereum.Contracts;
 using Nethereum.Contracts.Standards.ERC721.ContractDefinition;
 using Nethereum.RPC.Eth.DTOs;
@@ -32,6 +33,7 @@ public class UniswapV3MintLogEventDecoder : ITransactionLogEventDecoder
         {
             PositionId = (ulong)nftTransfer.Event.TokenId,
             TransactionHash = transactionReceipt.TransactionHash,
+            PollAddress = EvmAddress.Create(mintEvent.Log.Address),
             BlockNumber = transactionReceipt.BlockNumber,
             TickLower = mintEvent.Event.TickLower,
             TickUpper = mintEvent.Event.TickUpper,

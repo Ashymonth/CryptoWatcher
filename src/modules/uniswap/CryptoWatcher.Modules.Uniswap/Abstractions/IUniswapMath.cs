@@ -1,5 +1,5 @@
+using System.Numerics;
 using CryptoWatcher.Modules.Uniswap.Models;
-using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Uniswap.Abstractions;
@@ -9,6 +9,19 @@ namespace CryptoWatcher.Modules.Uniswap.Abstractions;
 /// </summary>
 public interface IUniswapMath
 {
+    decimal GetSpotPrice(BigInteger sqrtPriceX96, int decimals0, int decimals1);
+
+    decimal GetMintValueInUsd(BigInteger amount0,
+        BigInteger amount1,
+        int decimals0,
+        int decimals1,
+        bool token0IsUsd);
+
+    (BigInteger amount0, BigInteger amount1) CalculateTokenBalance(BigInteger sqrtPriceX96,
+        BigInteger liquidity,
+        int tickLower,
+        int tickUpper);
+
     /// <summary>
     /// Calculates the position details within a specified liquidity pool based on the given token position and pool data.
     /// </summary>
