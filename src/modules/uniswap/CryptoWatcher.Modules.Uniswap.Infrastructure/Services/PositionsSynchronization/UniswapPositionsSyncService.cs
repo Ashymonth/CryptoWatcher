@@ -93,14 +93,8 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
                 var positionKey = new PositionKey((ulong)uniswapPosition.PositionId, chainConfiguration.Name);
                 if (!existedPositions.TryGetValue(positionKey, out var dbPoolPosition))
                 {
-                    if (uniswapPosition.Liquidity == 0)
-                    {
-                        continue;
-                    }
-
-                    dbPoolPosition =
-                        MapToLiquidityPoolPosition(chainConfiguration, wallet, uniswapPosition, tokensEnriched);
-                    positions.Add(dbPoolPosition);
+                    // we 
+                    continue;
                 }
 
                 if (uniswapPosition.Liquidity == 0)
@@ -146,22 +140,6 @@ internal class UniswapPositionsSyncService : IUniswapPositionsSyncService
         var fee = _math.CalculateClaimableFee(pool, uniswapPosition);
 
         return await _enricher.EnrichAsync(chain.Name, chain.RpcUrlWithAuthToken, fee, ct);
-    }
-
-    private UniswapLiquidityPosition MapToLiquidityPoolPosition(UniswapChainConfiguration chain, Wallet wallet,
-        IUniswapPosition position, TokenInfoPair tokensEnriched)
-    {
-        return new UniswapLiquidityPosition
-        (
-            (ulong)position.PositionId,
-            position.TickLower,
-            position.TickUpper,
-            tokensEnriched.Token0,
-            tokensEnriched.Token1,
-            wallet.Address,
-            chain,
-            DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime)
-        );
     }
 
     private static UniswapLiquidityPositionSnapshot MapToLiquidityPoolPositionSnapshot(
