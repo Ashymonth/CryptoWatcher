@@ -193,7 +193,7 @@ internal class UniswapMath : IUniswapMath
     }
 
     private static BigInteger GetAmount0ForLiquidity(BigInteger sqrtRatioAx96, BigInteger sqrtRatioBx96,
-        BigInteger liquidity)
+        BigInteger liquidity)   
     {
         var numerator = BigInteger.Multiply(liquidity << 96, sqrtRatioBx96 - sqrtRatioAx96);
         var denominator = BigInteger.Multiply(sqrtRatioBx96, sqrtRatioAx96);

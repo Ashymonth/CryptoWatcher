@@ -11,7 +11,9 @@ using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
+using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.Entities;
+using CryptoWatcher.ValueObjects;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +58,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddEndpointsApiExplorer().AddSwaggerGen();
 
-var app = builder.Build();  
+var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -117,21 +119,20 @@ app.MapPost("/hyperliquid/sync-positions",
         return TypedResults.Ok();
     });
 
-app.MapPost("/uniswap/sync-block/{blockNumber}", async (IUniswapCashFlowBlockRangeSynchronizer sync,
+app.MapPost("/uniswap/sync-block/{transactionHash}", async (IUniswapSingleTransactionOrchestrator sync,
     CryptoWatcherDbContext dbContext,
+    string transactionHash,
     string chainName,
-    BigInteger blockNumber) =>
+    string walletAddress,
+    int protocolVersion) =>
 {
-    var chains = await dbContext.UniswapChainConfigurations
-        .Where(configuration => configuration.Name == chainName)
-        .Include(configuration => configuration.LiquidityPoolPositions)
-        .ThenInclude(positions => positions.Wallet)
-        .ToArrayAsync();
+    var chains = dbContext.UniswapChainConfigurations
+        .First(configuration => configuration.Name == chainName &&
+                                configuration.ProtocolVersion == (UniswapProtocolVersion)protocolVersion);
 
-    foreach (var chain in chains)
-    {
-        await sync.SynchronizeBlockRangeAsync(chain, blockNumber, blockNumber);
-    }
+    var hash = TransactionHash.FromString(transactionHash);
+
+    await sync.SyncTransactionAsync(chains, new Wallet { Address = EvmAddress.Create(walletAddress) }, hash);
 });
 
 async Task<FileStreamHttpResult> TotalReportHandler(IDailySummaryReportProvider reportProvider,
