@@ -12,6 +12,7 @@ using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Models.PositionEvents;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.PositionEventAppliers;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsPriceSync;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.TransactionSynchronization;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3.LiquidityPool;
@@ -95,6 +96,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUniswapTransactionEventSource, UniswapTransactionEventSource>();
         services.AddScoped<IUniswapSingleTransactionOrchestrator, UniswapSingleTransactionOrchestrator>();
 
+        services.AddScoped<IPositionPriceSynchronizationJob, PositionPriceSynchronizationJob>();
+        services.AddScoped<IPositionEvaluator, PositionEvaluator>();
+        services.AddScoped<IPositionPriceSynchronizer, PositionPriceSynchronizer>();
+        
         //v3
         services.AddSingleton<UniswapV3Client>();
         services.AddSingleton<IUniswapV3LiquidityPool, UniswapV3LiquidityPool>();
