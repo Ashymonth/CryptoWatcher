@@ -25,8 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Client\Etherscan\" />
-      <Folder Include="Services\PositionsEventsSynchronization\" />
+      <Folder Include="Client\" />
     </ItemGroup>
 
 </Project>
