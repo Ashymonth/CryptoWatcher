@@ -13,16 +13,13 @@ public class UniswapWalletEventSynchronizer : IUniswapWalletEventSynchronizer
     private const int ChunkSize = 50;
 
     private readonly IUniswapWalletTransactionScanner _uniswapWalletTransactionScanner;
-    private readonly IUniswapLiquidityPositionEventReducer _positionEventReducer;
-    private readonly IRepository<UniswapLiquidityPosition> _positionsRepository;
-
+    private readonly IUniswapPositionUpdater _positionUpdater;
+    
     public UniswapWalletEventSynchronizer(IUniswapWalletTransactionScanner uniswapWalletTransactionScanner,
-        IUniswapLiquidityPositionEventReducer positionEventReducer,
-        IRepository<UniswapLiquidityPosition> positionsRepository)
+        IUniswapPositionUpdater positionUpdater)
     {
         _uniswapWalletTransactionScanner = uniswapWalletTransactionScanner;
-        _positionEventReducer = positionEventReducer;
-        _positionsRepository = positionsRepository;
+        _positionUpdater = positionUpdater;
     }
 
     public async IAsyncEnumerable<WalletEventExtractionResult> SynchronizeWalletEventsAsync(
@@ -46,20 +43,8 @@ public class UniswapWalletEventSynchronizer : IUniswapWalletEventSynchronizer
 
             if (uniswapEvents.Length > 0)
             {
-                var positionIds = uniswapEvents
-                    .Select(e => e.Event.PositionId)
-                    .Distinct()
-                    .ToArray();
-
-                var currentPositions =
-                    await _positionsRepository.ListAsync(new LiquidityPositionByIds(positionIds), ct);
-
-                updatedPositions = await _positionEventReducer.ApplyEventsAsync(
-                    chainConfiguration,
-                    wallet.Address,
-                    uniswapEvents,
-                    currentPositions,
-                    ct);
+                updatedPositions = await _positionUpdater.UpdateFromEventAsync(chainConfiguration, wallet.Address,
+                    uniswapEvents, ct);
             }
 
             yield return new WalletEventExtractionResult

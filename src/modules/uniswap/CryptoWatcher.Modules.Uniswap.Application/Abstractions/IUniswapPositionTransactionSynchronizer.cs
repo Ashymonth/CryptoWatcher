@@ -4,10 +4,9 @@ using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 
-public interface IUniswapSingleTransactionOrchestrator
+public interface IUniswapPositionTransactionSynchronizer
 {
-    Task SyncTransactionAsync(
-        UniswapChainConfiguration chain,
+    Task SynchronizeEventFromTransactionAsync(UniswapChainConfiguration chain,
         Wallet wallet,
         TransactionHash transactionHash,
         CancellationToken ct = default);

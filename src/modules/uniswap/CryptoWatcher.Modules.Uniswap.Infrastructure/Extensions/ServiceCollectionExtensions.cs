@@ -93,12 +93,15 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IBlockchainGateway, Web3BlockchainGateway>();
         services.AddSingleton<IWeb3BlockchainApi, Web3BlockchainApi>();
         services.AddScoped<IUniswapTransactionEventSource, UniswapTransactionEventSource>();
-        services.AddScoped<IUniswapSingleTransactionOrchestrator, UniswapSingleTransactionOrchestrator>();
+        services.AddScoped<IUniswapPositionFromTransactionUpdater, UniswapPositionFromTransactionUpdater>();
 
         services.AddScoped<IPositionPriceSynchronizationJob, PositionSnapshotSynchronizationJob>();
         services.AddScoped<IPositionEvaluator, PositionEvaluator>();
         services.AddScoped<IPositionSnapshotUpdater, PositionSnapshotUpdater>();
 
+        services.AddScoped<IUniswapPositionUpdater, UniswapPositionUpdater>();
+        services.AddScoped<IUniswapPositionTransactionSynchronizer, UniswapPositionTransactionSynchronizer>();
+        
         //v3
         services.AddSingleton<UniswapV3Client>();
         services.AddSingleton<IUniswapV3LiquidityPool, UniswapV3LiquidityPool>();
