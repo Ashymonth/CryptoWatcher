@@ -1,52 +1,48 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Application;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Modules.Uniswap.Specifications;
 using CryptoWatcher.Shared.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization;
 
-public class UniswapWalletSyncOrchestrator : IUniswapWalletSyncOrchestrator
+public class UniswapWalletSyncOrchestrator : BaseOnChainSynchronizationJobWithoutContext<UniswapChainConfiguration>,
+    IUniswapWalletSyncOrchestrator
 {
-    private readonly IRepository<Wallet> _walletRepository;
-    private readonly IRepository<UniswapChainConfiguration> _chainConfigurationRepository;
-    private readonly IRepository<UniswapSynchronizationState> _synchronizationStateRepository;
     private readonly IUniswapWalletEventSynchronizer _synchronizer;
     private readonly IUniswapWalletSyncStore _syncStore;
+    private readonly IRepository<UniswapSynchronizationState> _stateRepository;
 
     public UniswapWalletSyncOrchestrator(IRepository<Wallet> walletRepository,
-        IRepository<UniswapChainConfiguration> chainConfigurationRepository,
-        IRepository<UniswapSynchronizationState> synchronizationStateRepository,
-        IUniswapWalletEventSynchronizer synchronizer,
-        IUniswapWalletSyncStore syncStore)
+        IRepository<UniswapChainConfiguration> chainRepository, ILogger logger,
+        IUniswapWalletEventSynchronizer synchronizer, IUniswapWalletSyncStore syncStore,
+        IRepository<UniswapSynchronizationState> stateRepository) : base(walletRepository,
+        chainRepository, logger)
     {
-        _walletRepository = walletRepository;
-        _chainConfigurationRepository = chainConfigurationRepository;
-        _synchronizationStateRepository = synchronizationStateRepository;
         _synchronizer = synchronizer;
         _syncStore = syncStore;
+        _stateRepository = stateRepository;
     }
 
-    public async Task SyncWalletPositionsAsync(CancellationToken ct = default)
+    protected override async Task SynchronizeWalletOnChainAsync(UniswapChainConfiguration chain, Wallet wallet,
+        EmptyContext context,
+        CancellationToken ct)
     {
-        var wallets = await _walletRepository.ListAsync(ct);
-
-        var chainConfigurations = await _chainConfigurationRepository.ListAsync(ct);
-
-        foreach (var wallet in wallets)
+        if (chain.ProtocolVersion == UniswapProtocolVersion.V3)
         {
-            foreach (var chain in chainConfigurations.Where(x => x.ProtocolVersion == UniswapProtocolVersion.V3))
-            {
-                var state = await _synchronizationStateRepository.FirstOrDefaultAsync(
-                                new UniswapSynchronizationStateByWalletAndChain(chain, wallet), ct) ??
-                            new UniswapSynchronizationState(chain, wallet);
+            return;
+        }
 
-                await foreach (var synchronizedPositions in _synchronizer.SynchronizeWalletEventsAsync(chain, state,
-                                   wallet, ct))
-                {
-                    await _syncStore.SaveWalletSyncBatchAsync(state, synchronizedPositions, ct);
-                }
-            }
+        var state = await _stateRepository.FirstOrDefaultAsync(
+                        new UniswapSynchronizationStateByWalletAndChain(chain, wallet), ct) ??
+                    new UniswapSynchronizationState(chain, wallet);
+
+        await foreach (var synchronizedPositions in _synchronizer.SynchronizeWalletEventsAsync(chain, state,
+                           wallet, ct))
+        {
+            await _syncStore.SaveWalletSyncBatchAsync(state, synchronizedPositions, ct);
         }
     }
 }

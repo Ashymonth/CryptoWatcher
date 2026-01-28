@@ -4,6 +4,27 @@ using Microsoft.Extensions.Logging;
 
 namespace CryptoWatcher.Application;
 
+public class EmptyContext
+{
+    public static EmptyContext Instance { get; } = new();
+}
+
+public abstract class BaseOnChainSynchronizationJobWithoutContext<TChainConfiguration>
+    : BaseOnChainSynchronizationJob<TChainConfiguration, EmptyContext>
+    where TChainConfiguration : BaseChainConfiguration
+{
+    protected BaseOnChainSynchronizationJobWithoutContext(IRepository<Wallet> walletRepository,
+        IRepository<TChainConfiguration> chainRepository, ILogger logger) : base(walletRepository, chainRepository,
+        logger)
+    {
+    }
+
+    protected sealed override Task<EmptyContext> CreateContextAsync(CancellationToken ct)
+    {
+        return Task.FromResult(EmptyContext.Instance);
+    }
+}
+
 public abstract class BaseOnChainSynchronizationJob<TChainConfiguration, TContext>
     where TChainConfiguration : BaseChainConfiguration
 {
@@ -48,18 +69,18 @@ public abstract class BaseOnChainSynchronizationJob<TChainConfiguration, TContex
                 using var _ = _logger.BeginScope("Wallet: {Wallet}", wallet.Address);
 
                 _logger.LogInformation("Start synchronizing wallet");
-                
+
                 foreach (var chain in chains)
                 {
                     using var __ = _logger.BeginScope("Chain: {ChainName}", chain.Name);
-                 
+
                     _logger.LogInformation("Start synchronizing chain");
-                    
+
                     await SynchronizeWalletOnChainAsync(chain, wallet, context, ct);
 
                     _logger.LogInformation("Synchronization completed for chain");
                 }
-                
+
                 _logger.LogInformation("Synchronization completed for wallet");
             }
         }

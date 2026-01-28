@@ -4,7 +4,7 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Models;
 
 public class WalletTransactionScanResult
 {
-    public UniswapPositionEvent? Event { get; set; }
+    public UniswapPositionEvent? Event { get; init; }
 
-    public BlockchainTransaction Transaction { get; set; } = null!;
+    public BlockchainTransaction Transaction { get; init; } = null!;
 }
