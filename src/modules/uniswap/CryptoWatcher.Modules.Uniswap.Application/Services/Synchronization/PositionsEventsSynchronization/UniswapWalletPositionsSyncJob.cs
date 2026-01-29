@@ -32,7 +32,8 @@ public class UniswapWalletPositionsSyncJob : BaseOnChainSynchronizationJobWithou
         EmptyContext context,
         CancellationToken ct)
     {
-        if (chain.ProtocolVersion == UniswapProtocolVersion.V3)
+        // support v4 later
+        if (chain.ProtocolVersion != UniswapProtocolVersion.V3)
         {
             return;
         }

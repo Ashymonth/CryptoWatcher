@@ -29,7 +29,7 @@ public class UniswapPositionFromTransactionUpdater : IUniswapPositionFromTransac
 
         if (uniswapEvent is null)
         {
-            throw new DomainException("Provided transaction is not a Uniswap event");
+            throw new InvalidOperationException("Provided transaction is not a Uniswap event");
         }
         
         return await _positionUpdater.UpdateFromEventAsync(chain, wallet.Address, [uniswapEvent], ct);

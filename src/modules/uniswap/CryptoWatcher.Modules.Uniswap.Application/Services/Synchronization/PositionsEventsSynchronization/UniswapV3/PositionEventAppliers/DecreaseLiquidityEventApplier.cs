@@ -27,11 +27,6 @@ public class DecreaseLiquidityEventApplier : BasePositionEventApplier<DecreaseLi
 
             position.AddCashFlow(CashFlowEvent.FeeClaim, enrichedCommission, @event.TransactionHash, timestamp);
         }
-
-        if (position.IsClosed)
-        {
-            position.ClosePosition(DateOnly.FromDateTime(timestamp));
-        }
     }
 
     private static Token CreateTokenFromPosition(BigInteger amount, CryptoToken cryptoToken) => new()
