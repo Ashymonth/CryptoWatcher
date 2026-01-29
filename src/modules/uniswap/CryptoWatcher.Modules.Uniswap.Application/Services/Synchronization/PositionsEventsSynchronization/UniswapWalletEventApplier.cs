@@ -6,21 +6,21 @@ using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization;
 
-public class UniswapWalletEventSynchronizer : IUniswapWalletEventSynchronizer
+public class UniswapWalletEventApplier : IUniswapWalletEventApplier
 {
     private const int ChunkSize = 50;
 
     private readonly IUniswapWalletTransactionScanner _uniswapWalletTransactionScanner;
     private readonly IUniswapPositionUpdater _positionUpdater;
     
-    public UniswapWalletEventSynchronizer(IUniswapWalletTransactionScanner uniswapWalletTransactionScanner,
+    public UniswapWalletEventApplier(IUniswapWalletTransactionScanner uniswapWalletTransactionScanner,
         IUniswapPositionUpdater positionUpdater)
     {
         _uniswapWalletTransactionScanner = uniswapWalletTransactionScanner;
         _positionUpdater = positionUpdater;
     }
 
-    public async IAsyncEnumerable<WalletEventExtractionResult> SynchronizeWalletEventsAsync(
+    public async IAsyncEnumerable<WalletEventExtractionResult> ApplyEventsToPositionsAsync(
         UniswapChainConfiguration chainConfiguration,
         UniswapSynchronizationState synchronizationState,
         Wallet wallet,

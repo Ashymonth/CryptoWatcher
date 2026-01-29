@@ -19,7 +19,7 @@ public class UniswapWalletSyncStore : IUniswapWalletSyncStore
         _timeProvider = timeProvider;
     }
 
-    public async Task SaveWalletSyncBatchAsync(UniswapSynchronizationState state,
+    public async Task SaveUpdatedPositionsWithStateAsync(UniswapSynchronizationState state,
         WalletEventExtractionResult batch, CancellationToken ct = default)
     {
         await _positionsRepository.BulkMergeAsync(batch.UpdatedPositions, ct);

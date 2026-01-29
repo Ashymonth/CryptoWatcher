@@ -11,7 +11,7 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.Pos
 public class UniswapWalletPositionsSyncJob : BaseOnChainSynchronizationJobWithoutContext<UniswapChainConfiguration>,
     IUniswapWalletPositionsSyncJob
 {
-    private readonly IUniswapWalletEventSynchronizer _synchronizer;
+    private readonly IUniswapWalletEventApplier _applier;
     private readonly IUniswapWalletSyncStore _syncStore;
     private readonly IRepository<UniswapSynchronizationState> _stateRepository;
 
@@ -19,11 +19,11 @@ public class UniswapWalletPositionsSyncJob : BaseOnChainSynchronizationJobWithou
         IRepository<Wallet> walletRepository,
         IRepository<UniswapChainConfiguration> chainRepository,
         ILogger<UniswapWalletPositionsSyncJob> logger,
-        IUniswapWalletEventSynchronizer synchronizer, 
+        IUniswapWalletEventApplier applier, 
         IUniswapWalletSyncStore syncStore,
         IRepository<UniswapSynchronizationState> stateRepository) : base(walletRepository, chainRepository, logger)
     {
-        _synchronizer = synchronizer;
+        _applier = applier;
         _syncStore = syncStore;
         _stateRepository = stateRepository;
     }
@@ -41,10 +41,10 @@ public class UniswapWalletPositionsSyncJob : BaseOnChainSynchronizationJobWithou
                         new UniswapSynchronizationStateByWalletAndChain(chain, wallet), ct) ??
                     new UniswapSynchronizationState(chain, wallet);
 
-        await foreach (var synchronizedPositions in _synchronizer.SynchronizeWalletEventsAsync(chain, state,
+        await foreach (var synchronizedPositions in _applier.ApplyEventsToPositionsAsync(chain, state,
                            wallet, ct))
         {
-            await _syncStore.SaveWalletSyncBatchAsync(state, synchronizedPositions, ct);
+            await _syncStore.SaveUpdatedPositionsWithStateAsync(state, synchronizedPositions, ct);
         }
     }
 }

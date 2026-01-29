@@ -4,9 +4,9 @@ using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 
-public interface IUniswapWalletEventSynchronizer
+public interface IUniswapWalletEventApplier
 {
-    IAsyncEnumerable<WalletEventExtractionResult> SynchronizeWalletEventsAsync(
+    IAsyncEnumerable<WalletEventExtractionResult> ApplyEventsToPositionsAsync(
         UniswapChainConfiguration chainConfiguration,
         UniswapSynchronizationState synchronizationState,
         Wallet wallet,
