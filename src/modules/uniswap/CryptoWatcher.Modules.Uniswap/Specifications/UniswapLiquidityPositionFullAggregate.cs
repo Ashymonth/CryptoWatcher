@@ -5,9 +5,11 @@ namespace CryptoWatcher.Modules.Uniswap.Specifications;
 
 public class UniswapLiquidityPositionFullAggregate : Specification<UniswapLiquidityPosition>
 {
-    public UniswapLiquidityPositionFullAggregate()
+    public UniswapLiquidityPositionFullAggregate(bool includeClosed = false)
     {
-        Query.Include(position => position.Snapshots)
+        Query
+            .Where(position => position.IsClosed == includeClosed)
+            .Include(position => position.Snapshots)
             .Include(position => position.CashFlows);
     }
 

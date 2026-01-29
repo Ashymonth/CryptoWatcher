@@ -5,6 +5,7 @@ using CryptoWatcher.Modules.Hyperliquid.Entities;
 using CryptoWatcher.Modules.Merkl.Entities;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.Entities;
+using Z.BulkOperations;
 
 namespace CryptoWatcher.Infrastructure;
 
@@ -78,12 +79,44 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
         {
             return;
         }
-
-        await _dbContext.BulkMergeAsync(entities, operation =>
+    
+        if (entities.First() is UniswapLiquidityPosition)
         {
-            operation.IncludeGraph = true;
-            operation.ColumnPrimaryKeyNames = Type2PrimaryKeyFields.GetValueOrDefault(typeof(TEntity));
-        }, ct);
+            await _dbContext.BulkMergeAsync(entities, operation =>
+            {
+                operation.IncludeGraph = true;
+                operation.IncludeGraphOperationBuilder = bulkOperation =>
+                {
+                    switch (bulkOperation)
+                    {
+                        case BulkOperation<Wallet> walletOperation:
+                            walletOperation.ColumnPrimaryKeyExpression = wallet => wallet.Address;
+                            break;
+                        case BulkOperation<UniswapLiquidityPosition> positionOperation:
+                            positionOperation.ColumnPrimaryKeyExpression = position =>
+                                new { position.PositionId, position.NetworkName };
+                            break;
+
+                        case BulkOperation<UniswapLiquidityPositionSnapshot> positionOperation:
+                            positionOperation.ColumnPrimaryKeyExpression = position =>
+                                new { position.PoolPositionId, position.NetworkName, position.Day };
+                            break;
+
+                        case BulkOperation<UniswapLiquidityPositionCashFlow> positionOperation:
+                            positionOperation.ColumnPrimaryKeyExpression = position =>
+                                new { position.PositionId, position.NetworkName, position.TransactionHash };
+                            break;
+                    }
+                };
+            }, ct);
+            return;
+        }
+
+        await _dbContext.BulkMergeAsync(entities,
+            operation =>
+            {
+                operation.ColumnPrimaryKeyNames = Type2PrimaryKeyFields.GetValueOrDefault(typeof(TEntity));
+            }, ct);
     }
 
     public TEntity Insert(TEntity entity)
