@@ -5,16 +5,16 @@ namespace CryptoWatcher.Infrastructure.CronJobs.Uniswap;
 
 public class SyncUniswapEventsCronJob
 {
-    private readonly IUniswapWalletSyncOrchestrator _chainSynchronizerOrchestrator;
+    private readonly IUniswapWalletPositionsSyncJob _chainSynchronizerJob;
 
-    public SyncUniswapEventsCronJob(IUniswapWalletSyncOrchestrator chainSynchronizerOrchestrator)
+    public SyncUniswapEventsCronJob(IUniswapWalletPositionsSyncJob chainSynchronizerJob)
     {
-        _chainSynchronizerOrchestrator = chainSynchronizerOrchestrator;
+        _chainSynchronizerJob = chainSynchronizerJob;
     }
 
     [TickerFunction(nameof(SyncUniswapEventsAsync), "* * * * *")]
     public async Task SyncUniswapEventsAsync()
     {
-        await _chainSynchronizerOrchestrator.SynchronizeAsync();
+        await _chainSynchronizerJob.SynchronizeAsync();
     }
 }

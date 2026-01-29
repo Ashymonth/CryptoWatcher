@@ -81,7 +81,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUniswapWalletTransactionScanner, UniswapWalletTransactionScanner>();
         services.AddScoped<IUniswapWalletEventSynchronizer, UniswapWalletEventSynchronizer>();
         services.AddScoped<IUniswapWalletSyncStore, UniswapWalletSyncStore>();
-        services.AddScoped<IUniswapWalletSyncOrchestrator, UniswapWalletSyncOrchestrator>();
+        services.AddScoped<IUniswapWalletPositionsSyncJob, UniswapWalletPositionsSyncJob>();
 
         services.AddScoped<IUniswapTransactionEventSource, UniswapTransactionEventSource>();
 

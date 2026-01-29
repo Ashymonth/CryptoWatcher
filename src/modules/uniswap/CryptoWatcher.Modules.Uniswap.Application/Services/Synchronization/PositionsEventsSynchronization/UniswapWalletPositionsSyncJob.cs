@@ -8,17 +8,17 @@ using Microsoft.Extensions.Logging;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization;
 
-public class UniswapWalletSyncOrchestrator : BaseOnChainSynchronizationJobWithoutContext<UniswapChainConfiguration>,
-    IUniswapWalletSyncOrchestrator
+public class UniswapWalletPositionsSyncJob : BaseOnChainSynchronizationJobWithoutContext<UniswapChainConfiguration>,
+    IUniswapWalletPositionsSyncJob
 {
     private readonly IUniswapWalletEventSynchronizer _synchronizer;
     private readonly IUniswapWalletSyncStore _syncStore;
     private readonly IRepository<UniswapSynchronizationState> _stateRepository;
 
-    public UniswapWalletSyncOrchestrator(
+    public UniswapWalletPositionsSyncJob(
         IRepository<Wallet> walletRepository,
         IRepository<UniswapChainConfiguration> chainRepository,
-        ILogger<UniswapWalletSyncOrchestrator> logger,
+        ILogger<UniswapWalletPositionsSyncJob> logger,
         IUniswapWalletEventSynchronizer synchronizer, 
         IUniswapWalletSyncStore syncStore,
         IRepository<UniswapSynchronizationState> stateRepository) : base(walletRepository, chainRepository, logger)
