@@ -1,4 +1,3 @@
-using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CryptoWatcher.Abstractions;
@@ -119,7 +118,7 @@ app.MapPost("/hyperliquid/sync-positions",
         return TypedResults.Ok();
     });
 
-app.MapPost("/uniswap/sync-block/{transactionHash}", async (IUniswapSingleTransactionOrchestrator sync,
+app.MapPost("/uniswap/sync-block/{transactionHash}", async (IUniswapPositionFromTransactionUpdater sync,
     CryptoWatcherDbContext dbContext,
     string transactionHash,
     string chainName,
@@ -132,7 +131,7 @@ app.MapPost("/uniswap/sync-block/{transactionHash}", async (IUniswapSingleTransa
 
     var hash = TransactionHash.FromString(transactionHash);
 
-    await sync.SyncTransactionAsync(chains, new Wallet { Address = EvmAddress.Create(walletAddress) }, hash);
+    await sync.ApplyEventFromTransactionAsync(chains, new Wallet { Address = EvmAddress.Create(walletAddress) }, hash);
 });
 
 async Task<FileStreamHttpResult> TotalReportHandler(IDailySummaryReportProvider reportProvider,

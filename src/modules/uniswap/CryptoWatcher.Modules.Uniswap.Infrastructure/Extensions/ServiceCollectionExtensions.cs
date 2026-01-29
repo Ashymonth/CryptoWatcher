@@ -3,35 +3,34 @@ using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
-using CryptoWatcher.Modules.Uniswap.Application.Abstractions.OperationReaders;
+using CryptoWatcher.Modules.Uniswap.Application.Abstractions.EventAppliers;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions.Reports;
-using CryptoWatcher.Modules.Uniswap.Application.Services;
+using CryptoWatcher.Modules.Uniswap.Application.Services.DailyPerformance;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Reports;
-using CryptoWatcher.Modules.Uniswap.Application.UniswapV3.Models.Operations;
-using CryptoWatcher.Modules.Uniswap.Application.UniswapV3.OperationReaders;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3.LiquidityPool;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3.LiquidityPoolFactory;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3.PositionsFetcher;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.LiquidityPool;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.PositionsFetcher;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.StateView;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV4.UniswapAppApiClient;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Models.PositionEvents;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.PositionEventAppliers;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsSnapshotSynchronization;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.TransactionSynchronization;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.Api;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockscout.Api;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV3;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV3.LiquidityPool;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV3.LiquidityPoolFactory;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV3.PositionsFetcher;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4.LiquidityPool;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4.PositionsFetcher;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4.StateView;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan.Api;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.EventsSynchronization;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.EventsSynchronization.V3;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.EventsSynchronization.V4;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.PositionsSynchronization;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.Abstractions;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.LogEventDecoders;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.UniswapV3.Services;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Abstractions;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.LogEventDecoders;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Nethereum.ABI.ABIDeserialisation;
 using Polly;
@@ -67,23 +66,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IDailyPositionPerformanceSynchronizer, UniswapDailyPositionPerformanceSynchronizer>();
 
-        services.AddScoped<IBlockscoutTransactionSynchronizer, BlockscoutTransactionSynchronizer>();
-        services.AddSingleton<IBlockscoutTransactionFetcher, BlockscoutTransactionFetcher>();
-        services.AddScoped<IUniswapChainSynchronizerOrchestrator, UniswapChainSynchronizationOrchestrator>();
-        services.AddScoped<IUniswapChainSynchronizer, UniswapChainSynchronizer>();
-        services.AddScoped<IUniswapCashFlowBlockRangeSynchronizer, UniswapCashFlowBlockRangeSynchronizer>();
-
         services.AddSingleton<IUniswapProvider, UniswapProvider>();
-        services.AddSingleton<IChainLogChunkingStrategy, ChainLogChunkingStrategy>();
-        services.AddSingleton<ICashFlowEventMatcher, CashFlowEventMatcher>();
-        services.AddSingleton<ILiquidityEventsProvider, LiquidityEventsProvider>();
-        services.AddSingleton<ITransactionDataProvider, Web3TransactionDataProvider>();
-        services.AddHttpClient<IBlockscoutProvider, BlockscoutProvider>()
-            .AddStandardResilienceHandler();
 
-        services.AddSingleton<IUniswapLiquidityPoolEventDecoderSelector, UniswapLiquidityPoolEventDecoderSelector>();
-
-        services.AddSingleton<ILiquidityEventLogEnricher, LiquidityEventLogEnricher>();
         services.AddSingleton<IWeb3Factory, Web3Factory>();
 
         services.AddScoped<IUniswapOverallReportService, UniswapOverallReportService>();
@@ -95,9 +79,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnprocessedWalletTransactions, UnprocessedWalletTransactions>();
         services.AddScoped<IUniswapTransactionEnricher, UniswapTransactionEnricher>();
         services.AddScoped<IUniswapWalletTransactionScanner, UniswapWalletTransactionScanner>();
-        services.AddScoped<IUniswapWalletEventSynchronizer, UniswapWalletEventSynchronizer>();
+        services.AddScoped<IUniswapWalletEventApplier, UniswapWalletEventApplier>();
         services.AddScoped<IUniswapWalletSyncStore, UniswapWalletSyncStore>();
-        services.AddScoped<IUniswapWalletSyncOrchestrator, UniswapWalletSyncOrchestrator>();
+        services.AddScoped<IUniswapWalletPositionsSyncJob, UniswapWalletPositionsSyncJob>();
 
         services.AddScoped<IUniswapTransactionEventSource, UniswapTransactionEventSource>();
 
@@ -106,30 +90,32 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IEtherscanApiKeyProvider, EtherscanApiKeyProvider>();
 
-        services.AddRefitClient<IBlockscoutApi>()
-            .ConfigureHttpClient(client => client.BaseAddress = new Uri("https://api.etherscan.io"));
-
         services.AddSingleton<IBlockchainGateway, Web3BlockchainGateway>();
         services.AddSingleton<IWeb3BlockchainApi, Web3BlockchainApi>();
         services.AddScoped<IUniswapTransactionEventSource, UniswapTransactionEventSource>();
-        services.AddScoped<IUniswapSingleTransactionOrchestrator, UniswapSingleTransactionOrchestrator>();
+        services.AddScoped<IUniswapPositionFromTransactionUpdater, UniswapPositionFromTransactionUpdater>();
 
+        services.AddScoped<IPositionPriceSynchronizationJob, PositionSnapshotSynchronizationJob>();
+        services.AddScoped<IPositionEvaluator, PositionEvaluator>();
+        services.AddScoped<IPositionSnapshotUpdater, PositionSnapshotUpdater>();
+
+        services.AddScoped<IUniswapPositionUpdater, UniswapPositionUpdater>();
+        services.AddScoped<IUniswapPositionTransactionSynchronizer, UniswapPositionTransactionSynchronizer>();
+        
         //v3
         services.AddSingleton<UniswapV3Client>();
-        services.AddSingleton<ILiquidityPoolEventDecoder, UniswapV3CollectEventDecoder>();
-        services.AddSingleton<IBlockchainLogProvider, UniswapV3BlockchainLogProvider>();
         services.AddSingleton<IUniswapV3LiquidityPool, UniswapV3LiquidityPool>();
         services.AddSingleton<IUniswapV3PoolFactory, UniswapV3PoolFactory>();
         services.AddSingleton<IUniswapV3PositionFetcher, UniswapV3PositionFetcher>();
 
-        services.AddSingleton<IPositionOperationsSource, UniswapV3PositionOperationsSource>();
+        services.AddSingleton<IPositionEventSource, UniswapV3PositionEventSource>();
         services.AddSingleton<IUniswapTransactionFilter, UniswapV3TransactionFilter>();
         services.AddSingleton<IUniswapTransactionLogsDecoderFactory, UniswapV3TransactionLogsDecoderFactory>();
         services.AddSingleton<IUniswapPositionEventApplier, UniswapV3PositionEventApplier>();
 
-        services.AddSingleton<IPositionOperationApplierFactory, PositionOperationApplierFactory>();
+        services.AddSingleton<IPositionEventApplierFactory, PositionEventApplierFactory>();
         services.AddSingleton<IUniswapLiquidityPositionEventReducer, UniswapLiquidityPositionEventReducer>();
-        services.AddSingleton<IMintPositionOperationApplier, MintPositionOperationApplier>();
+        services.AddSingleton<IPositionMintEventApplier, PositionMintEventApplier>();
         services.AddSingleton<ITransactionLogEventDecoder, UniswapV3CollectLogEventDecoder>();
         services.AddSingleton<ITransactionLogEventDecoder, UniswapV3DecreaseLiquidityLogEventDecoder>();
         services.AddSingleton<ITransactionLogEventDecoder, UniswapV3IncreaseLiquidityLogEventDecoder>();
@@ -139,19 +125,13 @@ public static class ServiceCollectionExtensions
 
         //v4
         services.AddSingleton<UniswapV4Client>();
-        services.AddSingleton<ILiquidityPoolEventDecoder, UniswapV4ModifyLiquidityEventDecoder>();
-        services.AddSingleton<IBlockchainLogProvider, UniswapV4BlockchainLogProvider>();
         services.AddSingleton<IUniswapV4StateView, UniswapV4StateView>();
         services.AddSingleton<IUniswapV4LiquidityPool, UniswapV4LiquidityPool>();
         services.AddSingleton<IUniswapV4PositionFetcher, UniswapV4PositionFetcher>();
-        services.AddHttpClient<UniswapAppApiClient>(client =>
-            client.BaseAddress = new Uri("https://interface.gateway.uniswap.org")).AddStandardHedgingHandler();
 
         services.AddKeyedScoped<IPlatformDailyReportDataProvider, UniswapDailyReportService>(UniswapModuleKeyedService
             .DailyPlatformKeyService);
         services.AddSingleton<IUniswapMath, UniswapMath>();
-        services.AddScoped<IUniswapPositionsSyncService, UniswapPositionsSyncService>();
-
 
         return services;
     }
@@ -159,23 +139,23 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddUniswapOperationAppliers(this IServiceCollection services)
     {
         // Keyed generics с factory func
-        RegisterKeyedApplier<CollectFeesOperation, CollectFeesOperationApplier>(services);
-        RegisterKeyedApplier<IncreaseLiquidityOperation, IncreaseLiquidityOperationApplier>(services);
-        RegisterKeyedApplier<DecreaseLiquidityOperation, DecreaseLiquidityOperationApplier>(services);
+        RegisterKeyedApplier<CollectFeesEvent, CollectFeesEventApplier>(services);
+        RegisterKeyedApplier<IncreaseLiquidityEvent, IncreaseLiquidityEventApplier>(services);
+        RegisterKeyedApplier<DecreaseLiquidityEvent, DecreaseLiquidityEventApplier>(services);
 
         // Фабрика
-        services.AddScoped<PositionOperationApplierFactory>();
+        services.AddScoped<PositionEventApplierFactory>();
 
         return services;
     }
 
     private static void RegisterKeyedApplier<TOperation, TApplier>(IServiceCollection services)
-        where TOperation : PositionOperation
-        where TApplier : class, IPositionMutationOperation
+        where TOperation : PositionEvent
+        where TApplier : class, IPositionMutationEvent
     {
         services.AddSingleton<TApplier>();
 
         var key = typeof(TOperation);
-        services.AddKeyedSingleton<IPositionMutationOperation>(key, (sp, _) => sp.GetRequiredService<TApplier>());
+        services.AddKeyedSingleton<IPositionMutationEvent>(key, (sp, _) => sp.GetRequiredService<TApplier>());
     }
 }

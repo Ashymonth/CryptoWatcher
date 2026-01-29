@@ -1,6 +1,6 @@
 using System.Numerics;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.UniswapV3.LiquidityPool.Contracts;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV3.LiquidityPool.Contracts;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 using CryptoWatcher.ValueObjects;
 using Nethereum.RPC.Eth.DTOs;

@@ -24,9 +24,4 @@
       <PackageReference Include="Riok.Mapperly" Version="4.3.0-next.3" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Client\Etherscan\" />
-      <Folder Include="UniswapV3\Models\" />
-    </ItemGroup>
-
 </Project>

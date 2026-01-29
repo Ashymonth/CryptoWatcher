@@ -1,4 +1,4 @@
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Client.Models;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.Models;
 using CryptoWatcher.Modules.Uniswap.Models;
 using Riok.Mapperly.Abstractions;
 
