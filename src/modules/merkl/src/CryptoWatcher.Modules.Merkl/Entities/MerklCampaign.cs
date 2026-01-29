@@ -53,22 +53,19 @@ public class MerklCampaign
     {
         var snapshot = _snapshots.FirstOrDefault(s => s.Day == day);
 
-        decimal oldClaimed = 0;
-
         if (snapshot is null)
         {
             snapshot = new MerklCampaignSnapshot(day, rewardStatus, currentUsdPrice, Id);
             _snapshots.Add(snapshot);
+            return;
         }
-        else
-        {
-            oldClaimed = snapshot.ClaimedAmount;
-            snapshot.Update(rewardStatus, currentUsdPrice);
-        }
-
+        
+        var oldClaimed = snapshot.ClaimedAmount;
+        snapshot.Update(rewardStatus, currentUsdPrice);
+        
         var delta = snapshot.ClaimedAmount - oldClaimed;
 
-        if (delta != 0)
+        if (delta > 0)
         {
             var cashFlow = new MerklCampaignCashFlow(Id, DateTime.UtcNow, new CryptoTokenStatistic()
             {
