@@ -3,6 +3,7 @@ using CryptoWatcher.Application;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsSnapshotSynchronization.Models;
 using CryptoWatcher.Modules.Uniswap.Entities;
+using CryptoWatcher.Modules.Uniswap.Specifications;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -30,7 +31,7 @@ public class PositionSnapshotSynchronizationJob :
 
     protected override async Task<UniswapPositionsContext> CreateContextAsync(CancellationToken ct)
     {
-        var positions = await _positionsRepository.ListAsync(ct);
+        var positions = await _positionsRepository.ListAsync(new UniswapLiquidityPositionFullAggregate(), ct);
 
         return new UniswapPositionsContext(positions);
     }

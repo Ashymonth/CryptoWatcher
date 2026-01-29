@@ -32,7 +32,7 @@ public class UniswapPositionUpdater : IUniswapPositionUpdater
             .ToArray();
 
         var currentPositions =
-            await _positionsRepository.ListAsync(new LiquidityPositionByIds(positionIds), ct);
+            await _positionsRepository.ListAsync(new UniswapLiquidityPositionFullAggregate(chain, positionIds), ct);
 
         return await _eventReducer.ApplyEventsAsync(
             chain,
