@@ -22,11 +22,15 @@ public class SyncMorphoMarketPositionsCronJob
         var wallets = await _walletRepository.ListAsync(ct);
 
         var now = DateTime.UtcNow;
-        
+
+        var chainIds = new int[] { 130, 42161 };
         foreach (var wallet in wallets)
         {
-            // for now only unichain is supported
-            await _morphoMarketSynchronizer.SynchronizeAsync(wallet.Address, 130, now, ct);
+            foreach (var chainId in  chainIds)
+            {
+                // for now only unichain and arbitrum are supported
+                await _morphoMarketSynchronizer.SynchronizeAsync(wallet.Address, chainId, now, ct);
+            }
         }
     }
 }
