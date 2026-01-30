@@ -18,6 +18,6 @@ public class AavePositionsWithSnapshotsAndEventsSpecification : Specification<Aa
             )
             .Include(position =>
                 position.Snapshots.Where(snapshot => snapshot.Day >= from && snapshot.Day <= to))
-            .Where(position => walletAddresses.Contains(position.WalletAddress));
+            .Where(position => ((IEnumerable<string>)walletAddresses).Contains(position.WalletAddress));
     }
 }

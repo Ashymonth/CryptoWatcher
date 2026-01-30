@@ -24,6 +24,6 @@ public sealed class UniswapPositionsForReportSpecification : Specification<Unisw
                 .OrderBy(snapshot => snapshot.Day)
             )
             .Include(poolPosition => poolPosition.CashFlows)
-            .Where(position => walletAddresses.Contains(position.WalletAddress));
+            .Where(position => ((IEnumerable<string>)walletAddresses).Contains(position.WalletAddress));
     }
 }
