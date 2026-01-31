@@ -39,9 +39,10 @@ public class Web3BlockchainApi : IWeb3BlockchainApi
     {
         var web3 = _web3Factory.GetWeb3(chain);
 
-        var result = await web3.Eth.Blocks.GetBlockTransactionCountByNumber.SendRequestAsync(blockNumber);
+        var result = await web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(
+                new BlockParameter(blockNumber.ToHexBigInteger()));
 
-        return DateTimeOffset.FromUnixTimeMilliseconds((long)result.Value).UtcDateTime;
+        return DateTimeOffset.FromUnixTimeSeconds((long)result.Timestamp.Value).UtcDateTime;
     }
 
     public async Task<BigInteger> GetPositionLiquidityAsync(UniswapChainConfiguration chain, BigInteger tokenId)
