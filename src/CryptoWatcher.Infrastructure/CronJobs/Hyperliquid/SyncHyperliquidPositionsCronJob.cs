@@ -3,9 +3,11 @@ using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.Extensions.Logging;
 using Hangfire.RecurringJobExtensions;
+using JetBrains.Annotations;
 
 namespace CryptoWatcher.Infrastructure.CronJobs.Hyperliquid;
 
+[UsedImplicitly]
 public class SyncHyperliquidPositionsCronJob
 {
     private readonly IHyperliquidPositionsSyncService _hyperliquidPositionsSyncService;

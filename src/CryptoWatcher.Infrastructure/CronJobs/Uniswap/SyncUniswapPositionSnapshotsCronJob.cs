@@ -1,19 +1,21 @@
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using Hangfire.RecurringJobExtensions;
+using JetBrains.Annotations;
 
 namespace CryptoWatcher.Infrastructure.CronJobs.Uniswap;
 
-public class SyncUniswapPoolPositionsCronJob
+[UsedImplicitly]
+public class SyncUniswapPositionSnapshotsCronJob
 {
     private readonly IPositionPriceSynchronizationJob _positionsSyncService;
 
-    public SyncUniswapPoolPositionsCronJob(IPositionPriceSynchronizationJob positionsSyncService)
+    public SyncUniswapPositionSnapshotsCronJob(IPositionPriceSynchronizationJob positionsSyncService)
     {
         _positionsSyncService = positionsSyncService;
     }
     
-    [RecurringJob(CronRegistry.Every50Minutes, RecurringJobId = nameof(SyncUniswapPoolPositionsAsync))]
-    public async Task SyncUniswapPoolPositionsAsync(CancellationToken ct)
+    [RecurringJob(CronRegistry.Every50Minutes, RecurringJobId = nameof(SyncUniswapPositionSnapshots))]
+    public async Task SyncUniswapPositionSnapshots(CancellationToken ct)
     {
         await _positionsSyncService.SynchronizeAsync(ct);
     }

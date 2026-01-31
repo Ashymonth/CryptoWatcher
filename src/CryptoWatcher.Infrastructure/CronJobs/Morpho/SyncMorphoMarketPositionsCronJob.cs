@@ -2,8 +2,11 @@ using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Morpho.Application.Abstractions;
 using CryptoWatcher.Shared.Entities;
 using Hangfire.RecurringJobExtensions;
+using JetBrains.Annotations;
+
 namespace CryptoWatcher.Infrastructure.CronJobs.Morpho;
 
+[UsedImplicitly]
 public class SyncMorphoMarketPositionsCronJob
 {
     private readonly IRepository<Wallet> _walletRepository;

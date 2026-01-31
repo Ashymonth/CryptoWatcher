@@ -3,9 +3,11 @@ using CryptoWatcher.Modules.Merkl.Application.Abstractions;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.Extensions.Logging;
 using Hangfire.RecurringJobExtensions;
+using JetBrains.Annotations;
 
 namespace CryptoWatcher.Infrastructure.CronJobs.Merkl;
 
+[UsedImplicitly]
 public class SyncMerklRewardsCronJob
 {
     private static int _isRunning;
