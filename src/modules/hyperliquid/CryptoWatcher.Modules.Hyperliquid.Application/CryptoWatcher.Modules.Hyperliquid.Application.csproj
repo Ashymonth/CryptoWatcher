@@ -15,9 +15,5 @@
       <Compile Remove="Services\PositionUpdates\DepositUpdate.cs" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Features\Reports\" />
-    </ItemGroup>
-
 
 </Project>

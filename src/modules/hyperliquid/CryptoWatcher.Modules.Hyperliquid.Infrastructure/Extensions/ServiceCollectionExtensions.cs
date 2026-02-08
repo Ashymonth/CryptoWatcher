@@ -1,10 +1,8 @@
 using CryptoWatcher.Abstractions.Reports;
-using CryptoWatcher.Application.Abstractions;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Services;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Api;
-using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Contracts.UserNonFundingLedgerUpdates;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;
@@ -23,7 +21,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddHyperliquidModule(this IServiceCollection services,
         Func<IServiceProvider, Uri>? hyperliquidUriFactory = null)
     {
-        services.AddScoped<IDailyPositionPerformanceSynchronizer, HyperliquidDailyPositionPerformanceSynchronizer>();
         services.AddKeyedScoped<IPlatformDailyReportDataProvider, HyperliquidReportDataService>(
             HyperliquidModuleKeyedService.DailyPlatformKeyService);
 

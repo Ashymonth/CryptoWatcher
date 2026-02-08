@@ -7,7 +7,7 @@ using CryptoWatcher.Modules.Hyperliquid.Models;
 using CryptoWatcher.Modules.Hyperliquid.Specifications;
 using CryptoWatcher.Shared.Entities;
 
-namespace CryptoWatcher.Modules.Hyperliquid.Application.Services;
+namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports;
  
 public class HyperliquidReportDataService : IPlatformDailyReportDataProvider
 {

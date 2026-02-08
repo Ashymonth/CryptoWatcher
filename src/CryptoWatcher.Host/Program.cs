@@ -9,7 +9,6 @@ using CryptoWatcher.Infrastructure.Configs;
 using CryptoWatcher.Infrastructure.CronJobs.Aave;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.Entities;
@@ -63,11 +62,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
-
-    var service = scope.ServiceProvider.GetRequiredService<IHyperliquidVaultPositionSyncJob>();
-
-    await service.SyncPositionAsync(EvmAddress.Create("0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f"), DateTime.UtcNow);
-
+    
     if (!app.Environment.IsDevelopment())
     {
         db.Database.Migrate();
