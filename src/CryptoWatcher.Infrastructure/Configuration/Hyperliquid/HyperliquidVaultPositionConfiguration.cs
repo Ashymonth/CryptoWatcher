@@ -11,10 +11,10 @@ public class HyperliquidVaultPositionConfiguration : IEntityTypeConfiguration<Hy
     public void Configure(EntityTypeBuilder<HyperliquidVaultPosition> builder)
     {
         builder.HasKey(position => new { position.VaultAddress, position.WalletAddress });
- 
+
         builder.Navigation(position => position.Snapshots)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
-        
+
         builder.Navigation(position => position.CashFlows)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -22,7 +22,7 @@ public class HyperliquidVaultPositionConfiguration : IEntityTypeConfiguration<Hy
             .WithMany()
             .HasForeignKey(position => position.WalletAddress)
             .IsRequired();
-        
+
         builder.HasMany(position => position.Snapshots)
             .WithOne()
             .HasForeignKey(snapshot => new { snapshot.VaultAddress, snapshot.WalletAddress })
@@ -32,5 +32,11 @@ public class HyperliquidVaultPositionConfiguration : IEntityTypeConfiguration<Hy
             .WithOne()
             .HasForeignKey(snapshot => new { snapshot.VaultAddress, snapshot.WalletAddress })
             .IsRequired();
+
+        builder.HasMany(position => position.Periods)
+            .WithOne()
+            .HasForeignKey(period => new { period.VaultAddress, period.WalletAddress })
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

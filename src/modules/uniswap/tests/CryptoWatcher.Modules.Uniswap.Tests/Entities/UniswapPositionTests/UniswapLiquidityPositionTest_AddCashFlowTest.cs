@@ -38,7 +38,7 @@ public partial class UniswapLiquidityPositionTest
 
         var claimDate = _faker.Date.Future(refDate: DateTime.UtcNow);
         var firstCashFlow = AddFeeClaimEvent(position, liquidityDelta, claimDate);
-        _ = AddFeeClaimEvent(position, liquidityDelta, firstCashFlow.Date);
+        _ = AddFeeClaimEvent(position, liquidityDelta, firstCashFlow.Date.DateTime);
 
         position.CashFlows.ShouldHaveSingleItem();
 

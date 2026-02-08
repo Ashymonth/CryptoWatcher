@@ -79,10 +79,10 @@ public static class CalculatablePositionExtensions
         }
 
         var filteredCashFlows = cashFlows
-            .Where(cashFlow => cashFlow.Date.ToDateOnly() > startSnapshot.Day && cashFlow.Date.ToDateOnly() <= to)
+            .Where(cashFlow => cashFlow.Date.DateTime.ToDateOnly() > startSnapshot.Day && cashFlow.Date.DateTime.ToDateOnly() <= to)
             .Sum(cacheFlow =>
             {
-                var cashFlowDay = cacheFlow.Date.ToDateOnly();
+                var cashFlowDay = cacheFlow.Date.DateTime.ToDateOnly();
                 var snapshot = startSnapshot.Day == cashFlowDay ? startSnapshot : endSnapshot;
                 return cacheFlow.Event == CashFlowEvent.Deposit
                     ? getCashFlowAmount(cacheFlow, snapshot)

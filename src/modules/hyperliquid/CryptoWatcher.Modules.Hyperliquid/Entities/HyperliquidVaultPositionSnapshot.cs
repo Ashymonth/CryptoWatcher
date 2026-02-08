@@ -46,7 +46,7 @@ public class HyperliquidVaultPositionSnapshot : ITokenPositionSnapshot
     /// <summary>
     /// VaultAddress address
     /// </summary>
-    public EvmAddress VaultAddress { get; init; }
+    public EvmAddress VaultAddress { get; private set; } = null!;
 
     /// <summary>
     /// Represents the wallet address associated with the liquidity pool position.
@@ -55,30 +55,10 @@ public class HyperliquidVaultPositionSnapshot : ITokenPositionSnapshot
     /// This property holds the blockchain wallet address linked to the liquidity pool position.
     /// It is used to identify the owner of the position and manage the related account details.
     /// </remarks>
-    public EvmAddress WalletAddress { get; init; }
+    public EvmAddress WalletAddress { get; private set; } = null!;
 
     public void UpdateFrom(decimal amount)
     {
         Balance = amount;
-    }
-    
-    public void UpdateFrom(HyperliquidVaultPositionSnapshot newSnapshot)
-    {
-        if (!newSnapshot.VaultAddress.Equals(newSnapshot.VaultAddress))
-        {
-            throw new DomainException("Vault address does not match");
-        }
-
-        if (!newSnapshot.WalletAddress.Equals(newSnapshot.WalletAddress))
-        {
-            throw new DomainException("Wallet address does not match");
-        }
-
-        if (Day != newSnapshot.Day)
-        {
-            throw new DomainException("Day does not match");
-        }
-
-        Balance = newSnapshot.Balance;
     }
 }

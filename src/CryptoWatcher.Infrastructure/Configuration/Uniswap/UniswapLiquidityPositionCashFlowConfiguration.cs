@@ -8,6 +8,6 @@ public class UniswapLiquidityPositionCashFlowConfiguration : IEntityTypeConfigur
 {
     public void Configure(EntityTypeBuilder<UniswapLiquidityPositionCashFlow> builder)
     {
-        builder.HasKey(flow => new { flow.PositionId, flow.NetworkName, flow.TransactionHash }); 
+        builder.HasKey(flow => new { flow.PositionId, flow.NetworkName, flow.TransactionHash, flow.Event }); 
     }
 }

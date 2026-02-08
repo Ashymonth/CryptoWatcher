@@ -1,13 +1,10 @@
 using System.Globalization;
-using CryptoWatcher.Abstractions.CacheFlows;
-using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Models;
-using CryptoWatcher.Modules.Hyperliquid.Application.Services.PositionUpdates;
-using CryptoWatcher.Modules.Hyperliquid.Entities;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes.PositionUpdates;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Api;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Contracts.UserNonFundingLedgerUpdates;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Contracts.UserVaultEquities;
-using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Hyperliquid.Infrastructure.Services;
@@ -21,22 +18,18 @@ public class HyperliquidApiGateway : IHyperliquidGateway
         _hyperliquidApi = hyperliquidApi;
     }
 
-    public async Task<Queue<VaultUpdate>> GetVaultUpdatesAsync(EvmAddress walletAddress,
-        DateTime from, DateTime to,
+    public async Task<HyperliquidVaultUpdate[]> GetVaultUpdatesAsync(EvmAddress walletAddress,
+        DateTimeOffset from,
         CancellationToken ct = default)
     {
-        var startTime = ((DateTimeOffset)from.AddDays(-2)).ToUnixTimeMilliseconds();
-        var endTime = ((DateTimeOffset)to).ToUnixTimeMilliseconds();
-
         var result = await _hyperliquidApi.GetUserNonFundingLedgerUpdatesAsync(
-            new UserNonFundingLedgerUpdatesRequest(walletAddress, startTime, endTime), ct);
+            new UserNonFundingLedgerUpdatesRequest(walletAddress, from.ToUnixTimeMilliseconds()), ct);
 
-        var stack = result
+        return result
             .Where(update => update.Delta is VaultDeposit or VaultWithdraw)
             .Select(MapToVaultEvent)
-            .OrderBy(update => update.Timestamp);
-
-        return new Queue<VaultUpdate>(stack);
+            .OrderBy(update => update.Timestamp)
+            .ToArray();
     }
 
     public async Task<IReadOnlyCollection<HyperliquidVault>> GetVaultsPositionsEquityAsync(EvmAddress walletAddress,
@@ -51,20 +44,24 @@ public class HyperliquidApiGateway : IHyperliquidGateway
         }).ToArray();
     }
 
-    private static VaultUpdate MapToVaultEvent(UserNonFundingLedgerUpdate update)
+    private static HyperliquidVaultUpdate MapToVaultEvent(UserNonFundingLedgerUpdate update)
     {
-        var timestamp = DateTime.UnixEpoch.AddMilliseconds(update.Time);
+        var timestamp = DateTimeOffset.FromUnixTimeMilliseconds(update.Time);
         return update.Delta switch
         {
-            VaultDeposit vaultDeposit => new DepositUpdate
+            VaultDeposit vaultDeposit => new HyperliquidDepositUpdate
             {
                 Amount = decimal.Parse(vaultDeposit.Usdc, CultureInfo.InvariantCulture),
                 Timestamp = timestamp,
+                VaultAddress = EvmAddress.Create(vaultDeposit.Vault),
+                Hash = TransactionHash.FromString(update.Hash)
             },
-            VaultWithdraw vaultWithdraw => new WithdrawUpdate
+            VaultWithdraw vaultWithdraw => new HyperliquidWithdrawUpdate
             {
                 Amount = decimal.Parse(vaultWithdraw.NetWithdrawnUsd, CultureInfo.InvariantCulture),
-                Timestamp = timestamp
+                Timestamp = timestamp,
+                VaultAddress = EvmAddress.Create(vaultWithdraw.Vault),
+                Hash = TransactionHash.FromString(update.Hash)
             },
             _ => throw new ArgumentOutOfRangeException(nameof(update), update.Delta, null)
         };

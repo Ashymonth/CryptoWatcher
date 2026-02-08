@@ -18,7 +18,6 @@ using CryptoWatcher.Infrastructure.Services;
 using CryptoWatcher.Infrastructure.Telegram;
 using CryptoWatcher.Integrations;
 using CryptoWatcher.Modules.Aave.Infrastructure.Extensions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Merkl.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Morpho.Infrastructure.Extensions;
@@ -68,8 +67,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDailyTotalReportWorksheetBuilder, DailyTotalReportWorksheetBuilder>();
 
         services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-
-        services.AddScoped<IHyperliquidSyncRepoFacade, HyperliquidSyncRepoFacade>();
 
         services.AddCoinGeckoClient(provider => provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
         services.AddTransient<ICoinPriceProvider, CoinGeckoCoinPriceProvider>();

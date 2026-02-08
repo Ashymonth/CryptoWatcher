@@ -1,6 +1,7 @@
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Application.Abstractions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Services;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Api;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Contracts.UserNonFundingLedgerUpdates;
@@ -23,7 +24,6 @@ public static class ServiceCollectionExtensions
         Func<IServiceProvider, Uri>? hyperliquidUriFactory = null)
     {
         services.AddScoped<IDailyPositionPerformanceSynchronizer, HyperliquidDailyPositionPerformanceSynchronizer>();
-        services.AddScoped<IHyperliquidPositionsSyncService, HyperliquidPositionsSyncService>();
         services.AddKeyedScoped<IPlatformDailyReportDataProvider, HyperliquidReportDataService>(
             HyperliquidModuleKeyedService.DailyPlatformKeyService);
 
@@ -31,9 +31,12 @@ public static class ServiceCollectionExtensions
             .ConfigureHttpClient((provider, client) =>
                 client.BaseAddress = hyperliquidUriFactory?.Invoke(provider) ?? new Uri(BaseUrl));
 
-        services.AddSingleton<HyperliquidVaultPositionUpdater>();
-        services.AddScoped<HyperliquidVaultPositionSyncJob>();
-        services.AddScoped<IHyperliquidGateway, HyperliquidApiGateway>();
+        services.AddSingleton<IUnprocessedVaultUpdatesFilter, UnprocessedVaultUpdatesFilter>();
+        services.AddSingleton<IHyperliquidVaultPositionUpdater, HyperliquidVaultPositionUpdater>();
+        services.AddSingleton<IHyperliquidSnapshotsUpdater, HyperliquidSnapshotsUpdater>();
+        services.AddSingleton<IHyperliquidGateway, HyperliquidApiGateway>();
+        
+        services.AddScoped<IHyperliquidVaultPositionSyncJob, HyperliquidVaultPositionSyncJob>();
 
         return services;
     }

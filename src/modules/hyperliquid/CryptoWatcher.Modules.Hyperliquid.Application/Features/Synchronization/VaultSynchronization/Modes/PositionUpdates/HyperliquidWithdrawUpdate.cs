@@ -1,0 +1,3 @@
+namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes.PositionUpdates;
+
+public class HyperliquidWithdrawUpdate : HyperliquidVaultUpdate;

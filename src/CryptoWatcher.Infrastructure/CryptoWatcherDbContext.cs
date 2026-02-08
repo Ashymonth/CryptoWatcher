@@ -170,6 +170,8 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
         Set<HyperliquidPositionDailyPerformance>();
     
     public DbSet<HyperliquidPositionCashFlow> HyperliquidPositionCashFlows => Set<HyperliquidPositionCashFlow>();
+    
+    public DbSet<HyperliquidSynchronizationState> HyperliquidSynchronizationStates => Set<HyperliquidSynchronizationState>();
 
     #endregion
 

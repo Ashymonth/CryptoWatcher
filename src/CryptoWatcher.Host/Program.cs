@@ -9,8 +9,7 @@ using CryptoWatcher.Infrastructure.Configs;
 using CryptoWatcher.Infrastructure.CronJobs.Aave;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Services;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.Entities;
@@ -65,11 +64,9 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
 
-    var service = scope.ServiceProvider.GetRequiredService<HyperliquidVaultPositionSyncJob>();
+    var service = scope.ServiceProvider.GetRequiredService<IHyperliquidVaultPositionSyncJob>();
 
-    var now = DateTime.Now;
-    await service.SyncPositionAsync(EvmAddress.Create("0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f"),
-        DateOnly.FromDateTime(now), DateOnly.FromDateTime(now));
+    await service.SyncPositionAsync(EvmAddress.Create("0xeb9191d780c0aB6Ab320C5F05E41ebF81f14255f"), DateTime.UtcNow);
 
     if (!app.Environment.IsDevelopment())
     {
@@ -113,17 +110,9 @@ app.MapPost("/sync-daily-performance",
 
 app.MapPost("/hyperliquid/sync-positions",
     async (
-        CryptoWatcherDbContext dbContext,
-        IHyperliquidPositionsSyncService coordinator, DateOnly from, DateOnly to, CancellationToken ct) =>
+        CryptoWatcherDbContext dbContext,  DateOnly from, DateOnly to, CancellationToken ct) =>
     {
-        var wallets = await dbContext.Wallets.ToArrayAsync(ct);
-
-        foreach (var wallet in wallets)
-        {
-            await coordinator.SyncPositionsAsync(wallet, from, to, ct);
-        }
-
-        return TypedResults.Ok();
+      
     });
 
 app.MapPost("/uniswap/sync-block/{transactionHash}", async (IUniswapPositionTransactionSynchronizer sync,

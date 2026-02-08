@@ -1,6 +1,6 @@
 using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Hyperliquid.Application.Models;
+namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes;
 
 public class HyperliquidVault
 {

@@ -346,9 +346,9 @@ public class
         DateOnly from, DateOnly to)
     {
         return CashFlows
-            .Where(flow => flow.Date.ToDateOnly() >= from && flow.Date.ToDateOnly() <= to)
+            .Where(flow => flow.Date.DateTime.ToDateOnly() >= from && flow.Date.DateTime.ToDateOnly() <= to)
             .Where(cashFlow => cashFlow.Event == CashFlowEvent.FeeClaim)
-            .GroupBy(cashFlow => cashFlow.Date.ToDateOnly())
+            .GroupBy(cashFlow => cashFlow.Date.DateTime.ToDateOnly())
             .ToDictionary(
                 g => g.Key,
                 g => g.ToArray());

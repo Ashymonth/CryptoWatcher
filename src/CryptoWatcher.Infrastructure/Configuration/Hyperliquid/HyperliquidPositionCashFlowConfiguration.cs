@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CryptoWatcher.Infrastructure.Configuration.Hyperliquid;
 
-public class HyperliquidVaultEventConfiguration : IEntityTypeConfiguration<HyperliquidPositionCashFlow>
+public class HyperliquidPositionCashFlowConfiguration : IEntityTypeConfiguration<HyperliquidPositionCashFlow>
 {
     public void Configure(EntityTypeBuilder<HyperliquidPositionCashFlow> builder)
     {
