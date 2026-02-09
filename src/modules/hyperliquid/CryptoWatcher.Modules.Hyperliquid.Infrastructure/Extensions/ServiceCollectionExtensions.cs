@@ -4,9 +4,9 @@ using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Api;
+using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Repositories;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http.Resilience;
 using Polly;
 using Refit;
 
@@ -37,12 +37,15 @@ public static class ServiceCollectionExtensions
                     new SlidingWindowRateLimiterOptions
                     {
                         PermitLimit = 50,
-                        Window = TimeSpan.FromMinutes(1), 
+                        Window = TimeSpan.FromMinutes(1),
                         SegmentsPerWindow = 6,
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                         QueueLimit = 10
                     }));
             });
+
+        services.AddScoped<IHyperliquidSyncStateRepository, HyperliquidSyncStateRepository>();
+        services.AddScoped<IHyperliquidVaultPositionRepository, HyperliquidVaultPositionRepository>();
 
         services.AddSingleton<IUnprocessedVaultUpdatesFilter, UnprocessedVaultUpdatesFilter>();
         services.AddSingleton<IHyperliquidVaultPositionUpdater, HyperliquidVaultPositionUpdater>();

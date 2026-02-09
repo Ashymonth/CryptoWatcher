@@ -42,4 +42,6 @@ public interface IUnitOfWork
     /// <param name="ct">Cancellation token to observe while waiting for the operation to complete.</param>
     /// <returns>A task that represents the asynchronous save operation.</returns>
     Task SaveChangesAsync(CancellationToken ct);
+    
+    Task ExecuteAsync(Func<CancellationToken, Task> action, CancellationToken ct);
 }

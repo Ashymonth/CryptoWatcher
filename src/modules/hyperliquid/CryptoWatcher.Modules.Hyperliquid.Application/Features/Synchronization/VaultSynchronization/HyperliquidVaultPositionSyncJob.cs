@@ -2,26 +2,27 @@ using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
-using CryptoWatcher.Modules.Hyperliquid.Specifications;
 using CryptoWatcher.ValueObjects;
 
 namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization;
 
 public class HyperliquidVaultPositionSyncJob : IHyperliquidVaultPositionSyncJob
 {
-    private readonly IRepository<HyperliquidVaultPosition> _repository;
-    private readonly IRepository<HyperliquidSynchronizationState> _synchronizationStateRepository;
     private readonly IHyperliquidVaultPositionUpdater _positionUpdater;
     private readonly IHyperliquidSnapshotsUpdater _snapshotsUpdater;
+    private readonly IHyperliquidSyncStateRepository _synchronizationStateRepository;
+    private readonly IHyperliquidVaultPositionRepository _positionRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public HyperliquidVaultPositionSyncJob(IRepository<HyperliquidVaultPosition> repository,
-        IRepository<HyperliquidSynchronizationState> synchronizationStateRepository,
-        IHyperliquidVaultPositionUpdater positionUpdater, IHyperliquidSnapshotsUpdater snapshotsUpdater)
+    public HyperliquidVaultPositionSyncJob(IHyperliquidVaultPositionUpdater positionUpdater,
+        IHyperliquidSnapshotsUpdater snapshotsUpdater, IHyperliquidSyncStateRepository synchronizationStateRepository,
+        IHyperliquidVaultPositionRepository positionRepository, IUnitOfWork unitOfWork)
     {
-        _repository = repository;
-        _synchronizationStateRepository = synchronizationStateRepository;
         _positionUpdater = positionUpdater;
         _snapshotsUpdater = snapshotsUpdater;
+        _synchronizationStateRepository = synchronizationStateRepository;
+        _positionRepository = positionRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task SyncPositionAsync(EvmAddress walletAddress,
@@ -39,33 +40,29 @@ public class HyperliquidVaultPositionSyncJob : IHyperliquidVaultPositionSyncJob
         }
 
         await _snapshotsUpdater.TakeVaultBalanceSnapshotAsync(updatedPosition.Position, snapshotDate, ct);
-        
+
         await SaveChangesAsync(updatedPosition, state, ct);
     }
 
     private async Task<HyperliquidSynchronizationState> LoadOrCreateStateAsync(
         EvmAddress walletAddress, CancellationToken ct)
     {
-        return await _synchronizationStateRepository.GetByIdAsync(walletAddress, ct)
+        return await _synchronizationStateRepository.GetByWalletAsync(walletAddress, ct)
                ?? new HyperliquidSynchronizationState(walletAddress);
     }
 
     private async Task<HyperliquidVaultPosition?> LoadPositionAsync(
         EvmAddress walletAddress, CancellationToken ct)
     {
-        return await _repository.FirstOrDefaultAsync(
-            new HyperliquidPositionsWithSnapshotsAndCashFlowByWallet(walletAddress), ct);
+        return await _positionRepository.GetByWalletAsync(walletAddress, ct);
     }
 
-    private async Task SaveChangesAsync(
-        HyperliquidPositionSyncResult syncResult,
-        HyperliquidSynchronizationState state,
+    private async Task SaveChangesAsync(HyperliquidPositionSyncResult syncResult, HyperliquidSynchronizationState state,
         CancellationToken ct)
     {
-        await _repository.UnitOfWork.BeginTransactionAsync(ct);
-        try
+        await _unitOfWork.ExecuteAsync(async token =>
         {
-            await _repository.BulkMergeAsync([syncResult.Position], ct);
+            await _positionRepository.AddOrUpdateAsync(syncResult.Position, token);
 
             if (syncResult.LastHyperliquidVaultUpdate is not null)
             {
@@ -73,15 +70,8 @@ public class HyperliquidVaultPositionSyncJob : IHyperliquidVaultPositionSyncJob
                     syncResult.LastHyperliquidVaultUpdate!.Timestamp,
                     syncResult.LastHyperliquidVaultUpdate.Hash);
 
-                await _synchronizationStateRepository.BulkMergeAsync([state], ct);
+                await _synchronizationStateRepository.AddOrUpdateAsync(state, token);
             }
-
-            await _repository.UnitOfWork.CommitTransactionAsync(ct);
-        }
-        catch
-        {
-            await _repository.UnitOfWork.RollbackTransactionAsync(ct);
-            throw;
-        }
+        }, ct);
     }
 }
