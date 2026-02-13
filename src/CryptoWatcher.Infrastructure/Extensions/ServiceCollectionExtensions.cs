@@ -100,7 +100,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddConfiguredHyperliquidModule(this IServiceCollection services)
     {
-        services.AddHyperliquidModule()
+        services.AddHyperliquidModule("")
             .AddSingleton<IDailyExcelSheetBuilder, HyperliquidDailyExcelSheetBuilder>()
             .AddSingleton<HyperliquidDailyReportExcelWorksheetWriter>();
 

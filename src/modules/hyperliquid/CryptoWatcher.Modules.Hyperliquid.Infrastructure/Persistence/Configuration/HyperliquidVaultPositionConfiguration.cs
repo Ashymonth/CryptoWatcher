@@ -16,10 +16,7 @@ public class HyperliquidVaultPositionConfiguration : IEntityTypeConfiguration<Hy
         builder.Navigation(position => position.CashFlows)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.HasOne(vaultPosition => vaultPosition.Wallet)
-            .WithMany()
-            .HasForeignKey(position => position.WalletAddress)
-            .IsRequired();
+        builder.Ignore(vaultPosition => vaultPosition.Wallet);
 
         builder.HasMany(position => position.Snapshots)
             .WithOne()

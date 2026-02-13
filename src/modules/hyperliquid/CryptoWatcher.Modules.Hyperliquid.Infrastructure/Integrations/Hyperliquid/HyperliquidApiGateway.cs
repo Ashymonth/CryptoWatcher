@@ -7,7 +7,7 @@ using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Contracts.UserVaultEquities;
 using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Hyperliquid.Infrastructure.Services;
+namespace CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid;
 
 public class HyperliquidApiGateway : IHyperliquidGateway
 {

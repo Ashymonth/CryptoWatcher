@@ -3,9 +3,11 @@ using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
+using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Api;
+using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Persistence;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Persistence.Repositories;
-using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Refit;
@@ -22,8 +24,16 @@ public static class ServiceCollectionExtensions
     private const string BaseUrl = "https://api.hyperliquid.xyz";
 
     public static IServiceCollection AddHyperliquidModule(this IServiceCollection services,
+        string connectionString,
         Func<IServiceProvider, Uri>? hyperliquidUriFactory = null)
     {
+        services.AddDbContext<HyperliquidDbContext>(options =>
+            options.UseNpgsql(connectionString, npgsql =>
+            {
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "hyperliquid");
+                npgsql.MigrationsAssembly(typeof(HyperliquidDbContext).Assembly.FullName);
+            }));
+        
         services.AddKeyedScoped<IPlatformDailyReportDataProvider, HyperliquidReportDataService>(
             HyperliquidModuleKeyedService.DailyPlatformKeyService);
 
@@ -46,6 +56,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IHyperliquidSyncStateRepository, HyperliquidSyncStateRepository>();
         services.AddScoped<IHyperliquidVaultPositionRepository, HyperliquidVaultPositionRepository>();
+        services.AddScoped<HyperliquidVaultPositionBulkWriter>();
 
         services.AddSingleton<IUnprocessedVaultUpdatesFilter, UnprocessedVaultUpdatesFilter>();
         services.AddSingleton<IHyperliquidVaultPositionUpdater, HyperliquidVaultPositionUpdater>();
