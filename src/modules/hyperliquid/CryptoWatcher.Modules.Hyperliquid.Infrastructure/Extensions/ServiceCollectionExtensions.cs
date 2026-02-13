@@ -4,7 +4,7 @@ using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Api;
-using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Repositories;
+using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Persistence.Repositories;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;

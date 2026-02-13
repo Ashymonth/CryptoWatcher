@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\CryptoWatcher.Modules.Infrastructure.Shared\CryptoWatcher.Modules.Infrastructure.Shared.csproj" />
       <ProjectReference Include="..\CryptoWatcher.Modules.Hyperliquid.Application\CryptoWatcher.Modules.Hyperliquid.Application.csproj" />
     </ItemGroup>
 

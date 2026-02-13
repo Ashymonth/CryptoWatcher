@@ -31,7 +31,7 @@ public class HyperliquidVaultPositionSyncJob : IHyperliquidVaultPositionSyncJob
     {
         var state = await LoadOrCreateStateAsync(walletAddress, ct);
         var position = await LoadPositionAsync(walletAddress, ct);
-
+        
         var updatedPosition = await _positionUpdater.UpdatePositionAsync(position, walletAddress, state, ct);
 
         if (updatedPosition is null)
