@@ -1,7 +1,7 @@
-using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes.PositionUpdates;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Models.PositionUpdates;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
 
-namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes;
+namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Models;
 
 public class HyperliquidPositionSyncResult
 {

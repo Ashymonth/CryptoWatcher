@@ -2,8 +2,8 @@ using CryptoWatcher.Abstractions;
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Models;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports.Models;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
-using CryptoWatcher.Modules.Hyperliquid.Models;
 using CryptoWatcher.Modules.Hyperliquid.Specifications;
 using CryptoWatcher.Shared.Entities;
 

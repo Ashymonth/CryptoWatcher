@@ -1,3 +1,3 @@
-namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes.PositionUpdates;
+namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Models.PositionUpdates;
 
 public class HyperliquidDepositUpdate : HyperliquidVaultUpdate;

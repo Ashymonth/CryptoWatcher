@@ -1,4 +1,4 @@
-using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes.PositionUpdates;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Models.PositionUpdates;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
 using CryptoWatcher.ValueObjects;
 

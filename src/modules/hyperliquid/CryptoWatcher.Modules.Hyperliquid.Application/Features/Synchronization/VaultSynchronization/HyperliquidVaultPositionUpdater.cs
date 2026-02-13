@@ -1,5 +1,5 @@
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Modes;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Models;
 using CryptoWatcher.Modules.Hyperliquid.Entities;
 using CryptoWatcher.ValueObjects;
 

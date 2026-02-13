@@ -1,6 +1,6 @@
 using CryptoWatcher.Models;
 
-namespace CryptoWatcher.Modules.Hyperliquid.Models;
+namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports.Models;
 
 /// <summary>
 /// Represents a report item for a specific vault in the Hyperliquid module.
