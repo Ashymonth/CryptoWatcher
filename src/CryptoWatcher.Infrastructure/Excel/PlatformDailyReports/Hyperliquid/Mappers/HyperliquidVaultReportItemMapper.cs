@@ -1,5 +1,5 @@
-using CryptoWatcher.Modules.Hyperliquid.Models;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Hyperliquid.Models;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports.Models;
 using Riok.Mapperly.Abstractions;
 
 namespace CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Hyperliquid.Mappers;

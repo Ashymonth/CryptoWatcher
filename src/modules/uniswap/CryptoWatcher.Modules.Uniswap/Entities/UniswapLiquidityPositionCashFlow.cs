@@ -46,7 +46,7 @@ public class UniswapLiquidityPositionCashFlow : ITokenPairCashFlow
 
     public string NetworkName { get; init; } = null!;
 
-    public DateTime Date { get; init; }
+    public DateTimeOffset Date { get; init; }
 
     public TransactionHash TransactionHash { get; init; } = null!;
 

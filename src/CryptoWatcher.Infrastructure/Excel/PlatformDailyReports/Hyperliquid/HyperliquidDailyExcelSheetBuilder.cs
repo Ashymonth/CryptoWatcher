@@ -1,6 +1,6 @@
-using CryptoWatcher.Modules.Hyperliquid.Models;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Abstractions;
 using CryptoWatcher.Models;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports.Models;
 using SpreadCheetah;
 
 namespace CryptoWatcher.Infrastructure.Excel.PlatformDailyReports.Hyperliquid;

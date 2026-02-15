@@ -41,7 +41,7 @@ public class AavePositionCashFlow : ITokenCashFlow
     /// track and sequence activities associated with a specific Aave position. It is
     /// a required component of the composite key that ensures uniqueness of events.
     /// </remarks>
-    public required DateTime Date { get; init; }
+    public required DateTimeOffset Date { get; init; }
 
     public CashFlowEvent Event { get; init; } = null!;
 }

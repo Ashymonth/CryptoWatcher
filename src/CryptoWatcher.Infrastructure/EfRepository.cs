@@ -79,7 +79,50 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
         {
             return;
         }
-    
+
+        if (entities.First() is HyperliquidVaultPosition)
+        {
+            List<AuditEntry> auditEntries = new List<AuditEntry>();
+            await _dbContext.BulkMergeAsync(entities.Cast<HyperliquidVaultPosition>(), operation =>
+            {
+                operation.IncludeGraph = true;
+                operation.IncludeGraphOperationBuilder = bulkOperation =>
+                {
+                    bulkOperation.UseAudit = true;
+                    bulkOperation.AuditMode = AuditModeType.IncludeAll;
+                    bulkOperation.AuditEntries = auditEntries;
+                    bulkOperation.Log = Console.Write;
+                    switch (bulkOperation)
+                    {
+                        case BulkOperation<Wallet> walletOperation:
+                            walletOperation.ColumnPrimaryKeyExpression = wallet => wallet.Address;
+                            break;
+                        case BulkOperation<HyperliquidVaultPosition> positionOperation:
+                            positionOperation.ColumnPrimaryKeyExpression = position =>
+                                new { position.VaultAddress, position.WalletAddress };
+                            break;
+
+                        case BulkOperation<HyperliquidVaultPositionSnapshot> positionOperation:
+                            positionOperation.ColumnPrimaryKeyExpression = position =>
+                                new { position.VaultAddress, position.WalletAddress, position.Day };
+                            break;
+
+                        case BulkOperation<HyperliquidPositionCashFlow> positionOperation:
+                            positionOperation.ColumnPrimaryKeyExpression = @event =>
+                                new
+                                {
+                                    @event.VaultAddress, @event.WalletAddress, @event.Date
+                                };  
+                            break;
+                        case BulkOperation<HyperliquidVaultPeriod> positionOperation:
+                            positionOperation.ColumnPrimaryKeyExpression = @event => @event.Id;
+                            break;
+                    }
+                };
+            }, ct);
+            return;
+        }
+        
         if (entities.First() is UniswapLiquidityPosition)
         {
             await _dbContext.BulkMergeAsync(entities, operation =>
@@ -104,7 +147,10 @@ public class EfRepository<TEntity> : RepositoryBase<TEntity>, IRepository<TEntit
 
                         case BulkOperation<UniswapLiquidityPositionCashFlow> positionOperation:
                             positionOperation.ColumnPrimaryKeyExpression = position =>
-                                new { position.PositionId, position.NetworkName, position.TransactionHash };
+                                new
+                                {
+                                    position.PositionId, position.NetworkName, position.TransactionHash, position.Event
+                                };
                             break;
                     }
                 };

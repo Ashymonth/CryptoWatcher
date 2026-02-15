@@ -123,7 +123,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTimeOffset>("Date")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Event")
@@ -252,162 +252,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.HasKey("PositionId", "Day");
 
                     b.ToTable("AavePositionSnapshots");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidPositionCashFlow", b =>
-                {
-                    b.Property<string>("VaultAddress")
-                        .HasMaxLength(42)
-                        .IsUnicode(false)
-                        .HasColumnType("character(42)")
-                        .IsFixedLength();
-
-                    b.Property<string>("WalletAddress")
-                        .HasMaxLength(42)
-                        .IsUnicode(false)
-                        .HasColumnType("character(42)")
-                        .IsFixedLength();
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Event")
-                        .HasColumnType("integer");
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "Token0", "CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidPositionCashFlow.Token0#CryptoTokenStatistic", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
-
-                            b1.Property<decimal>("PriceInUsd")
-                                .HasColumnType("numeric");
-                        });
-
-                    b.HasKey("VaultAddress", "WalletAddress", "Date");
-
-                    b.HasIndex("WalletAddress");
-
-                    b.ToTable("HyperliquidPositionCashFlows");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidPositionDailyPerformance", b =>
-                {
-                    b.Property<string>("VaultAddress")
-                        .HasMaxLength(42)
-                        .IsUnicode(false)
-                        .HasColumnType("character(42)")
-                        .IsFixedLength();
-
-                    b.Property<string>("WalletAddress")
-                        .HasMaxLength(42)
-                        .IsUnicode(false)
-                        .HasColumnType("character(42)")
-                        .IsFixedLength();
-
-                    b.Property<DateOnly>("Day")
-                        .HasColumnType("date");
-
-                    b.Property<decimal>("BalanceInUsd")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("ProfitInUsd")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("VaultAddress", "WalletAddress", "Day");
-
-                    b.ToTable("HyperliquidPositionDailyPerformances");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition", b =>
-                {
-                    b.Property<string>("VaultAddress")
-                        .HasMaxLength(42)
-                        .IsUnicode(false)
-                        .HasColumnType("character(42)")
-                        .IsFixedLength();
-
-                    b.Property<string>("WalletAddress")
-                        .HasMaxLength(42)
-                        .IsUnicode(false)
-                        .HasColumnType("character(42)")
-                        .IsFixedLength();
-
-                    b.Property<DateOnly?>("ClosedAt")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly>("CreatedAt")
-                        .HasColumnType("date");
-
-                    b.Property<decimal>("InitialBalance")
-                        .HasColumnType("numeric");
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "Token0", "CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition.Token0#CryptoToken", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<string>("Address")
-                                .IsRequired()
-                                .HasMaxLength(42)
-                                .IsUnicode(false)
-                                .HasColumnType("character(42)")
-                                .IsFixedLength();
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
-
-                            b1.Property<decimal>("PriceInUsd")
-                                .HasColumnType("numeric");
-
-                            b1.Property<string>("Symbol")
-                                .IsRequired()
-                                .HasMaxLength(16)
-                                .IsUnicode(false)
-                                .HasColumnType("character varying(16)");
-                        });
-
-                    b.HasKey("VaultAddress", "WalletAddress");
-
-                    b.HasIndex("WalletAddress");
-
-                    b.ToTable("HyperliquidVaultPositions");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPositionSnapshot", b =>
-                {
-                    b.Property<string>("VaultAddress")
-                        .HasMaxLength(42)
-                        .IsUnicode(false)
-                        .HasColumnType("character(42)")
-                        .IsFixedLength();
-
-                    b.Property<string>("WalletAddress")
-                        .HasMaxLength(42)
-                        .IsUnicode(false)
-                        .HasColumnType("character(42)")
-                        .IsFixedLength();
-
-                    b.Property<DateOnly>("Day")
-                        .HasColumnType("date");
-
-                    b.Property<decimal>("Balance")
-                        .HasColumnType("numeric");
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "Token0", "CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPositionSnapshot.Token0#CryptoTokenStatistic", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
-
-                            b1.Property<decimal>("PriceInUsd")
-                                .HasColumnType("numeric");
-                        });
-
-                    b.HasKey("VaultAddress", "WalletAddress", "Day");
-
-                    b.ToTable("HyperliquidVaultPositionSnapshots");
                 });
 
             modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaign", b =>
@@ -591,7 +435,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTimeOffset>("Date")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Event")
@@ -830,11 +674,11 @@ namespace CryptoWatcher.Infrastructure.Migrations
                         .HasColumnType("character(66)")
                         .IsFixedLength();
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("Event")
                         .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Date")
+                        .HasColumnType("timestamp with time zone");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Token0", "CryptoWatcher.Modules.Uniswap.Entities.UniswapLiquidityPositionCashFlow.Token0#CryptoTokenStatistic", b1 =>
                         {
@@ -858,7 +702,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
                                 .HasColumnType("numeric");
                         });
 
-                    b.HasKey("PositionId", "NetworkName", "TransactionHash");
+                    b.HasKey("PositionId", "NetworkName", "TransactionHash", "Event");
 
                     b.ToTable("UniswapLiquidityPositionCashFlows");
                 });
@@ -1059,43 +903,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidPositionCashFlow", b =>
-                {
-                    b.HasOne("CryptoWatcher.Shared.Entities.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletAddress")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition", null)
-                        .WithMany("CashFlows")
-                        .HasForeignKey("VaultAddress", "WalletAddress")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition", b =>
-                {
-                    b.HasOne("CryptoWatcher.Shared.Entities.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletAddress")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPositionSnapshot", b =>
-                {
-                    b.HasOne("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition", null)
-                        .WithMany("Snapshots")
-                        .HasForeignKey("VaultAddress", "WalletAddress")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("CryptoWatcher.Modules.Merkl.Entities.MerklCampaignCashFlow", b =>
                 {
                     b.HasOne("CryptoWatcher.Modules.Merkl.Entities.MerklCampaign", null)
@@ -1189,13 +996,6 @@ namespace CryptoWatcher.Infrastructure.Migrations
                     b.Navigation("CashFlows");
 
                     b.Navigation("PositionPeriods");
-
-                    b.Navigation("Snapshots");
-                });
-
-            modelBuilder.Entity("CryptoWatcher.Modules.Hyperliquid.Entities.HyperliquidVaultPosition", b =>
-                {
-                    b.Navigation("CashFlows");
 
                     b.Navigation("Snapshots");
                 });

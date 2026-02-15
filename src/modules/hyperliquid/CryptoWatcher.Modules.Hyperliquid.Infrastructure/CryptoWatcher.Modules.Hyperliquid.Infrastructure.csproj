@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\CryptoWatcher.Modules.Infrastructure.Shared\CryptoWatcher.Modules.Infrastructure.Shared.csproj" />
       <ProjectReference Include="..\CryptoWatcher.Modules.Hyperliquid.Application\CryptoWatcher.Modules.Hyperliquid.Application.csproj" />
     </ItemGroup>
 
@@ -14,6 +15,17 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.2.0" />
         <PackageReference Include="Polly.Extensions" Version="8.6.5" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="9.0.2" />
+        <PackageReference Include="Ardalis.SmartEnum.EFCore" Version="8.2.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <Folder Include="Integrations\Hyperliquid\Contracts\" />
     </ItemGroup>
 
 </Project>

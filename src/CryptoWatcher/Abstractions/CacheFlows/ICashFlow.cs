@@ -2,7 +2,7 @@ namespace CryptoWatcher.Abstractions.CacheFlows;
 
 public interface ICashFlow
 {
-    DateTime Date { get; }
+    DateTimeOffset Date { get; }
 
     CashFlowEvent Event { get; }
 }

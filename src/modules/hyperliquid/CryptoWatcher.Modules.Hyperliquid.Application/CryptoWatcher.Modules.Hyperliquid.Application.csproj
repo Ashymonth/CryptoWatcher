@@ -11,5 +11,9 @@
       <ProjectReference Include="..\CryptoWatcher.Modules.Hyperliquid\CryptoWatcher.Modules.Hyperliquid.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Services\PositionUpdates\DepositUpdate.cs" />
+    </ItemGroup>
+
 
 </Project>

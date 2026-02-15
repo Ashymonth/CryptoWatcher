@@ -1,4 +1,5 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Exceptions;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.ValueObjects;
@@ -13,14 +14,27 @@ namespace CryptoWatcher.Modules.Hyperliquid.Entities;
 public class
     HyperliquidVaultPosition : IDeFiPosition<HyperliquidVaultPositionSnapshot, HyperliquidPositionCashFlow>
 {
+    private HyperliquidVaultPosition()
+    {
+    }
+
+    private HyperliquidVaultPosition(EvmAddress vaultAddress, EvmAddress walletAddress)
+    {
+        Token0 = new CryptoToken
+        {
+            Amount = 0,
+            Symbol = HyperliquidWellKnowFields.UsdcSymbol,
+            PriceInUsd = HyperliquidWellKnowFields.UsdcPrice,
+            Address = HyperliquidWellKnowFields.UsdcAddress
+        };
+
+        VaultAddress = vaultAddress;
+        WalletAddress = walletAddress;
+    }
+
     private readonly List<HyperliquidVaultPositionSnapshot> _snapshots = [];
     private readonly List<HyperliquidPositionCashFlow> _cashFlows = [];
-
-    public decimal InitialBalance { get; init; }
-
-    public DateOnly CreatedAt { get; init; }
-
-    public DateOnly? ClosedAt { get; private set; }
+    private readonly List<HyperliquidVaultPeriod> _periods = [];
 
     /// <summary>
     /// Represents the address of the vault associated with the Hyperliquid platform position.
@@ -29,7 +43,7 @@ public class
     /// This property holds the unique identifier of the vault on the blockchain.
     /// It is used to track and manage vault-specific data and operations within the Hyperliquid module.
     /// </remarks>
-    public EvmAddress VaultAddress { get; init; } = null!;
+    public EvmAddress VaultAddress { get; private init; } = null!;
 
     /// <summary>
     /// Represents the wallet address associated with the liquidity pool position.
@@ -38,18 +52,11 @@ public class
     /// This property holds the blockchain wallet address linked to the liquidity pool position.
     /// It is used to identify the owner of the position and manage the related account details.
     /// </remarks>
-    public EvmAddress WalletAddress { get; init; } = null!;
+    public EvmAddress WalletAddress { get; private init; } = null!;
 
-    /// <summary>
-    /// Represents the wallet associated with a liquidity pool position.
-    /// </summary>
-    /// <remarks>
-    /// This property identifies the wallet that holds ownership of the liquidity pool position.
-    /// It includes the wallet's unique identifier and blockchain address for managing assets.
-    /// </remarks>
-    public Wallet Wallet { get; init; } = null!;
+    public CryptoToken Token0 { get; private init; } = null!;
 
-    public CryptoToken Token0 { get; init; } = null!;
+    public HyperliquidVaultPeriod? ActivePeriod => Periods.FirstOrDefault(period => period.ClosedAt is null);
 
     /// <summary>
     /// Represents the collection of events associated with the vault's activity.
@@ -71,42 +78,95 @@ public class
     /// </remarks>
     public IReadOnlyCollection<HyperliquidVaultPositionSnapshot> Snapshots => _snapshots;
 
-    public void AddOrUpdateSnapshot(HyperliquidVaultPositionSnapshot snapshot)
+    public IReadOnlyCollection<HyperliquidVaultPeriod> Periods => _periods;
+
+    public static HyperliquidVaultPosition Open(EvmAddress wallet, EvmAddress vault)
     {
+        return new HyperliquidVaultPosition(vault, wallet);
+    }
+
+    public void OpenPeriod(DateTimeOffset startedAt)
+    {
+        if (ActivePeriod is not null)
+        {
+            throw new DomainException("Period is already open");
+        }
+
+        _periods.Add(HyperliquidVaultPeriod.StartNew(startedAt, WalletAddress, VaultAddress));
+    }
+
+    public void AddOrUpdateSnapshot(decimal amount, DateTime day)
+    {
+        if (amount == 0 && Snapshots.Count == 0)
+        {
+            throw new DomainException("Position cannot be closed without any snapshots or cash flows");
+        }
+
         var existedSnapshot =
-            _snapshots.FirstOrDefault(positionSnapshot => positionSnapshot.Day == snapshot.Day);
+            _snapshots.FirstOrDefault(positionSnapshot => positionSnapshot.Day == DateOnly.FromDateTime(day));
 
         if (existedSnapshot is null)
         {
-            _snapshots.Add(snapshot);
+            _snapshots.Add(new HyperliquidVaultPositionSnapshot(WalletAddress, VaultAddress, amount,
+                DateOnly.FromDateTime(day)));
             return;
         }
 
-        existedSnapshot.UpdateFrom(snapshot);
+        existedSnapshot.UpdateFrom(amount);
+
+        if (amount == 0)
+        {
+            ClosePeriod();
+        }
     }
 
-    public void AddCashFlowIfNotExists(HyperliquidPositionCashFlow positionCashFlow)
+    public void AddCashFlowIfNotExists(decimal amount, CashFlowEvent @event, DateTimeOffset timestamp,
+        TransactionHash hash)
     {
-        var existedSnapshot =
-            _cashFlows.FirstOrDefault(positionSnapshot => positionSnapshot.Date == positionCashFlow.Date &&
-                                                            positionSnapshot.Token0.Amount ==
-                                                            positionCashFlow.Token0.Amount);
+        if (ActivePeriod is null && @event == CashFlowEvent.Deposit)
+        {
+            OpenPeriod(timestamp);
+        }
 
-        if (existedSnapshot is not null)
+        if (ActivePeriod is null)
+        {
+            throw new DomainException(
+                $"CashFlow {@event} cannot be applied without active period");
+        }
+
+        var exists = _cashFlows.Any(c => c.TransactionHash == hash);
+        if (exists)
         {
             return;
         }
 
-        _cashFlows.Add(positionCashFlow);
+        _cashFlows.Add(new HyperliquidPositionCashFlow
+        {
+            Date = timestamp,
+            Event = @event,
+            Token0 = new CryptoTokenStatistic { Amount = amount, PriceInUsd = 1 },
+            VaultAddress = VaultAddress,
+            WalletAddress = WalletAddress,
+            TransactionHash = hash
+        });
     }
 
-    public void ClosePosition(DateOnly closedAt)
+    private void ClosePeriod()
     {
-        if (ClosedAt.HasValue)
+        if (ActivePeriod is null)
         {
-            throw new DomainException("Cannot close closed position");
+            throw new DomainException("Can't close position without open period");
         }
 
-        ClosedAt = closedAt;
+        var lastWithdraw = _cashFlows
+            .Where(flow => flow.Date >= ActivePeriod.StartedAt && flow.Event == CashFlowEvent.Withdrawal)
+            .MaxBy(flow => flow.Date);
+
+        if (lastWithdraw is null)
+        {
+            throw new DomainException("Can't close position without withdrawals");
+        }
+
+        ActivePeriod.Close(lastWithdraw.Date);
     }
 }

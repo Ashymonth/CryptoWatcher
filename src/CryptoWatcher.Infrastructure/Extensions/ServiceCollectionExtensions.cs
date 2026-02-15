@@ -18,8 +18,6 @@ using CryptoWatcher.Infrastructure.Services;
 using CryptoWatcher.Infrastructure.Telegram;
 using CryptoWatcher.Integrations;
 using CryptoWatcher.Modules.Aave.Infrastructure.Extensions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
-using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Client.Extensions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Merkl.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Morpho.Infrastructure.Extensions;
@@ -51,11 +49,11 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services
             .AddConfiguredAaveModule()
-            .AddConfiguredHyperliquidModule()
+            .AddConfiguredHyperliquidModule(configuration.GetConnectionString("Postgres")!)
             .AddConfiguredUniswapModule()
             .AddMorphoModule(provider => provider.GetRequiredService<ExternalServicesConfig>().Morpho)
             .AddMerklModule(provider => provider.GetRequiredService<ExternalServicesConfig>().Merkl)
@@ -69,8 +67,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDailyTotalReportWorksheetBuilder, DailyTotalReportWorksheetBuilder>();
 
         services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-
-        services.AddScoped<IHyperliquidSyncRepoFacade, HyperliquidSyncRepoFacade>();
 
         services.AddCoinGeckoClient(provider => provider.GetRequiredService<ExternalServicesConfig>().CoinGecko);
         services.AddTransient<ICoinPriceProvider, CoinGeckoCoinPriceProvider>();
@@ -102,11 +98,9 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    private static IServiceCollection AddConfiguredHyperliquidModule(this IServiceCollection services)
+    private static IServiceCollection AddConfiguredHyperliquidModule(this IServiceCollection services, string conectionString)
     {
-        services.AddHyperLiquidClient();
-
-        services.AddHyperliquidModule()
+        services.AddHyperliquidModule(conectionString)
             .AddSingleton<IDailyExcelSheetBuilder, HyperliquidDailyExcelSheetBuilder>()
             .AddSingleton<HyperliquidDailyReportExcelWorksheetWriter>();
 

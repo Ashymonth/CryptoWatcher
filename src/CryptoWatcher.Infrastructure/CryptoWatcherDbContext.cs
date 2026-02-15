@@ -23,11 +23,11 @@ namespace CryptoWatcher.Infrastructure;
 /// like networks, liquidity pool positions, and pool history. It initializes the database schema
 /// and configures entity relationships using Fluent API within the OnModelCreating method.
 /// </remarks>
-public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(options), IUnitOfWork
+public class CryptoWatcherDbContext(DbContextOptions<CryptoWatcherDbContext> options) : DbContext(options), IUnitOfWork
 {
     private const byte EvmAddressLength = 42;
     private const byte TransactionHashLength = 66;
-    
+
     private IDbContextTransaction? _activeTransaction;
 
     /// <summary>
@@ -159,38 +159,24 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
 
     #endregion
 
-    #region Hyperliquid
-
-    public DbSet<HyperliquidVaultPosition> HyperliquidVaultPositions => Set<HyperliquidVaultPosition>();
-
-    public DbSet<HyperliquidVaultPositionSnapshot> HyperliquidVaultPositionSnapshots =>
-        Set<HyperliquidVaultPositionSnapshot>();
-
-    public DbSet<HyperliquidPositionDailyPerformance> HyperliquidPositionDailyPerformances =>
-        Set<HyperliquidPositionDailyPerformance>();
-    
-    public DbSet<HyperliquidPositionCashFlow> HyperliquidPositionCashFlows => Set<HyperliquidPositionCashFlow>();
-
-    #endregion
-
     #region Morpho
 
     public DbSet<MorphoMarketPosition> MorphoMarketPositions => Set<MorphoMarketPosition>();
 
     public DbSet<MorphoMarketPositionSnapshot> MorphoMarketPositionSnapshots => Set<MorphoMarketPositionSnapshot>();
-    
+
     #endregion
 
     #region Merkl
 
     public DbSet<MerklCampaign> MerklCampaigns => Set<MerklCampaign>();
-    
+
     public DbSet<MerklCampaignSnapshot> MerklCampaignSnapshots => Set<MerklCampaignSnapshot>();
-    
+
     public DbSet<MerklCampaignCashFlow> MerklCampaignCashFlows => Set<MerklCampaignCashFlow>();
 
     #endregion
-    
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.ComplexProperties<CryptoToken>();
@@ -208,18 +194,18 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
             .AreFixedLength()
             .AreUnicode(false)
             .HaveMaxLength(EvmAddressLength);
-        
+
         configurationBuilder.Properties<TransactionHash>()
             .HaveConversion<TransactionHashConverter>()
             .AreFixedLength()
             .AreUnicode(false)
-            .HaveMaxLength(TransactionHashLength); 
-        
+            .HaveMaxLength(TransactionHashLength);
+
         configurationBuilder.Properties<TransactionHash?>()
             .HaveConversion<TransactionHashConverter>()
             .AreFixedLength()
             .AreUnicode(false)
-            .HaveMaxLength(TransactionHashLength); 
+            .HaveMaxLength(TransactionHashLength);
 
         // Map Uri to string with max length 128 globally
         configurationBuilder.Properties<Uri>()
@@ -230,7 +216,7 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
             .HaveMaxLength(128);
 
         configurationBuilder.Conventions.Add(_ => new TokenInfoSymbolMaxLengthConvention());
-        
+
         base.ConfigureConventions(configurationBuilder);
     }
 
@@ -296,5 +282,24 @@ public class CryptoWatcherDbContext(DbContextOptions options) : DbContext(option
     public new async Task SaveChangesAsync(CancellationToken ct)
     {
         await base.SaveChangesAsync(ct);
+    }
+
+    public async Task ExecuteAsync(Func<CancellationToken, Task> action, CancellationToken ct)
+    {
+        await using var tr = await Database.BeginTransactionAsync(ct);
+
+        try
+        {
+            await action(ct);
+
+            await SaveChangesAsync(ct);
+
+            await tr.CommitAsync(ct);
+        }
+        catch
+        {
+            await tr.RollbackAsync(ct);
+            throw;
+        }
     }
 }

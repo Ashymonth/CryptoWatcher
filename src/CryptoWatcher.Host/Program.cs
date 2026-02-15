@@ -9,7 +9,7 @@ using CryptoWatcher.Infrastructure.Configs;
 using CryptoWatcher.Infrastructure.CronJobs.Aave;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
-using CryptoWatcher.Modules.Hyperliquid.Application.Abstractions;
+using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Persistence;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
 using CryptoWatcher.Shared.Entities;
@@ -36,7 +36,7 @@ builder.Services
     .AddStackExchangeRedisCache(options => options.Configuration = builder.Configuration.GetConnectionString("Redis"))
     .AddHybridCache();
 
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddTelegram(builder.Configuration);
 
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -63,10 +63,12 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
-
+    var hyperliquidDbContext = scope.ServiceProvider.GetRequiredService<HyperliquidDbContext>();
+    
     if (!app.Environment.IsDevelopment())
     {
         db.Database.Migrate();
+        hyperliquidDbContext.Database.Migrate();
     }
 }
 
@@ -106,17 +108,9 @@ app.MapPost("/sync-daily-performance",
 
 app.MapPost("/hyperliquid/sync-positions",
     async (
-        CryptoWatcherDbContext dbContext,
-        IHyperliquidPositionsSyncService coordinator, DateOnly from, DateOnly to, CancellationToken ct) =>
+        CryptoWatcherDbContext dbContext,  DateOnly from, DateOnly to, CancellationToken ct) =>
     {
-        var wallets = await dbContext.Wallets.ToArrayAsync(ct);
-
-        foreach (var wallet in wallets)
-        {
-            await coordinator.SyncPositionsAsync(wallet, from, to, ct);
-        }
-
-        return TypedResults.Ok();
+      
     });
 
 app.MapPost("/uniswap/sync-block/{transactionHash}", async (IUniswapPositionTransactionSynchronizer sync,

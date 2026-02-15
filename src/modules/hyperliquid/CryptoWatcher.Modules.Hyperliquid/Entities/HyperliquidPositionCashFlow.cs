@@ -24,7 +24,7 @@ public class HyperliquidPositionCashFlow : ITokenCashFlow
     /// such as deposits or withdrawals. It is a critical component in identifying and organizing event records,
     /// enabling chronological tracking and data management of vault-related activities.
     /// </remarks>
-    public DateTime Date { get; init; }
+    public DateTimeOffset Date { get; init; }
     
     public CryptoTokenStatistic Token0 { get; init; } = null!;
     
@@ -48,6 +48,8 @@ public class HyperliquidPositionCashFlow : ITokenCashFlow
     /// </remarks>
     public EvmAddress VaultAddress { get; init; } = null!;
 
+    public TransactionHash TransactionHash { get; set; } = null!;
+
     /// <summary>
     /// Represents the wallet address associated with the liquidity pool position.
     /// </summary>
@@ -56,13 +58,4 @@ public class HyperliquidPositionCashFlow : ITokenCashFlow
     /// It is used to identify the owner of the position and manage the related account details.
     /// </remarks>
     public EvmAddress WalletAddress { get; init; } = null!;
-
-    /// <summary>
-    /// Represents the wallet associated with a liquidity pool position.
-    /// </summary>
-    /// <remarks>
-    /// This property identifies the wallet that holds ownership of the liquidity pool position.
-    /// It includes the wallet's unique identifier and blockchain address for managing assets.
-    /// </remarks>
-    public Wallet Wallet { get; init; } = null!;
 }
