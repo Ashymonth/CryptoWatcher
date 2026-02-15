@@ -1,11 +1,13 @@
 using System.Threading.RateLimiting;
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Synchronization.VaultSynchronization.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Integrations.Hyperliquid.Api;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Persistence;
+using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Persistence.Queries;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,6 +59,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IHyperliquidSyncStateRepository, HyperliquidSyncStateRepository>();
         services.AddScoped<IHyperliquidVaultPositionRepository, HyperliquidVaultPositionRepository>();
         services.AddScoped<HyperliquidVaultPositionBulkWriter>();
+        services.AddScoped<IHyperliquidPositionForReportQuery, HyperliquidPositionForReportQuery>();
 
         services.AddSingleton<IUnprocessedVaultUpdatesFilter, UnprocessedVaultUpdatesFilter>();
         services.AddSingleton<IHyperliquidVaultPositionUpdater, HyperliquidVaultPositionUpdater>();

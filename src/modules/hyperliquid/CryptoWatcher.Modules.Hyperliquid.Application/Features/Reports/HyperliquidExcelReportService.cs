@@ -1,28 +1,26 @@
-using CryptoWatcher.Abstractions;
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Models;
+using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports.Abstractions;
 using CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports.Models;
-using CryptoWatcher.Modules.Hyperliquid.Entities;
-using CryptoWatcher.Modules.Hyperliquid.Specifications;
 using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.Modules.Hyperliquid.Application.Features.Reports;
  
 public class HyperliquidReportDataService : IPlatformDailyReportDataProvider
 {
-    private readonly IRepository<HyperliquidVaultPosition> _repository;
+    private readonly IHyperliquidPositionForReportQuery _query;
 
-    public HyperliquidReportDataService(IRepository<HyperliquidVaultPosition> repository)
+    public HyperliquidReportDataService(IHyperliquidPositionForReportQuery query)
     {
-        _repository = repository;
+        _query = query;
     }
 
     public async Task<PlatformDailyReportData> GetReportDataAsync(IReadOnlyCollection<Wallet> wallets,
         DateOnly from, DateOnly to, CancellationToken ct = default)
     {
-        var vaultPositions =
-            await _repository.ListAsync(new HyperliquidPositionsForReportSpecification(wallets, from, to), ct);
+        var walletAddresses = wallets.Select(wallet => wallet.Address).ToArray();
+        var vaultPositions = await _query.GetPositionsAsync(walletAddresses, from, to, ct);
 
         var result = new Dictionary<Wallet, List<PlatformDailyReport>>();
         foreach (var vaultPositionByWallet in vaultPositions.GroupBy(position => position.WalletAddress))
