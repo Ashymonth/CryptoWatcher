@@ -1,7 +1,6 @@
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Abstractions.CacheFlows;
 using CryptoWatcher.Exceptions;
-using CryptoWatcher.Extensions;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.ValueObjects;
 
@@ -24,20 +23,19 @@ public class
         Token0 = new CryptoToken
         {
             Amount = 0,
-            Symbol = "USDC",
-            PriceInUsd = 1,
-            Address = EvmAddress.Create("0xaf88d065e77c8cC2239327C5EDb3A432268e5831")
+            Symbol = HyperliquidWellKnowFields.UsdcSymbol,
+            PriceInUsd = HyperliquidWellKnowFields.UsdcPrice,
+            Address = HyperliquidWellKnowFields.UsdcAddress
         };
-        
+
         VaultAddress = vaultAddress;
         WalletAddress = walletAddress;
-         
     }
 
     private readonly List<HyperliquidVaultPositionSnapshot> _snapshots = [];
     private readonly List<HyperliquidPositionCashFlow> _cashFlows = [];
     private readonly List<HyperliquidVaultPeriod> _periods = [];
- 
+
     /// <summary>
     /// Represents the address of the vault associated with the Hyperliquid platform position.
     /// </summary>
@@ -68,7 +66,7 @@ public class
     public CryptoToken Token0 { get; private init; } = null!;
 
     public HyperliquidVaultPeriod? ActivePeriod => Periods.FirstOrDefault(period => period.ClosedAt is null);
-    
+
     /// <summary>
     /// Represents the collection of events associated with the vault's activity.
     /// </summary>
@@ -91,7 +89,7 @@ public class
 
     public IReadOnlyCollection<HyperliquidVaultPeriod> Periods => _periods;
 
-    public static HyperliquidVaultPosition Open(EvmAddress wallet, EvmAddress vault )
+    public static HyperliquidVaultPosition Open(EvmAddress wallet, EvmAddress vault)
     {
         return new HyperliquidVaultPosition(vault, wallet);
     }
@@ -131,25 +129,26 @@ public class
         }
     }
 
-    public void AddCashFlowIfNotExists(decimal amount, CashFlowEvent @event, DateTimeOffset timestamp, TransactionHash hash)
+    public void AddCashFlowIfNotExists(decimal amount, CashFlowEvent @event, DateTimeOffset timestamp,
+        TransactionHash hash)
     {
         if (ActivePeriod is null && @event == CashFlowEvent.Deposit)
         {
             OpenPeriod(timestamp);
         }
 
-        if (ActivePeriod is null)   
+        if (ActivePeriod is null)
         {
             throw new DomainException(
                 $"CashFlow {@event} cannot be applied without active period");
         }
-        
+
         var exists = _cashFlows.Any(c => c.TransactionHash == hash);
         if (exists)
         {
             return;
         }
-        
+
         _cashFlows.Add(new HyperliquidPositionCashFlow
         {
             Date = timestamp,
@@ -160,7 +159,7 @@ public class
             TransactionHash = hash
         });
     }
-    
+
     private void ClosePeriod()
     {
         if (ActivePeriod is null)
