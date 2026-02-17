@@ -46,7 +46,7 @@ internal class UiPoolDataProviderFetcher : IUiPoolDataProviderFetcher
 
         return new MarketReserveOutput
         {
-            NetworkBaseTokenPriceDecimals = result.BaseCurrencyInfo.NetworkBaseTokenPriceDecimals,
+            NetworkBaseTokenPriceDecimals = (byte)result.BaseCurrencyInfo.NetworkBaseTokenPriceDecimals,
             AggregatedMarketReserveData = result.ReservesData.Select(data => new AggregatedMarketReserveData
             {
                 UnderlyingAsset = EvmAddress.Create(data.UnderlyingAsset),

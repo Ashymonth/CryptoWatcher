@@ -49,7 +49,7 @@ internal class AaveProvider : IAaveProvider
             {
                 throw new Exception("Can't find reserve data");
             }
-
+            
             var decimals = reserveOutput.NetworkBaseTokenPriceDecimals;
 
             if (userReserveData.ScaledATokenBalance > 0)
