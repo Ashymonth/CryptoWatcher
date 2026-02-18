@@ -18,7 +18,7 @@ public class MorphoPositionsStatusService
     public async Task<List<MorphoPositionsStatus>> GetPositionsStatusAsync(IReadOnlyCollection<EvmAddress> addresses,
         DateOnly day, CancellationToken ct = default)
     {
-        var positions = await _repository.ListAsync(new MorphoPositionStatusSpecification(addresses, day));
+        var positions = await _repository.ListAsync(new MorphoPositionStatusSpecification(addresses, day), ct);
 
         var result = new List<MorphoPositionsStatus>();
         foreach (var morphoMarketPosition in positions)
@@ -31,6 +31,8 @@ public class MorphoPositionsStatusService
 
             var positionStatus = new MorphoPositionsStatus
             {
+                Wallet = morphoMarketPosition.WalletAddress,
+                Network = morphoMarketPosition.ChainId.ToString(),
                 HealthFactor = snapshot.HealthFactor,
                 Collateral = new CryptoToken
                 {
