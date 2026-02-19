@@ -52,6 +52,7 @@ internal class UiPoolDataProviderFetcher : IUiPoolDataProviderFetcher
                 UnderlyingAsset = EvmAddress.Create(data.UnderlyingAsset),
                 Decimals = data.Decimals,
                 LiquidityIndex = data.LiquidityIndex,
+                LiquidationLtv =data.BaseLTVasCollateral,
                 PriceInMarketReferenceCurrency = data.PriceInMarketReferenceCurrency,
                 VariableBorrowIndex = data.VariableBorrowIndex,
                 ReserveLiquidationThreshold = (ushort)data.ReserveLiquidationThreshold

@@ -105,7 +105,7 @@ public class AavePositionTest
         position.AddOrUpdateSnapshot(token, 1, syncDate, _timeProviderMock.Object);
         
         var actualSnapshot = position.Snapshots.First();
-        var expectedSnapshot = new AavePositionSnapshot(position.Id, syncDate, token.ToStatistic());
+        var expectedSnapshot = new AavePositionSnapshot(position.Id, syncDate, token.ToStatistic(), null);
 
         Assert.Single(position.Snapshots);
         Assert.Equivalent(expectedSnapshot, actualSnapshot);

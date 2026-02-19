@@ -19,11 +19,13 @@ public class AavePositionSnapshot : ITokenPositionSnapshot
     {
     }
 
-    public AavePositionSnapshot(Guid positionId, DateOnly day, CryptoTokenStatistic positionCryptoToken)
+    public AavePositionSnapshot(Guid positionId, DateOnly day, CryptoTokenStatistic positionCryptoToken,
+        double? liquidationLtv)
     {
         PositionId = positionId;
         Day = day;
         Token0 = positionCryptoToken;
+        LiquidationLtv = liquidationLtv;
     }
 
     /// <summary>
@@ -56,8 +58,11 @@ public class AavePositionSnapshot : ITokenPositionSnapshot
     /// </remarks>
     public CryptoTokenStatistic Token0 { get; private set; } = null!;
 
-    public void Update(decimal amount, decimal priceInUsd)
+    public double? LiquidationLtv { get; private set; }
+
+    public void Update(decimal amount, decimal priceInUsd, double? liquidationLtv)
     {
         Token0 = Token0 with { Amount = amount, PriceInUsd = priceInUsd };
+        LiquidationLtv = liquidationLtv;
     }
 }

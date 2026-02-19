@@ -49,7 +49,7 @@ internal class AaveProvider : IAaveProvider
             {
                 throw new Exception("Can't find reserve data");
             }
-            
+
             var decimals = reserveOutput.NetworkBaseTokenPriceDecimals;
 
             if (userReserveData.ScaledATokenBalance > 0)
@@ -61,6 +61,7 @@ internal class AaveProvider : IAaveProvider
                     LiquidityIndex = reserveData.LiquidityIndex,
                     TokenPriceInUsd = reserveData.PriceInMarketReferenceCurrency.ToDecimal(decimals),
                     TokenDecimals = (byte)reserveData.Decimals,
+                    LiquidationLtv = reserveData.LiquidationLtv,
                     IsCollateral = userReserveData.IsCollateral
                 };
 

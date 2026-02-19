@@ -93,7 +93,8 @@ public class AavePositionsSyncService : IAavePositionsSyncService
             }
 
             var positionScaleAmount = calculatableAaveLendingPosition.CalculatePositionScaleInToken();
-            currentPosition.AddOrUpdateSnapshot(cryptoToken, positionScaleAmount, syncDay, _timeProvider);
+            currentPosition.AddOrUpdateSnapshot(cryptoToken, positionScaleAmount, syncDay, _timeProvider,
+                (double?)((calculatableAaveLendingPosition as SuppliedAaveLendingPosition)?.LiquidationLtv / 100));
 
             result.Add(currentPosition);
 
