@@ -9,7 +9,7 @@ public class MorphoPositionStatusSpecification : Specification<MorphoMarketPosit
     public MorphoPositionStatusSpecification(IReadOnlyCollection<EvmAddress> walletAddress, DateOnly day)
     {
         Query
-            .Where(position => walletAddress.Contains(position.WalletAddress))
+            .Where(position => walletAddress.Contains(position.WalletAddress) && position.ClosedAt == null)
             .Include(position => position.Snapshots.Where(snapshot => snapshot.Day == day));
     }
 }

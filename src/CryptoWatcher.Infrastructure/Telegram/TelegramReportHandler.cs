@@ -2,6 +2,7 @@ using CryptoWatcher.Abstractions;
 using CryptoWatcher.Infrastructure.Excel.Overall.Uniswap;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
+using CryptoWatcher.Modules.Morpho.Application.Services;
 using CryptoWatcher.Modules.Uniswap.Application.Models.Reports;
 using CryptoWatcher.Shared.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,19 @@ public class TelegramReportHandler : IUpdateHandler
         var dailyReportFacade = scope.ServiceProvider.GetRequiredService<IPlatformDailyReportFacade>();
 
         var (from, to) = DateTime.Now.GetCurrentMonthRange();
+
+        if (update.Message!.Text == "/status")
+        {
+            var morphoService = scope.ServiceProvider.GetRequiredService<MorphoPositionsStatusService>();
+            var status = await morphoService.GetPositionsStatusAsync(wallets.Select(x => x.Address).ToArray(),
+                DateOnly.FromDateTime(DateTime.Now), cancellationToken);
+
+            await botClient.SendMessage(update.Message!.From!.Id,
+                MorphoPositionStatusMessageCreator.CreateMessageFromModels(status),
+                cancellationToken: cancellationToken);
+            return;
+        }
+
         var excelReport = update.Message!.Text switch
         {
             "/uniswap" => await dailyReportFacade.CreateUniswapReportAsync(wallets, null, null, cancellationToken),

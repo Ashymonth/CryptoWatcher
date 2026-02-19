@@ -8,12 +8,11 @@ public class MorphoMarketPositionSnapshot : IMarketPositionSnapshot
     //for ef
     private MorphoMarketPositionSnapshot()
     {
-        
     }
-    
+
     public MorphoMarketPositionSnapshot(
         Guid morphoMarketPositionId,
-        DateOnly day, 
+        DateOnly day,
         CryptoTokenStatistic loadToken,
         CryptoTokenStatistic collateralToken,
         double healthFactor,
@@ -50,11 +49,16 @@ public class MorphoMarketPositionSnapshot : IMarketPositionSnapshot
 
     public decimal CalculateCollateralPriceForLiquidation()
     {
-        if (CollateralToken.AmountInUsd == 0)
+        if (CollateralToken.Amount == 0)
         {
             return 0;
         }
 
-        return LoadToken.AmountInUsd / (CollateralToken.AmountInUsd * (decimal)LiquidationLtv);
+        if (LiquidationLtv == 0)
+        {
+            return 0;
+        }
+
+        return LoadToken.AmountInUsd / (CollateralToken.Amount * (decimal)LiquidationLtv);
     }
 }
