@@ -2,6 +2,8 @@ using CryptoWatcher.Abstractions;
 using CryptoWatcher.Infrastructure.Excel.Overall.Uniswap;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
+using CryptoWatcher.Modules.Aave.Application.Models;
+using CryptoWatcher.Modules.Aave.Application.Services;
 using CryptoWatcher.Modules.Morpho.Application.Services;
 using CryptoWatcher.Modules.Uniswap.Application.Models.Reports;
 using CryptoWatcher.Shared.Entities;
@@ -38,12 +40,20 @@ public class TelegramReportHandler : IUpdateHandler
 
         if (update.Message!.Text == "/status")
         {
+            var walletAddresses = wallets.Select(x => x.Address).ToArray();
             var morphoService = scope.ServiceProvider.GetRequiredService<MorphoPositionsStatusService>();
-            var status = await morphoService.GetPositionsStatusAsync(wallets.Select(x => x.Address).ToArray(),
+            var aaveService = scope.ServiceProvider.GetRequiredService<AaveAccountStatusService>();
+            var status = await morphoService.GetPositionsStatusAsync(walletAddresses,
                 DateOnly.FromDateTime(DateTime.Now), cancellationToken);
+
+            var aaveHf =
+                await aaveService.Test(walletAddresses, DateOnly.FromDateTime(DateTime.Now), cancellationToken);
 
             await botClient.SendMessage(update.Message!.From!.Id,
                 MorphoPositionStatusMessageCreator.CreateMessageFromModels(status),
+                cancellationToken: cancellationToken);
+
+            await botClient.SendMessage(update.Message!.From!.Id, $"Aave Health Factor: {Math.Round(aaveHf, 2)}",
                 cancellationToken: cancellationToken);
             return;
         }

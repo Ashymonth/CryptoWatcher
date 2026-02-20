@@ -12,7 +12,7 @@ public class SuppliedAaveLendingPosition : CalculatableAaveLendingPosition
     /// </summary>
     public required BigInteger LiquidityIndex { get; init; }
     
-    public required BigInteger LiquidationLtv { get; init; }
+    public required decimal LiquidationLtv { get; init; }
 
     protected override BigInteger AccrualIndex => LiquidityIndex;
     
