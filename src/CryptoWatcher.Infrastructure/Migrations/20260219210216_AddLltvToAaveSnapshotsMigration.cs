@@ -19,7 +19,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
 
             migrationBuilder.Sql("""
                                  UPDATE "AavePositionSnapshots" 
-                                 SET "LiquidationLtv" = 0.80
+                                 SET "LiquidationLtv" = 0.84
                                  WHERE "PositionId" IN 
                                        (SELECT "Id" from "AavePositions" 
                                                     WHERE "Token0_Symbol" = 'ETH' or "Token0_Symbol" = 'wstETH' or "Token0_Symbol" = 'WETH');
@@ -27,7 +27,7 @@ namespace CryptoWatcher.Infrastructure.Migrations
             
             migrationBuilder.Sql("""
                                  UPDATE "AavePositionSnapshots" 
-                                 SET "LiquidationLtv" = 0.73
+                                 SET "LiquidationLtv" = 0.78
                                  WHERE "PositionId" IN 
                                        (SELECT "Id" from "AavePositions" 
                                                     WHERE "Token0_Symbol" = 'WBTC');
