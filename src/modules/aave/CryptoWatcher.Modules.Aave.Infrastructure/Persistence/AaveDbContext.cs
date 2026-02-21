@@ -1,9 +1,10 @@
 using CryptoWatcher.Modules.Aave.Entities;
+using CryptoWatcher.Modules.Infrastructure.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace CryptoWatcher.Modules.Aave.Infrastructure.Persistence;
 
-public class AaveDbContext : DbContext
+public class AaveDbContext : BaseDbContext
 {
     public AaveDbContext(DbContextOptions<AaveDbContext> options) : base(options)
     {
@@ -63,4 +64,9 @@ public class AaveDbContext : DbContext
     /// to individual position records, including token details and relevant identifiers.
     /// </remarks>
     public DbSet<AavePositionCashFlow> AavePositionCashFlows => Set<AavePositionCashFlow>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AaveDbContext).Assembly);
+    }
 }
