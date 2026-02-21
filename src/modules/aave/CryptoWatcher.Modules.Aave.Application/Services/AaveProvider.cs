@@ -6,9 +6,9 @@ using CryptoWatcher.Modules.Aave.Models;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.ValueObjects;
 
-namespace CryptoWatcher.Modules.Aave.Infrastructure.Services;
+namespace CryptoWatcher.Modules.Aave.Application.Services;
 
-internal class AaveProvider : IAaveProvider
+public class AaveProvider : IAaveProvider
 {
     private readonly IAaveGateway _aaveGateway;
     private readonly IAaveHealthFactorCalculator _aaveHealthFactorCalculator;
