@@ -1,8 +1,6 @@
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Modules.Aave.Application.Abstractions;
-using CryptoWatcher.Modules.Aave.Application.Abstractions.Client;
 using CryptoWatcher.Modules.Aave.Application.Models;
-using CryptoWatcher.Modules.Aave.Application.Services;
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Modules.Aave.Models;
 using CryptoWatcher.Shared.Entities;
@@ -12,22 +10,20 @@ namespace CryptoWatcher.Modules.Aave.Infrastructure.Services;
 
 internal class AaveProvider : IAaveProvider
 {
-    private readonly IAaveApiClient _aaveApiClient;
+    private readonly IAaveGateway _aaveGateway;
     private readonly IAaveHealthFactorCalculator _aaveHealthFactorCalculator;
 
-    public AaveProvider(IAaveApiClient aaveApiClient, IAaveHealthFactorCalculator aaveHealthFactorCalculator)
+    public AaveProvider(IAaveGateway aaveApiClient, IAaveHealthFactorCalculator aaveHealthFactorCalculator)
     {
-        _aaveApiClient = aaveApiClient;
+        _aaveGateway = aaveApiClient;
         _aaveHealthFactorCalculator = aaveHealthFactorCalculator;
     }
 
     public async Task<AavePositionsResponse> GetLendingPositionAsync(AaveChainConfiguration chain, Wallet wallet)
     {
-        var userReserves =
-            await _aaveApiClient.UiPoolDataProviderFetcher.GetUserReservesDataAsync(chain, wallet.Address);
+        var userReserves = await _aaveGateway.GetUserReservesDataAsync(chain, wallet.Address);
 
-        var reserveOutput =
-            await _aaveApiClient.UiPoolDataProviderFetcher.GetMarketReservesDataAsync(chain);
+        var reserveOutput = await _aaveGateway.GetMarketReservesDataAsync(chain);
 
         var marketData = reserveOutput.AggregatedMarketReserveData.ToDictionary(data => data.UnderlyingAsset);
 

@@ -1,8 +1,10 @@
 using System.Numerics;
+using JetBrains.Annotations;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 
-namespace CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider.Contracts.UserReserve;
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain.UiPoolDataProvider.Contracts.UserReserve;
 
+[PublicAPI]
 public class UserReserveData
 {
     [Parameter("address", "underlyingAsset", 1)]

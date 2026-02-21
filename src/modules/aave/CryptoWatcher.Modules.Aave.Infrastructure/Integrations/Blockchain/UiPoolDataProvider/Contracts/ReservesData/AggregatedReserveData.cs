@@ -1,21 +1,23 @@
 using System.Numerics;
+using JetBrains.Annotations;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 
-namespace CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider.Contracts.ReservesData;
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain.UiPoolDataProvider.Contracts.ReservesData;
 
+[PublicAPI]
 public class AggregatedReserveData
 {
-    [Parameter("address", "underlyingAsset", 1)]
-    public string UnderlyingAsset { get; set; }
+    [Parameter("address", "underlyingAsset")]
+    public string UnderlyingAsset { get; set; } = null!;
 
-    [Parameter("string", "name", 2)] public string Name { get; set; }
+    [Parameter("string", "name", 2)] public string Name { get; set; } = null!;
 
-    [Parameter("string", "symbol", 3)] public string Symbol { get; set; }
+    [Parameter("string", "symbol", 3)] public string Symbol { get; set; } = null!;
 
     [Parameter("uint256", "decimals", 4)] public BigInteger Decimals { get; set; }
 
     [Parameter("uint256", "baseLTVasCollateral", 5)]
-    public BigInteger BaseLTVasCollateral { get; set; }
+    public BigInteger BaseLtVasCollateral { get; set; }
 
     [Parameter("uint256", "reserveLiquidationThreshold", 6)]
     public BigInteger ReserveLiquidationThreshold { get; set; }
@@ -58,16 +60,16 @@ public class AggregatedReserveData
     public BigInteger LastUpdateTimestamp { get; set; }
 
     [Parameter("address", "aTokenAddress", 20)]
-    public string ATokenAddress { get; set; }
+    public string ATokenAddress { get; set; } = null!;
 
     [Parameter("address", "stableDebtTokenAddress", 21)]
-    public string StableDebtTokenAddress { get; set; }
+    public string StableDebtTokenAddress { get; set; } = null!;
 
     [Parameter("address", "variableDebtTokenAddress", 22)]
-    public string VariableDebtTokenAddress { get; set; }
+    public string VariableDebtTokenAddress { get; set; } = null!;
 
     [Parameter("address", "interestRateStrategyAddress", 23)]
-    public string InterestRateStrategyAddress { get; set; }
+    public string InterestRateStrategyAddress { get; set; } = null!;
 
     [Parameter("uint256", "availableLiquidity", 24)]
     public BigInteger AvailableLiquidity { get; set; }
@@ -88,7 +90,7 @@ public class AggregatedReserveData
     public BigInteger PriceInMarketReferenceCurrency { get; set; }
 
     [Parameter("address", "priceOracle", 30)]
-    public string PriceOracle { get; set; }
+    public string PriceOracle { get; set; } = null!;
 
     [Parameter("uint256", "variableRateSlope1", 31)]
     public BigInteger VariableRateSlope1 { get; set; }
@@ -151,10 +153,10 @@ public class AggregatedReserveData
     public BigInteger EModeLiquidationBonus { get; set; }
 
     [Parameter("address", "eModePriceSource", 52)]
-    public string EModePriceSource { get; set; }
+    public string EModePriceSource { get; set; } = null!;
 
     [Parameter("string", "eModeLabel", 53)]
-    public string EModeLabel { get; set; }
+    public string EModeLabel { get; set; } = null!;
 
     [Parameter("bool", "borrowableInIsolation", 54)]
     public bool BorrowableInIsolation { get; set; }

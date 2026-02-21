@@ -1,30 +1,24 @@
+using CryptoWatcher.Modules.Aave.Application.Abstractions;
 using CryptoWatcher.Modules.Aave.Application.Models;
 using CryptoWatcher.Modules.Aave.Entities;
-using CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider.Contracts.ReservesData;
-using CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider.Contracts.UserReserve;
+using CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain.UiPoolDataProvider;
 using CryptoWatcher.ValueObjects;
-using Nethereum.Contracts;
-using Nethereum.Web3;
 
-namespace CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider;
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain;
 
-/// <summary>
-/// <see cref="IUiPoolDataProviderFetcher"/>
-/// </summary>
-internal class UiPoolDataProviderFetcher : IUiPoolDataProviderFetcher
+public class AaveGateway : IAaveGateway
 {
+    private readonly IUiPoolDataProviderFetcher _uiPoolDataProviderFetcher;
+
+    public AaveGateway(IUiPoolDataProviderFetcher uiPoolDataProviderFetcher)
+    {
+        _uiPoolDataProviderFetcher = uiPoolDataProviderFetcher;
+    }
+
     public async Task<IReadOnlyCollection<UserReserve>> GetUserReservesDataAsync(AaveChainConfiguration chain,
         EvmAddress userAddress)
     {
-        var web3 = new Web3(chain.RpcUrlWithAuthToken.ToString());
-
-        var function = GetFunction(web3, "getUserReservesData", chain.SmartContractAddresses.UiPoolDataProviderAddress
-            .Value);
-
-        var result = await function.CallDeserializingToObjectAsync<UserReservesResponse>(
-            chain.SmartContractAddresses.PoolAddressesProviderAddress.Value,
-            userAddress.Value
-        );
+        var result = await _uiPoolDataProviderFetcher.GetUserReservesDataAsync(chain, userAddress);
 
         return result.ReservesData.Select(data => new UserReserve
         {
@@ -37,12 +31,7 @@ internal class UiPoolDataProviderFetcher : IUiPoolDataProviderFetcher
 
     public async Task<MarketReserveOutput> GetMarketReservesDataAsync(AaveChainConfiguration chain)
     {
-        var web3 = new Web3(chain.RpcUrlWithAuthToken.ToString());
-
-        var function = GetFunction(web3, "getReservesData", chain.SmartContractAddresses.UiPoolDataProviderAddress.Value);
-       
-        var result = await function.CallDeserializingToObjectAsync<GetReservesDataOutput>(chain.SmartContractAddresses
-            .PoolAddressesProviderAddress.Value);
+        var result = await _uiPoolDataProviderFetcher.GetMarketReservesDataAsync(chain);
 
         return new MarketReserveOutput
         {
@@ -58,12 +47,5 @@ internal class UiPoolDataProviderFetcher : IUiPoolDataProviderFetcher
                 ReserveLiquidationThreshold = (ushort)data.ReserveLiquidationThreshold
             }).ToArray(),
         };
-    }
-
-    private static Function GetFunction(IWeb3 web3, string functionName, string uiPoolDataProviderAddress)
-    {
-        var contract = web3.Eth.GetContract(UiPoolDataProviderFetcherAbi.Abi, uiPoolDataProviderAddress);
-
-        return contract.GetFunction(functionName);
     }
 }

@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider;
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain.UiPoolDataProvider;
 
 internal static class UiPoolDataProviderFetcherAbi
 {

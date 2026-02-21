@@ -1,10 +1,9 @@
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Application.Abstractions;
 using CryptoWatcher.Modules.Aave.Application.Abstractions;
-using CryptoWatcher.Modules.Aave.Application.Abstractions.Client;
 using CryptoWatcher.Modules.Aave.Application.Services;
-using CryptoWatcher.Modules.Aave.Infrastructure.Client;
-using CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider;
+using CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain;
+using CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain.UiPoolDataProvider;
 using CryptoWatcher.Modules.Aave.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Nethereum.ABI.ABIDeserialisation;
@@ -24,7 +23,7 @@ public static class ServiceCollectionExtensions
         
         services.AddSingleton<IUiPoolDataProviderFetcher, UiPoolDataProviderFetcher>();
 
-        services.AddSingleton<IAaveApiClient, AaveApiClient>();
+        services.AddSingleton<IAaveGateway, AaveGateway>();
         services.AddSingleton<IAaveHealthFactorCalculator, AaveHealthFactorCalculator>();
         
         services.AddScoped<IDailyPositionPerformanceSynchronizer, AaveDailyPositionPerformanceSynchronizer>();

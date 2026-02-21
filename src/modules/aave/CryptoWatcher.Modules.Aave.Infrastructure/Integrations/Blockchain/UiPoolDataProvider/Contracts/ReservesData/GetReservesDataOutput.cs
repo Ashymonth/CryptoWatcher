@@ -1,7 +1,9 @@
+using JetBrains.Annotations;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 
-namespace CryptoWatcher.Modules.Aave.Infrastructure.Client.UiPoolDataProvider.Contracts.ReservesData;
+namespace CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain.UiPoolDataProvider.Contracts.ReservesData;
 
+[PublicAPI]
 [FunctionOutput]
 public class GetReservesDataOutput
 {
