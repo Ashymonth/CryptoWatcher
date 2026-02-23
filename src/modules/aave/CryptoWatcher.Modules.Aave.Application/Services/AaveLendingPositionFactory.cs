@@ -1,4 +1,5 @@
 using System.Numerics;
+using CryptoWatcher.Extensions;
 using CryptoWatcher.Modules.Aave.Application.Models;
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.ValueObjects;
@@ -53,18 +54,18 @@ public static class AaveLendingPositionFactory
         decimal? liquidationLtv = null,
         bool isCollateral = false)
     {
-        var principal = AaveMath.ToTokenDecimal(scaledBalance, tokenDecimals);
+        var principal = scaledBalance.ToDecimal(tokenDecimals);
 
         var accruedRaw = AaveMath.CalculateAccruedRaw(scaledBalance, index);
 
-        var actual = AaveMath.ToTokenDecimal(accruedRaw, tokenDecimals);
+        var currentAmount = accruedRaw.ToDecimal(tokenDecimals);
 
         return new AaveLendingPosition
         {
             TokenAddress = EvmAddress.Create(underlyingAsset),
             PrincipalAmount = principal,
-            Amount = actual,
-            AmountUsd = AaveMath.CalculateUsd(actual, tokenPriceInUsd),
+            Amount = accruedRaw.ToDecimal(tokenDecimals),
+            AmountUsd = currentAmount * tokenPriceInUsd,
             PositionType = type,
             LiquidationLtv = liquidationLtv,
             IsCollateral = isCollateral
