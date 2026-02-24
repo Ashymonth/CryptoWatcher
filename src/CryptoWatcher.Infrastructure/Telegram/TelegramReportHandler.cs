@@ -47,7 +47,7 @@ public class TelegramReportHandler : IUpdateHandler
                 DateOnly.FromDateTime(DateTime.Now), cancellationToken);
 
             var aaveHf =
-                await aaveService.Test(walletAddresses, DateOnly.FromDateTime(DateTime.Now), cancellationToken);
+                await aaveService.CalculateHealthFactorAsync(walletAddresses, DateOnly.FromDateTime(DateTime.Now), cancellationToken);
 
             await botClient.SendMessage(update.Message!.From!.Id,
                 MorphoPositionStatusMessageCreator.CreateMessageFromModels(status),

@@ -5,6 +5,7 @@ using CryptoWatcher.Modules.Aave.Application.Services;
 using CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain;
 using CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain.UiPoolDataProvider;
 using CryptoWatcher.Modules.Aave.Infrastructure.Persistence;
+using CryptoWatcher.Modules.Aave.Infrastructure.Persistence.Queries;
 using CryptoWatcher.Modules.Aave.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IAaveHealthFactorCalculator, AaveHealthFactorCalculator>();
 
         services.AddScoped<IAavePositionRepository, AavePositionRepository>();
-        services.AddScoped<IDailyPositionPerformanceSynchronizer, AaveDailyPositionPerformanceSynchronizer>();
+        services.AddScoped<IAaveReportQuery, AaveReportQuery>();
         
         services.AddScoped<IAavePositionsSyncService, AavePositionsSyncService>();
         services.AddScoped<IAaveTokenEnricher, AaveTokenEnricher>();

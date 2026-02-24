@@ -10,6 +10,11 @@ public interface IAavePositionRepository
         EvmAddress wallet,
         DateOnly day,
         CancellationToken ct);
+    
+    Task<IReadOnlyList<AavePosition>> GetActiveForWalletAsync(
+        IReadOnlyCollection<EvmAddress> wallet,
+        DateOnly day,
+        CancellationToken ct);
 
     void Add(AavePosition position);
     
