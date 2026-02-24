@@ -51,9 +51,10 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("Postgres")!;
         services
-            .AddConfiguredAaveModule()
-            .AddConfiguredHyperliquidModule(configuration.GetConnectionString("Postgres")!)
+            .AddConfiguredAaveModule(connectionString)
+            .AddConfiguredHyperliquidModule(connectionString)
             .AddConfiguredUniswapModule()
             .AddMorphoModule(provider => provider.GetRequiredService<ExternalServicesConfig>().Morpho)
             .AddMerklModule(provider => provider.GetRequiredService<ExternalServicesConfig>().Merkl)
@@ -89,9 +90,9 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    private static IServiceCollection AddConfiguredAaveModule(this IServiceCollection services)
+    private static IServiceCollection AddConfiguredAaveModule(this IServiceCollection services, string connectionString)
     {
-        services.AddAaveModule()
+        services.AddAaveModule(connectionString)
             .AddSingleton<IDailyExcelSheetBuilder, AaveDailyExcelSheetBuilder>()
             .AddSingleton<AaveDailyReportExcelWorksheetWriter>();
 

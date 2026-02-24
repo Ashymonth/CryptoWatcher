@@ -188,7 +188,7 @@ public class AavePositionTest
     {
         return new AavePosition(
             TestNetwork,
-            TestWallet,
+            TestWallet.Address,
             type,
             _fixture.Create<CryptoToken>(),
             TestDate);

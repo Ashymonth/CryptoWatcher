@@ -4,6 +4,8 @@ using CryptoWatcher.Modules.Aave.Application.Abstractions;
 using CryptoWatcher.Modules.Aave.Application.Services;
 using CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain;
 using CryptoWatcher.Modules.Aave.Infrastructure.Integrations.Blockchain.UiPoolDataProvider;
+using CryptoWatcher.Modules.Aave.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Nethereum.ABI.ABIDeserialisation;
 
@@ -16,9 +18,14 @@ public static class AaveModuleKeyedService
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddAaveModule(this IServiceCollection services)
+    public static IServiceCollection AddAaveModule(this IServiceCollection services, string connectionString)
     {
         AbiDeserializationSettings.UseSystemTextJson = true;
+
+        services.AddDbContext<AaveDbContext>(builder => builder.UseNpgsql(connectionString,
+            npgsql => npgsql
+                .MigrationsHistoryTable("__EFMigrationsHistory", "aave")
+                .MigrationsAssembly(typeof(AaveDbContext).Assembly.FullName)));
         
         services.AddSingleton<IUiPoolDataProviderFetcher, UiPoolDataProviderFetcher>();
 

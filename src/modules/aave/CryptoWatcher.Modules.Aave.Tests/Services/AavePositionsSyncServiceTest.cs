@@ -111,7 +111,7 @@ public class AavePositionsSyncServiceTest
         if (positionsExists)
         {
             var existedPositions = expectedPositions.Select(position =>
-                new AavePosition(TestNetwork, TestWallet, expectedPositionType, new CryptoToken
+                new AavePosition(TestNetwork, TestWallet.Address, expectedPositionType, new CryptoToken
                 {
                     Address = position.TokenAddress,
                     Amount = 1,
@@ -200,7 +200,7 @@ public class AavePositionsSyncServiceTest
     [Fact]
     public async Task SyncPositionsAsyncTest_WhenPositionInDbExist_AndInAaveClosed_ShouldClosePosition()
     {
-        var dbPosition = new AavePosition(TestNetwork, TestWallet, AavePositionType.Borrowed,
+        var dbPosition = new AavePosition(TestNetwork, TestWallet.Address, AavePositionType.Borrowed,
             _fixture.Create<CryptoToken>(),
             SyncDay.AddDays(-1));
 

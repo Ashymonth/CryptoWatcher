@@ -1,6 +1,7 @@
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Modules.Infrastructure.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
+using SmartEnum.EFCore;
 
 namespace CryptoWatcher.Modules.Aave.Infrastructure.Persistence;
 
@@ -67,6 +68,8 @@ public class AaveDbContext : BaseDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("aave");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AaveDbContext).Assembly);
+        modelBuilder.ConfigureSmartEnum();
     }
 }

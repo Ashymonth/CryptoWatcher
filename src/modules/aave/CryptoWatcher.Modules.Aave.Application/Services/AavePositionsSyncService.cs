@@ -74,7 +74,7 @@ public class AavePositionsSyncService : IAavePositionsSyncService
 
             if (currentPosition is null)
             {
-                currentPosition = new AavePosition(protocol, wallet, lendingPosition.PositionType, cryptoToken, syncDay);
+                currentPosition = new AavePosition(protocol, wallet.Address, lendingPosition.PositionType, cryptoToken, syncDay);
 
                 _aavePositionRepository.Insert(currentPosition);
 
