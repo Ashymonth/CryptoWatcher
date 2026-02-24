@@ -32,22 +32,6 @@ namespace CryptoWatcher.Modules.Aave.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AaveChainConfigurations",
-                schema: "aave",
-                columns: table => new
-                {
-                    Name = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    SmartContractAddresses_PoolAddressesProviderAddress = table.Column<string>(type: "character(42)", unicode: false, fixedLength: true, maxLength: 42, nullable: false),
-                    SmartContractAddresses_UiPoolDataProviderAddress = table.Column<string>(type: "character(42)", unicode: false, fixedLength: true, maxLength: 42, nullable: false),
-                    RpcUrl = table.Column<string>(type: "text", nullable: false),
-                    RpcAuthToken = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AaveChainConfigurations", x => x.Name);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AavePositionDailyPerformances",
                 schema: "aave",
                 columns: table => new
@@ -87,6 +71,22 @@ namespace CryptoWatcher.Modules.Aave.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AavePositions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AaveProtocolConfigurations",
+                schema: "aave",
+                columns: table => new
+                {
+                    Name = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    SmartContractAddresses_PoolAddressesProviderAddress = table.Column<string>(type: "character(42)", unicode: false, fixedLength: true, maxLength: 42, nullable: false),
+                    SmartContractAddresses_UiPoolDataProviderAddress = table.Column<string>(type: "character(42)", unicode: false, fixedLength: true, maxLength: 42, nullable: false),
+                    RpcUrl = table.Column<string>(type: "text", nullable: false),
+                    RpcAuthToken = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AaveProtocolConfigurations", x => x.Name);
                 });
 
             migrationBuilder.CreateTable(
@@ -174,10 +174,6 @@ namespace CryptoWatcher.Modules.Aave.Infrastructure.Persistence.Migrations
                 schema: "aave");
 
             migrationBuilder.DropTable(
-                name: "AaveChainConfigurations",
-                schema: "aave");
-
-            migrationBuilder.DropTable(
                 name: "AavePositionCashFlows",
                 schema: "aave");
 
@@ -191,6 +187,10 @@ namespace CryptoWatcher.Modules.Aave.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "AavePositionSnapshots",
+                schema: "aave");
+
+            migrationBuilder.DropTable(
+                name: "AaveProtocolConfigurations",
                 schema: "aave");
 
             migrationBuilder.DropTable(

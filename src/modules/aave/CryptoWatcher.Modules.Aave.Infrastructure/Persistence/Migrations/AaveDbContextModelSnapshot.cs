@@ -273,7 +273,7 @@ namespace CryptoWatcher.Modules.Aave.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Name");
 
-                    b.ToTable("AaveChainConfigurations", "aave");
+                    b.ToTable("AaveProtocolConfigurations", "aave");
                 });
 
             modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePositionCashFlow", b =>

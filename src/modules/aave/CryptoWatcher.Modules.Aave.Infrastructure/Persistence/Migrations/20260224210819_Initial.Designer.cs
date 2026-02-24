@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CryptoWatcher.Modules.Aave.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AaveDbContext))]
-    [Migration("20260224180340_Initial")]
+    [Migration("20260224210819_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -276,7 +276,7 @@ namespace CryptoWatcher.Modules.Aave.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Name");
 
-                    b.ToTable("AaveChainConfigurations", "aave");
+                    b.ToTable("AaveProtocolConfigurations", "aave");
                 });
 
             modelBuilder.Entity("CryptoWatcher.Modules.Aave.Entities.AavePositionCashFlow", b =>
