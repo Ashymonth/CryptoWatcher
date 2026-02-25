@@ -18,7 +18,7 @@ public class AavePositionTest
 {
     private static readonly Wallet TestWallet = new()
         { Address = EvmAddress.Create("0xb67dDd7562A4FeDAD0AbA02E09E696AAD365EcB7") };
-    private static readonly AaveChainConfiguration TestNetwork = new AaveChainConfiguration
+    private static readonly AaveProtocolConfiguration TestNetwork = new AaveProtocolConfiguration
     {
         Name = "Celo",
         RpcUrl = new Uri("https://alfajores-forno.celo-testnet.org"),
@@ -188,7 +188,7 @@ public class AavePositionTest
     {
         return new AavePosition(
             TestNetwork,
-            TestWallet,
+            TestWallet.Address,
             type,
             _fixture.Create<CryptoToken>(),
             TestDate);

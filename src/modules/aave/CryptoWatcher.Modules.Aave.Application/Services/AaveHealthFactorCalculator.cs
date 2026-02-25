@@ -2,7 +2,7 @@ using CryptoWatcher.Exceptions;
 using CryptoWatcher.Modules.Aave.Application.Abstractions;
 using CryptoWatcher.Modules.Aave.Application.Models;
 using CryptoWatcher.Modules.Aave.Entities;
-using CryptoWatcher.ValueObjects;
+using CryptoWatcher.Modules.Aave.Models;
 
 namespace CryptoWatcher.Modules.Aave.Application.Services;
 
@@ -43,37 +43,23 @@ public class AaveHealthFactorCalculator : IAaveHealthFactorCalculator
         return (double)(collateral / debt);
     }
     
-    public double CalculateHealthFactor(IReadOnlyCollection<CalculatableAaveLendingPosition> userPositions,
-        Dictionary<EvmAddress, AggregatedMarketReserveData> marketReserveOutput)
+    public double CalculateHealthFactor(IReadOnlyCollection<AaveLendingPosition> userPositions)
     {
         var collateral = 0m;
         var debt = 0m;
 
         foreach (var lendingPosition in userPositions)
         {
-            if (!marketReserveOutput.TryGetValue(lendingPosition.TokenAddress, out var marketData))
+            switch (lendingPosition.PositionType)
             {
-                throw new DomainException($"Market data not found for token: {lendingPosition.TokenAddress}");
-            }
-
-            switch (lendingPosition)
-            {
-                case SuppliedAaveLendingPosition { IsCollateral: true } suppliedPosition:
-                {
-                    var liquidationThresholdFraction = marketData.ReserveLiquidationThreshold / 10000m;
-                    collateral += suppliedPosition.CalculatePositionScaleInToken()
-                                  * suppliedPosition.TokenPriceInUsd
-                                  * liquidationThresholdFraction;
+                case AavePositionType.Supplied when (lendingPosition.IsCollateral ?? false):
+                    collateral += lendingPosition.AmountUsd * lendingPosition.LiquidationLtv.GetValueOrDefault();
                     break;
-                }
-                case BorrowedAaveLendingPosition borrowedPosition:
-                {
-                    debt += borrowedPosition.CalculatePositionScaleInToken()
-                            * borrowedPosition.TokenPriceInUsd;
+                case AavePositionType.Borrowed:
+                    debt += lendingPosition.AmountUsd;
                     break;
-                }
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(userPositions));
+                    throw new ArgumentOutOfRangeException(nameof(userPositions), nameof(lendingPosition.PositionType));
             }
         }
 

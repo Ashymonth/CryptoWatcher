@@ -6,12 +6,9 @@ using CryptoWatcher.Modules.Aave.Application.Abstractions;
 using CryptoWatcher.Modules.Aave.Application.Models;
 using CryptoWatcher.Modules.Aave.Application.Services;
 using CryptoWatcher.Modules.Aave.Entities;
-using CryptoWatcher.Modules.Aave.Models;
-using CryptoWatcher.Modules.Aave.Specifications;
 using CryptoWatcher.Modules.Aave.Tests.Customizations;
 using CryptoWatcher.Modules.Aave.ValueObjects;
 using CryptoWatcher.Shared.Entities;
-using CryptoWatcher.Shared.ValueObjects;
 using CryptoWatcher.ValueObjects;
 using JetBrains.Annotations;
 using Moq;
@@ -21,7 +18,7 @@ namespace CryptoWatcher.AaveModule.Tests.Services;
 [TestSubject(typeof(AavePositionsSyncService))]
 public class AavePositionsSyncServiceTest
 {
-    private static readonly AaveChainConfiguration TestNetwork = new AaveChainConfiguration
+    private static readonly AaveProtocolConfiguration TestNetwork = new AaveProtocolConfiguration
     {
         Name = "Celo",
         RpcUrl = new Uri("https://alfajores-forno.celo-testnet.org"),
@@ -40,7 +37,7 @@ public class AavePositionsSyncServiceTest
 
     private readonly Mock<IAaveProvider> _aaveProviderMock = new();
     private readonly Mock<IAaveTokenEnricher> _tokenEnricherMock = new();
-    private readonly Mock<IRepository<AavePosition>> _aavePositionRepositoryMock = new();
+    private readonly Mock<IAavePositionRepository> _aavePositionRepositoryMock = new();
     private readonly Mock<TimeProvider> _timeProviderMock = new();
     private readonly Fixture _fixture;
 
@@ -50,9 +47,7 @@ public class AavePositionsSyncServiceTest
         _fixture.WithTokenDecimalsRange();
         _fixture.Customize(new PositiveBigIntegerCustomization());
         _fixture.Customize(new EvmAddressCustomization());
-
-        _aavePositionRepositoryMock.Setup(repository => repository.UnitOfWork)
-            .Returns(new Mock<IUnitOfWork>().Object);
+ 
 
         _timeProviderMock.Setup(provider => provider.LocalTimeZone).Returns(TimeZoneInfo.Utc);
         _timeProviderMock.Setup(provider => provider.GetUtcNow()).Returns(TestTime);
@@ -90,14 +85,17 @@ public class AavePositionsSyncServiceTest
         var expectedPositions = expectedPositionType switch
         {
             AavePositionType.Borrowed => _fixture
-                .CreateMany<BorrowedAaveLendingPosition>()
-                .Cast<AaveLendingPosition>()
+                .Build<AaveLendingPosition>()
+                .With(position => position.PositionType, AavePositionType.Borrowed)
+                .CreateMany()
                 .ToList(),
 
             AavePositionType.Supplied => _fixture
-                .CreateMany<SuppliedAaveLendingPosition>()
-                .Cast<AaveLendingPosition>()
+                .Build<AaveLendingPosition>()
+                .With(position => position.PositionType, AavePositionType.Supplied)
+                .CreateMany()
                 .ToList(),
+
             _ => throw new ArgumentOutOfRangeException(nameof(expectedPositionType), expectedPositionType, null)
         };
 
@@ -108,7 +106,7 @@ public class AavePositionsSyncServiceTest
         if (positionsExists)
         {
             var existedPositions = expectedPositions.Select(position =>
-                new AavePosition(TestNetwork, TestWallet, expectedPositionType, new CryptoToken
+                new AavePosition(TestNetwork, TestWallet.Address, expectedPositionType, new CryptoToken
                 {
                     Address = position.TokenAddress,
                     Amount = 1,
@@ -116,10 +114,7 @@ public class AavePositionsSyncServiceTest
                     Symbol = "1"
                 }, SyncDay));
 
-            _aavePositionRepositoryMock.Setup(repository =>
-                    repository.ListAsync(It.IsAny<AavePositionsWithSnapshotsSpecification>(),
-                        It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existedPositions.ToList);
+            _aavePositionRepositoryMock.SetupListFromRepo(existedPositions.ToList());
         }
         else
         {
@@ -137,7 +132,7 @@ public class AavePositionsSyncServiceTest
         Assert.Equal(expectedPositions.Count, actual.Count);
 
         var expectedMap = expectedPositions
-            .Zip(expectedSnapshotTokens, (_, token) => new { TokenAddress = token.Address, Token = token })  
+            .Zip(expectedSnapshotTokens, (_, token) => new { TokenAddress = token.Address, Token = token })
             .ToDictionary(x => x.TokenAddress, x => x.Token);
 
         Assert.Equal(expectedPositions.Count, actual.Count);
@@ -157,8 +152,10 @@ public class AavePositionsSyncServiceTest
     public async Task SyncPositionsAsyncTest_WhenExistAllTypePositions_ShouldReturnNotEmptyPositions()
     {
         AaveLendingPosition emptyPosition = _fixture.Create<EmptyAaveLendingPosition>();
-        AaveLendingPosition suppliedPosition = _fixture.Create<SuppliedAaveLendingPosition>();
-        AaveLendingPosition borrowedPosition = _fixture.Create<BorrowedAaveLendingPosition>();
+        var suppliedPosition = _fixture.Build<AaveLendingPosition>()
+            .With(position => position.PositionType, AavePositionType.Supplied).Create();
+        var borrowedPosition = _fixture.Build<AaveLendingPosition>()
+            .With(position => position.PositionType, AavePositionType.Borrowed).Create();
 
         AaveLendingPosition[] expectedPositions = [suppliedPosition, borrowedPosition];
 
@@ -182,10 +179,8 @@ public class AavePositionsSyncServiceTest
         {
             var actualPosition = actual[index];
             var expectedPosition = expectedPositions[index];
-
-            var expectedPositionType = ((CalculatableAaveLendingPosition)expectedPosition).DeterminePositionType();
-
-            AssertThatAavePositionValid(actualPosition, expectedPositionType);
+            
+            AssertThatAavePositionValid(actualPosition, expectedPosition.PositionType);
 
             var expectedSnapshot = expectedSnapshotTokens[index];
             var actualSnapshot = actualPosition.Snapshots.First();
@@ -197,7 +192,7 @@ public class AavePositionsSyncServiceTest
     [Fact]
     public async Task SyncPositionsAsyncTest_WhenPositionInDbExist_AndInAaveClosed_ShouldClosePosition()
     {
-        var dbPosition = new AavePosition(TestNetwork, TestWallet, AavePositionType.Borrowed,
+        var dbPosition = new AavePosition(TestNetwork, TestWallet.Address, AavePositionType.Borrowed,
             _fixture.Create<CryptoToken>(),
             SyncDay.AddDays(-1));
 
@@ -207,10 +202,7 @@ public class AavePositionsSyncServiceTest
                 new AavePositionsResponse([new EmptyAaveLendingPosition { TokenAddress = dbPosition.Token0.Address }],
                     2));
 
-        _aavePositionRepositoryMock.Setup(repository => repository.ListAsync(
-                It.IsAny<AavePositionsWithSnapshotsSpecification>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([dbPosition]);
+        _aavePositionRepositoryMock.SetupListFromRepo([dbPosition]);
 
         var service = CreateService();
 
@@ -218,7 +210,6 @@ public class AavePositionsSyncServiceTest
             TestContext.Current.CancellationToken);
 
         Assert.Single(actual);
-
     }
 
     private AavePositionsSyncService CreateService()

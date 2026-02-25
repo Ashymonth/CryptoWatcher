@@ -1,10 +1,9 @@
-using CryptoWatcher.Abstractions;
 using CryptoWatcher.Abstractions.Reports;
 using CryptoWatcher.Extensions;
 using CryptoWatcher.Models;
+using CryptoWatcher.Modules.Aave.Application.Abstractions;
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.Modules.Aave.Models;
-using CryptoWatcher.Modules.Aave.Specifications;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.ValueObjects;
 
@@ -12,19 +11,20 @@ namespace CryptoWatcher.Modules.Aave.Application.Services;
 
 public class AaveReportDataService : IPlatformDailyReportDataProvider
 {
-    private readonly IRepository<AavePosition> _repository;
+    private readonly IAaveReportQuery _reportQuery;
 
-    public AaveReportDataService(IRepository<AavePosition> repository)
+    public AaveReportDataService(IAaveReportQuery reportQuery)
     {
-        _repository = repository;
+        _reportQuery = reportQuery;
     }
 
     public async Task<PlatformDailyReportData> GetReportDataAsync(IReadOnlyCollection<Wallet> wallets,
         DateOnly from,
         DateOnly to, CancellationToken ct = default)
     {
+        var addresses = wallets.Select(wallet => wallet.Address).ToArray();
         var positions =
-            await _repository.ListAsync(new AavePositionsWithSnapshotsAndEventsSpecification(wallets, from, to), ct);
+            await _reportQuery.GetPositionsForReportAsync(addresses, from, to, ct);
 
         var result = new Dictionary<EvmAddress, List<PlatformDailyReport>>();
         foreach (var positionsByWallet in positions.GroupBy(static position => position.WalletAddress))

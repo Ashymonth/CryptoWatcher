@@ -28,12 +28,12 @@ public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCash
     {
     }
 
-    public AavePosition(AaveChainConfiguration chain, Wallet wallet, AavePositionType positionType,
+    public AavePosition(AaveProtocolConfiguration protocol, EvmAddress wallet, AavePositionType positionType,
         CryptoToken token,
         DateOnly createdAtDay)
     {
-        Network = chain.Name;
-        WalletAddress = wallet.Address;
+        Network = protocol.Name;
+        WalletAddress = wallet;
         PositionType = positionType;
         Token0 = token;
         Id = Guid.CreateVersion7();
@@ -79,15 +79,6 @@ public class AavePosition : IDeFiPosition<AavePositionSnapshot, AavePositionCash
     /// It is used to identify the owner of the position and manage the related account details.
     /// </remarks>
     public EvmAddress WalletAddress { get; private set; } = null!;
-
-    /// <summary>
-    /// Represents the wallet associated with a liquidity pool position.
-    /// </summary>
-    /// <remarks>
-    /// This property identifies the wallet that holds ownership of the liquidity pool position.
-    /// It includes the wallet's unique identifier and blockchain address for managing assets.
-    /// </remarks>
-    public Wallet Wallet { get; private set; } = null!;
 
     public CryptoToken Token0 { get; private set; } = null!;
 
