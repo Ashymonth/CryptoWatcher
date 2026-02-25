@@ -16,7 +16,7 @@ public class AaveDbContext : BaseDbContext
     /// Represents the entity set for managing Aave protocol configurations in the application's database context.
     /// </summary>
     /// <remarks>
-    /// This property allows access to Aave-specific blockchain configuration data, including chain names, RPC details,
+    /// This property allows access to Aave-specific bl ockchain configuration data, including chain names, RPC details,
     /// and associated smart contract addresses. It is essential to manage and query configuration settings necessary
     /// for interaction with various Aave-supported blockchains within the CryptoWatcher application.
     /// </remarks>
