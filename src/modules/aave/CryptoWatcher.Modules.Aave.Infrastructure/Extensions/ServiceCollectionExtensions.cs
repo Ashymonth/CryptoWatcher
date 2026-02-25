@@ -47,6 +47,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IAaveGateway, AaveGateway>();
         services.AddSingleton<IAaveHealthFactorCalculator, AaveHealthFactorCalculator>();
 
+        services.AddScoped<IAaveProtocolConfigurationRepository, AaveProtocolConfigurationRepository>();
         services.AddScoped<IAavePositionRepository, AavePositionRepository>();
         services.AddScoped<IAaveReportQuery, AaveReportQuery>();
 
