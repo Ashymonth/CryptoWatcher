@@ -37,5 +37,6 @@
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.4" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.4" />
+        <PackageReference Include="VaultSharp.Extensions.Configuration" Version="1.1.4" />
     </ItemGroup>
 </Project>
