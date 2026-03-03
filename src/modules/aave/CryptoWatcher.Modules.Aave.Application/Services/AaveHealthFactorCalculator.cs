@@ -56,8 +56,6 @@ public class AaveHealthFactorCalculator : IAaveHealthFactorCalculator
                 case AavePositionType.Borrowed:
                     debt += lendingPosition.AmountUsd;
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(userPositions), nameof(lendingPosition.PositionType));
             }
         }
 

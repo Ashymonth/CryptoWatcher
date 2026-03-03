@@ -1,3 +1,4 @@
+using CryptoWatcher.Extensions;
 using CryptoWatcher.Modules.Aave.Application.Abstractions;
 using CryptoWatcher.Modules.Aave.Entities;
 using CryptoWatcher.ValueObjects;
@@ -19,8 +20,10 @@ public class AavePositionRepository : IAavePositionRepository
     {
         return await _dbContext.AavePositions
             .Where(position => wallet == position.WalletAddress && position.Network == network)
-            .Include(position => position.Snapshots.Where(snapshot => snapshot.Day >= day && snapshot.Day <= day ))
-            .Include(position => position.CashFlows)
+            .Include(position => position.Snapshots.Where(snapshot => snapshot.Day >= day && snapshot.Day <= day))
+            .Include(position => position.CashFlows.Where(snapshot =>
+                snapshot.Date >= day.ToMinDateTime() && snapshot.Date <= day.ToMaxDateTime()))
+            .Include(position => position.PositionPeriods)
             .ToArrayAsync(ct);
     }
 

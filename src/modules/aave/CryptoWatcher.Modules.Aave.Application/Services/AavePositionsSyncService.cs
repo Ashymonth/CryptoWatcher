@@ -15,7 +15,6 @@ public class AavePositionsSyncService : IAavePositionsSyncService
     private readonly IAavePositionRepository _aavePositionRepository;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<AavePositionsSyncService> _logger;
-    private readonly IRepository<AaveAccountSnapshot> _aaveAccountSnapshotRepository;
 
     public AavePositionsSyncService(IAaveProvider aaveProvider, IAaveTokenEnricher aaveTokenEnricher,
         IAavePositionRepository aavePositionRepository, TimeProvider timeProvider,
@@ -26,7 +25,6 @@ public class AavePositionsSyncService : IAavePositionsSyncService
         _aaveTokenEnricher = aaveTokenEnricher;
         _aavePositionRepository = aavePositionRepository;
         _timeProvider = timeProvider;
-        _aaveAccountSnapshotRepository = aaveAccountSnapshotRepository;
         _logger = logger ?? NullLogger<AavePositionsSyncService>.Instance;
     }
 
@@ -47,8 +45,7 @@ public class AavePositionsSyncService : IAavePositionsSyncService
 
         _logger.LogFetchedPositionsForNetworkCount(protocol.Name, aavePositionsResponse.Positions.Count);
 
-        var totalSupply = 0M;
-        var totalBorrow = 0M;
+       
         foreach (var lendingPosition in aavePositionsResponse.Positions)
         {
             if (lendingPosition is EmptyAaveLendingPosition)
@@ -93,29 +90,9 @@ public class AavePositionsSyncService : IAavePositionsSyncService
                 (double?)lendingPosition.LiquidationLtv);
 
             result.Add(currentPosition);
-
-            if (lendingPosition.PositionType == AavePositionType.Supplied)
-            {
-                totalSupply += cryptoToken.AmountInUsd;
-                continue;
-            }
-
-            totalBorrow += cryptoToken.AmountInUsd;
         }
 
-        var accountSnapshot = new AaveAccountSnapshot
-        {
-            HealthFactor = aavePositionsResponse.HealthFactor,
-            Day = syncDay,
-            WalletAddress = wallet.Address,
-            NetworkName = protocol.Name,
-            TotalCollateralInUsd = totalSupply,
-            TotalDebtInUsd = totalBorrow
-        };
-
         await _aavePositionRepository.SaveAsync(ct);
- 
-        await _aaveAccountSnapshotRepository.BulkMergeAsync([accountSnapshot], ct);
 
         return result;
     }
