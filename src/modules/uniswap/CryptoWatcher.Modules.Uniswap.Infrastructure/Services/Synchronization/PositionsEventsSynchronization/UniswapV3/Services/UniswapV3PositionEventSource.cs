@@ -31,7 +31,7 @@ public class UniswapV3PositionEventSource : IPositionEventSource
 
         var transactionReceipt =
             await _blockchainApi.GetTransactionReceiptAsync(chainConfiguration, hash);
-
+        
         ct.ThrowIfCancellationRequested();
 
         return _decoderFactory.DecodeEventFromTransaction(transactionReceipt);

@@ -13,7 +13,15 @@ public class UniswapV3TransactionFilter : IUniswapTransactionFilter
 
     public bool IsRelevant(UniswapChainConfiguration config, BlockchainTransaction transaction)
     {
-        if (!transaction.To.Equals(config.SmartContractAddresses.PositionManager))
+        var addresses = config.SmartContractAddressesList.FirstOrDefault(uniswapAddresses =>
+            uniswapAddresses.ProtocolVersion == UniswapProtocolVersion.V3);
+
+        if (addresses is null)
+        {
+            throw new InvalidOperationException("No Uniswap v3 addresses found");
+        }        
+        
+        if (!transaction.To.Equals(addresses.PositionManager))
         {
             return false;
         }

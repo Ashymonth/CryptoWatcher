@@ -1,14 +1,12 @@
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 
 public interface IUniswapWalletEventApplier
 {
-    IAsyncEnumerable<WalletEventExtractionResult> ApplyEventsToPositionsAsync(
+    IAsyncEnumerable<UniswapLiquidityPosition[]> ApplyEventsToPositionsAsync(
         UniswapChainConfiguration chainConfiguration,
-        UniswapSynchronizationState synchronizationState,
-        Wallet wallet,
+        IEnumerable<BlockchainTransaction> transaction,
         CancellationToken ct = default);
 }

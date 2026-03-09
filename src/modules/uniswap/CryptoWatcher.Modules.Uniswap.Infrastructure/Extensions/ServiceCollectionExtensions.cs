@@ -24,9 +24,6 @@ using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.Unisw
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4.LiquidityPool;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4.PositionsFetcher;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4.StateView;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Etherscan.Api;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.LogEventDecoders;
@@ -34,7 +31,6 @@ using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.Posi
 using Microsoft.Extensions.DependencyInjection;
 using Nethereum.ABI.ABIDeserialisation;
 using Polly;
-using Refit;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
 
@@ -74,21 +70,10 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IBlockchainGateway, Web3BlockchainGateway>();
 
-        services.AddScoped<IWalletTransactionGateway, EtherscanTransactionGateway>();
-        services.AddScoped<IWalletTransactionPaginator, WalletTransactionPaginator>();
-        services.AddScoped<IUnprocessedWalletTransactions, UnprocessedWalletTransactions>();
         services.AddScoped<IUniswapTransactionEnricher, UniswapTransactionEnricher>();
-        services.AddScoped<IUniswapWalletTransactionScanner, UniswapWalletTransactionScanner>();
         services.AddScoped<IUniswapWalletEventApplier, UniswapWalletEventApplier>();
-        services.AddScoped<IUniswapWalletSyncStore, UniswapWalletSyncStore>();
-        services.AddScoped<IUniswapWalletPositionsSyncJob, UniswapWalletPositionsSyncJob>();
 
         services.AddScoped<IUniswapTransactionEventSource, UniswapTransactionEventSource>();
-
-        services.AddRefitClient<IEtherscanApi>()
-            .ConfigureHttpClient(client => client.BaseAddress = new Uri("https://api.etherscan.io"));
-
-        services.AddSingleton<IEtherscanApiKeyProvider, EtherscanApiKeyProvider>();
 
         services.AddSingleton<IBlockchainGateway, Web3BlockchainGateway>();
         services.AddSingleton<IWeb3BlockchainApi, Web3BlockchainApi>();

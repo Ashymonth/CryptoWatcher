@@ -2,55 +2,40 @@ using System.Runtime.CompilerServices;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Shared.Entities;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization;
 
 public class UniswapWalletEventApplier : IUniswapWalletEventApplier
 {
-    private const int ChunkSize = 50;
-
-    private readonly IUniswapWalletTransactionScanner _uniswapWalletTransactionScanner;
+    private readonly IUniswapTransactionEnricher _transactionEnricher;
     private readonly IUniswapPositionUpdater _positionUpdater;
-    
-    public UniswapWalletEventApplier(IUniswapWalletTransactionScanner uniswapWalletTransactionScanner,
-        IUniswapPositionUpdater positionUpdater)
+
+    public UniswapWalletEventApplier(IUniswapPositionUpdater positionUpdater,
+        IUniswapTransactionEnricher transactionEnricher)
     {
-        _uniswapWalletTransactionScanner = uniswapWalletTransactionScanner;
         _positionUpdater = positionUpdater;
+        _transactionEnricher = transactionEnricher;
     }
 
-    public async IAsyncEnumerable<WalletEventExtractionResult> ApplyEventsToPositionsAsync(
+    public async IAsyncEnumerable<UniswapLiquidityPosition[]> ApplyEventsToPositionsAsync(
         UniswapChainConfiguration chainConfiguration,
-        UniswapSynchronizationState synchronizationState,
-        Wallet wallet,
+        IEnumerable<BlockchainTransaction> transaction,
         [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var scannedTransactions = _uniswapWalletTransactionScanner
-            .ScanWalletTransactionsAsync(chainConfiguration, synchronizationState, wallet.Address, ct)
-            .ToBlockingEnumerable(cancellationToken: ct); // until a problem with pending transaction is fixed
+        var tasks = transaction
+            .OrderBy(blockchainTransaction => blockchainTransaction.Timestamp)
+            .Select(tx => _transactionEnricher.TryEnrichAsync(chainConfiguration, tx, ct))
+            .ToArray();
 
-        foreach (var uniswapEventBatch in scannedTransactions.Chunk(ChunkSize))
+        var results = await Task.WhenAll(tasks);
+
+        var uniswapEvents = results
+            .Where(x => x != null)
+            .ToArray();
+
+        if (uniswapEvents.Length != 0)
         {
-            var uniswapEvents = uniswapEventBatch
-                .Where(item => item.Event is not null)
-                .Select(eventScanItem => eventScanItem.Event!)
-                .ToArray();
-
-            var updatedPositions = Array.Empty<UniswapLiquidityPosition>();
-
-            if (uniswapEvents.Length > 0)
-            {
-                updatedPositions = await _positionUpdater.UpdateFromEventAsync(chainConfiguration, wallet.Address,
-                    uniswapEvents, ct);
-            }
-
-            yield return new WalletEventExtractionResult
-            {
-                UpdatedPositions = updatedPositions,
-                LastScannedTransaction =
-                    uniswapEventBatch.MaxBy(x => x.Transaction.BlockNumber)!.Transaction
-            };
+            yield return await _positionUpdater.UpdateFromEventAsync(chainConfiguration, uniswapEvents!, ct);
         }
     }
 }

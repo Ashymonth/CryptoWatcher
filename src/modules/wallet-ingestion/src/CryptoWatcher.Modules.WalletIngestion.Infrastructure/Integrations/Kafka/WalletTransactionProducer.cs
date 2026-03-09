@@ -25,6 +25,8 @@ public class WalletTransactionProducer : IWalletTransactionProducer, IDisposable
             BootstrapServers = kafkaConfig.Host.ToString(),
             EnableIdempotence = true,
             Acks = Acks.All,
+            CompressionType = CompressionType.Lz4,
+            LingerMs = 5
         }).Build();
 
         _topic = kafkaConfig.RawTransactionsTopic;

@@ -29,7 +29,8 @@ public class Web3BlockchainGateway : IBlockchainGateway
             Hash = transactionHash,
             To = EvmAddress.Create(transactionReceipt.To),
             FunctionName = null,
-            Timestamp = transactionTimestamp
+            Timestamp = transactionTimestamp,
+            From = EvmAddress.Create(transactionReceipt.From),
         };
     }
 }
