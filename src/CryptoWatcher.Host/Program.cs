@@ -67,6 +67,7 @@ using (var scope = app.Services.CreateScope())
     var hyperliquidDbContext = scope.ServiceProvider.GetRequiredService<HyperliquidDbContext>();
     var aaveDbContext = scope.ServiceProvider.GetRequiredService<AaveDbContext>();
     
+    
     if (!app.Environment.IsDevelopment())
     {
         db.Database.Migrate();
