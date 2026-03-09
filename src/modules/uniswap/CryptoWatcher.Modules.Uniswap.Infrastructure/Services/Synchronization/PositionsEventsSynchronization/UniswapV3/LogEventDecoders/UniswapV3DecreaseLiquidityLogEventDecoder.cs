@@ -2,6 +2,7 @@ using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.Positio
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Models.EventLogs;
+using CryptoWatcher.ValueObjects;
 using Nethereum.Contracts;
 using Nethereum.Contracts.Standards.ERC20.ContractDefinition;
 using Nethereum.RPC.Eth.DTOs;
@@ -36,7 +37,8 @@ public class UniswapV3DecreaseLiquidityLogEventDecoder : ITransactionLogEventDec
             Commission1 = collectEvents.Event.Amount1 != 0 ? collectEvents.Event.Amount1 - token1.Balance : 0,
             TransactionHash = transactionReceipt.TransactionHash,
             BlockNumber = transactionReceipt.BlockNumber,
-            IsPositionClosed = decreaseEvent.Event.Amount0 == 0
+            IsPositionClosed = decreaseEvent.Event.Amount0 == 0,
+            From = EvmAddress.Create(transactionReceipt.From)
         };
     }
 }

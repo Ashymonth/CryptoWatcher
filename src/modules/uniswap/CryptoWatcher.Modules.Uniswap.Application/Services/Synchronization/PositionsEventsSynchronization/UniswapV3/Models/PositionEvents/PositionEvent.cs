@@ -7,6 +7,8 @@ public abstract class PositionEvent
 {
     public required ulong PositionId { get; init; }
 
+    public required EvmAddress From { get; init; } = null!;
+    
     public required TransactionHash TransactionHash { get; init; } = null!;
     
     public required Token Token0 { get; init; } = null!;

@@ -6,9 +6,13 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Models;
 public class BlockchainTransaction
 {
     public string? FunctionName { get; init; } = null!;
+    
+    public int ChainId { get; init; } 
 
     public required TransactionHash Hash { get; init; } = null!;
 
+    public required EvmAddress From { get; init; } = null!;
+    
     public required EvmAddress To { get; init; } = null!;
 
     public required BigInteger BlockNumber { get; init; }
