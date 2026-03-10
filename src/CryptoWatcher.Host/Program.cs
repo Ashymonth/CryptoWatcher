@@ -22,10 +22,29 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddUserSecrets<Program>();
+
+if (builder.Environment.IsDevelopment())
+{
+    Serilog.Debugging.SelfLog.Enable(Console.Error);
+}
+
+builder.Host.UseSerilog((_, provider, configuration) =>
+{
+    configuration.WriteTo.Console()
+        .WriteTo.OpenTelemetry(options =>
+        {
+            options.Endpoint = provider.GetRequiredService<ExternalServicesConfig>().Otlp.ToString();
+            options.Protocol = Serilog.Sinks.OpenTelemetry.OtlpProtocol.HttpProtobuf;
+            options.ResourceAttributes = new Dictionary<string, object>
+            {
+                ["service.name"] = "crypto_watcher"
+            };
+        });
+});
 
 builder.Services.Configure<ExternalServicesConfig>(builder.Configuration.GetSection(nameof(ExternalServicesConfig)));
 
@@ -66,7 +85,9 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
     var hyperliquidDbContext = scope.ServiceProvider.GetRequiredService<HyperliquidDbContext>();
     var aaveDbContext = scope.ServiceProvider.GetRequiredService<AaveDbContext>();
-    
+
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("test");
+    logger.LogWarning("test");
     
     if (!app.Environment.IsDevelopment())
     {

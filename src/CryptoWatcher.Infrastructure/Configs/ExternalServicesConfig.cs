@@ -9,4 +9,6 @@ public class ExternalServicesConfig
     public Uri Morpho { get; set; } = null!;
     
     public Uri Merkl { get; set; } = null!;
+
+    public Uri Otlp { get; set; } = null!;
 }
