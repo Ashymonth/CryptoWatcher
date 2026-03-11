@@ -25,7 +25,7 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddUserSecrets<Program>();
+builder.AddConfiguredSerilog();
 
 builder.Services.Configure<ExternalServicesConfig>(builder.Configuration.GetSection(nameof(ExternalServicesConfig)));
 
@@ -66,8 +66,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<CryptoWatcherDbContext>();
     var hyperliquidDbContext = scope.ServiceProvider.GetRequiredService<HyperliquidDbContext>();
     var aaveDbContext = scope.ServiceProvider.GetRequiredService<AaveDbContext>();
-    
-    
+
     if (!app.Environment.IsDevelopment())
     {
         db.Database.Migrate();
@@ -75,7 +74,7 @@ using (var scope = app.Services.CreateScope())
         aaveDbContext.Database.Migrate();
     }
 }
-
+    
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -123,7 +122,8 @@ app.MapPost("/uniswap/sync-block/{transactionHash}", async (IUniswapPositionTran
 
     var hash = TransactionHash.FromString(transactionHash);
 
-    await sync.SynchronizeEventFromTransactionAsync(chains, new Wallet { Address = EvmAddress.Create(walletAddress) }, hash);
+    await sync.SynchronizeEventFromTransactionAsync(chains, new Wallet { Address = EvmAddress.Create(walletAddress) },
+        hash);
 });
 
 async Task<FileStreamHttpResult> TotalReportHandler(IDailySummaryReportProvider reportProvider,
