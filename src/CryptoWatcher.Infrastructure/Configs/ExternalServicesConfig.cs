@@ -10,5 +10,5 @@ public class ExternalServicesConfig
     
     public Uri Merkl { get; set; } = null!;
 
-    public Uri Otlp { get; set; } = null!;
+    public Uri Otel { get; set; } = null!;
 }

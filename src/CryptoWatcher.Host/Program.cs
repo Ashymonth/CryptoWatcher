@@ -22,29 +22,10 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-if (builder.Environment.IsDevelopment())
-{
-    Serilog.Debugging.SelfLog.Enable(Console.Error);
-}
-
-builder.Host.UseSerilog((_, provider, configuration) =>
-{
-    configuration.WriteTo.Console()
-        .WriteTo.OpenTelemetry(options =>
-        {
-            options.Endpoint = provider.GetRequiredService<ExternalServicesConfig>().Otlp.ToString();
-            options.Protocol = Serilog.Sinks.OpenTelemetry.OtlpProtocol.HttpProtobuf;
-            options.ResourceAttributes = new Dictionary<string, object>
-            {
-                ["service.name"] = "crypto_watcher"
-            };
-        });
-});
+builder.AddConfiguredSerilog();
 
 builder.Services.Configure<ExternalServicesConfig>(builder.Configuration.GetSection(nameof(ExternalServicesConfig)));
 
@@ -86,9 +67,6 @@ using (var scope = app.Services.CreateScope())
     var hyperliquidDbContext = scope.ServiceProvider.GetRequiredService<HyperliquidDbContext>();
     var aaveDbContext = scope.ServiceProvider.GetRequiredService<AaveDbContext>();
 
-    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("test");
-    logger.LogWarning("test");
-    
     if (!app.Environment.IsDevelopment())
     {
         db.Database.Migrate();
@@ -96,7 +74,7 @@ using (var scope = app.Services.CreateScope())
         aaveDbContext.Database.Migrate();
     }
 }
-
+    
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -144,7 +122,8 @@ app.MapPost("/uniswap/sync-block/{transactionHash}", async (IUniswapPositionTran
 
     var hash = TransactionHash.FromString(transactionHash);
 
-    await sync.SynchronizeEventFromTransactionAsync(chains, new Wallet { Address = EvmAddress.Create(walletAddress) }, hash);
+    await sync.SynchronizeEventFromTransactionAsync(chains, new Wallet { Address = EvmAddress.Create(walletAddress) },
+        hash);
 });
 
 async Task<FileStreamHttpResult> TotalReportHandler(IDailySummaryReportProvider reportProvider,
