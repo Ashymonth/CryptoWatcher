@@ -6,6 +6,7 @@ using CryptoWatcher.Application.Abstractions;
 using CryptoWatcher.Host.Extensions;
 using CryptoWatcher.Infrastructure;
 using CryptoWatcher.Infrastructure.Configs;
+using CryptoWatcher.Infrastructure.CronJobs;
 using CryptoWatcher.Infrastructure.CronJobs.Aave;
 using CryptoWatcher.Infrastructure.Excel.PlatformDailyReports;
 using CryptoWatcher.Infrastructure.Extensions;
@@ -13,7 +14,6 @@ using CryptoWatcher.Modules.Aave.Infrastructure.Persistence;
 using CryptoWatcher.Modules.Hyperliquid.Infrastructure.Persistence;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
-using CryptoWatcher.Modules.WalletIngestion.Entities;
 using CryptoWatcher.Modules.WalletIngestion.Infrastructure.Persistence;
 using CryptoWatcher.Shared.Entities;
 using CryptoWatcher.ValueObjects;
@@ -55,7 +55,7 @@ builder.Services.AddHangfire(configuration => configuration
     .UseRecommendedSerializerSettings()
     .UsePostgreSqlStorage(options =>
         options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("Hangfire")))
-    .UseRecurringJob(typeof(SyncAavePositionsCronJob).Assembly.GetRecurringJobs));
+    .UseRecurringJob(typeof(SyncDailyPositionPerformanceCronJob).Assembly.GetRecurringJobs));
 
 builder.Services.AddHangfireServer();
 
@@ -81,7 +81,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
+ 
 app.MapHangfireDashboardWithNoAuthorizationFilters();
 
 async Task<FileStreamHttpResult> Handler(IPlatformDailyReportFacade reportFacade,

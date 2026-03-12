@@ -49,5 +49,5 @@ public record UniswapAddresses
 
     public EvmAddress? StateView { get; set; }
 
-    public UniswapProtocolVersion ProtocolVersion { get; set; }
+    public UniswapProtocolVersion ProtocolVersion { get; set; } = UniswapProtocolVersion.V3;
 }
