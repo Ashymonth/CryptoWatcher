@@ -8,14 +8,18 @@ public static class LoggingExtensions
 {
     public static void AddConfiguredSerilog(this WebApplicationBuilder builder)
     {
-        builder.Host.UseSerilog((_, provider, configuration) =>
+        builder.Services.AddHttpContextAccessor();
+        builder.Host.UseSerilog((context, _, configuration) =>
         {
+            var otelEndpoint = context.Configuration
+                .GetSection(nameof(ExternalServicesConfig))
+                .GetValue<string>(nameof(ExternalServicesConfig.Otel));
+
             configuration
                 .ReadFrom.Configuration(builder.Configuration)
-                .WriteTo.Console()
                 .WriteTo.OpenTelemetry(options =>
                 {
-                    options.Endpoint = provider.GetRequiredService<ExternalServicesConfig>().Otel.ToString();
+                    options.Endpoint = otelEndpoint;
                     options.Protocol = OtlpProtocol.Grpc;
                     options.ResourceAttributes = new Dictionary<string, object>
                     {

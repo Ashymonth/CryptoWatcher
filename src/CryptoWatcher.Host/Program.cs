@@ -74,7 +74,7 @@ using (var scope = app.Services.CreateScope())
         aaveDbContext.Database.Migrate();
     }
 }
-    
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
