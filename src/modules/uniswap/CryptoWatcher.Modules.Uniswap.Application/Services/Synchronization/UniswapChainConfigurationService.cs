@@ -1,5 +1,6 @@
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Entities;
+using CryptoWatcher.Modules.Uniswap.Specifications;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization;
@@ -19,6 +20,7 @@ public class UniswapChainConfigurationService
     public async ValueTask<UniswapChainConfiguration> GetByIdAsync(int chainId, CancellationToken ct)
     {
         return (await _memoryCache.GetOrCreateAsync(chainId,
-            async _ => await _chainConfigurationRepository.GetByIdAsync(chainId, ct)))!;
+            async _ => await _chainConfigurationRepository.FirstOrDefaultAsync(new GetUnichainSpecification(chainId),
+                ct)))!;
     }
 }

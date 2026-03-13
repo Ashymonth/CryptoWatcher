@@ -10,8 +10,10 @@ using CryptoWatcher.Modules.Uniswap.Application.Services.Reports;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3;
-using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Models.PositionEvents;
-using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.PositionEventAppliers;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Models
+    .PositionEvents;
+using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.
+    PositionEventAppliers;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsSnapshotSynchronization;
 using CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.TransactionSynchronization;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain;
@@ -24,12 +26,19 @@ using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.Unisw
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4.LiquidityPool;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4.PositionsFetcher;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Blockchain.UniswapV4.StateView;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Kafka;
 using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Abstractions;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.LogEventDecoders;
-using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.Services;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.
+    Abstractions;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.
+    LogEventDecoders;
+using CryptoWatcher.Modules.Uniswap.Infrastructure.Services.Synchronization.PositionsEventsSynchronization.UniswapV3.
+    Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http.Resilience;
 using Nethereum.ABI.ABIDeserialisation;
+using Nethereum.RPC.Eth.Transactions;
 using Polly;
 
 namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Extensions;
@@ -60,10 +69,44 @@ public static class ServiceCollectionExtensions
             }));
         });
 
+        services.AddHostedService<BlockchainTransactionTransactionsConsumer>();
+        services.AddScoped<UniswapChainConfigurationService>();
+        services.AddScoped<IWalletTransactionConsumer, WalletTransactionConsumer>();
+
         services.AddScoped<IDailyPositionPerformanceSynchronizer, UniswapDailyPositionPerformanceSynchronizer>();
 
         services.AddSingleton<IUniswapProvider, UniswapProvider>();
 
+        services.AddHttpClient("Web3")
+            .AddResilienceHandler("Web3Resilience", builder =>
+            {
+                // Retry ПЕРВЫМ — оборачивает всё остальное
+                builder.AddRetry(new HttpRetryStrategyOptions
+                {
+                    MaxRetryAttempts = 3,
+                    Delay = TimeSpan.FromSeconds(1),
+                    BackoffType = DelayBackoffType.Exponential,
+                    ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                        .HandleResult(r =>
+                            r.StatusCode is System.Net.HttpStatusCode.BadRequest
+                                or System.Net.HttpStatusCode.TooManyRequests)
+                        .Handle<HttpRequestException>(ex =>
+                            ex.StatusCode is System.Net.HttpStatusCode.BadRequest
+                                or System.Net.HttpStatusCode.TooManyRequests)
+                });
+
+                // Rate limiter ВТОРЫМ
+                builder.AddRateLimiter(new SlidingWindowRateLimiter(new SlidingWindowRateLimiterOptions
+                {
+                    AutoReplenishment = true,
+                    PermitLimit = 10,
+                    QueueLimit = int.MaxValue,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    SegmentsPerWindow = 10,
+                    Window = TimeSpan.FromSeconds(1)
+                }));
+            });
+        
         services.AddSingleton<IWeb3Factory, Web3Factory>();
 
         services.AddScoped<IUniswapOverallReportService, UniswapOverallReportService>();
@@ -86,7 +129,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IUniswapPositionUpdater, UniswapPositionUpdater>();
         services.AddScoped<IUniswapPositionTransactionSynchronizer, UniswapPositionTransactionSynchronizer>();
-        
+
         //v3
         services.AddSingleton<UniswapV3Client>();
         services.AddSingleton<IUniswapV3LiquidityPool, UniswapV3LiquidityPool>();

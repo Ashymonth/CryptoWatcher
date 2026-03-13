@@ -3,6 +3,7 @@ using Confluent.Kafka;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.WalletIngestion.Infrastructure.Integrations.Configs;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -13,14 +14,14 @@ public class BlockchainTransactionTransactionsConsumer : BackgroundService
     private static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web);
 
     private readonly KafkaConfig _config;
-    private readonly IWalletTransactionConsumer _transactionConsumer;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BlockchainTransactionTransactionsConsumer> _logger;
 
-    public BlockchainTransactionTransactionsConsumer(KafkaConfig config, IWalletTransactionConsumer transactionConsumer,
+    public BlockchainTransactionTransactionsConsumer(KafkaConfig config, IServiceScopeFactory scopeFactory,
         ILogger<BlockchainTransactionTransactionsConsumer> logger)
     {
         _config = config;
-        _transactionConsumer = transactionConsumer;
+        _scopeFactory = scopeFactory;
         _logger = logger;
     }
 
@@ -32,29 +33,31 @@ public class BlockchainTransactionTransactionsConsumer : BackgroundService
             EnableAutoCommit = false,
             BootstrapServers = _config.Host.ToString()
         }).Build();
-
+        
+        
+        consumer.Assign(new TopicPartitionOffset(_config.RawTransactionsTopic, 0, new Offset(0)));
         consumer.Subscribe(_config.RawTransactionsTopic);
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                var batch = ConsumeBatch(consumer, 100);
+                var batch = ConsumeBatch(consumer, 50);
 
                 if (batch.Count == 0)
                 {
                     continue;
                 }
 
+                using var scope = _scopeFactory.CreateScope();
+                
                 var transactions = batch
                     .Where(result => result.Message.Value is not null)
                     .Select(result => JsonSerializer.Deserialize<BlockchainTransaction>(result.Message.Value,
                         JsonSerializerOptions)!);
 
-                await foreach (var transaction in _transactionConsumer.ConsumeTransactionsAsync(transactions,
-                                   stoppingToken))
-                {
-                }
+                var consumerService = scope.ServiceProvider.GetRequiredService<IWalletTransactionConsumer>();
+                await consumerService.ConsumeTransactionsAsync(transactions, stoppingToken);
 
                 consumer.Commit(batch.Last());
             }

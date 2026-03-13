@@ -5,7 +5,7 @@ namespace CryptoWatcher.Modules.Uniswap.Application.Models;
 
 public class BlockchainTransaction
 {
-    public string? FunctionName { get; init; } = null!;
+    public string? FunctionName { get; init; }
     
     public int ChainId { get; init; } 
 

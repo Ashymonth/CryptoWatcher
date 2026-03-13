@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using CryptoWatcher.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 using CryptoWatcher.Modules.Uniswap.Application.Models;
@@ -20,9 +19,8 @@ public class WalletTransactionConsumer : IWalletTransactionConsumer
         _repository = repository;
     }
 
-    public async IAsyncEnumerable<BlockchainTransaction[]> ConsumeTransactionsAsync(
-        IEnumerable<BlockchainTransaction> blockchainTransaction,
-        [EnumeratorCancellation] CancellationToken ct = default)
+    public async Task ConsumeTransactionsAsync(IEnumerable<BlockchainTransaction> blockchainTransaction,
+        CancellationToken ct = default)
     {
         foreach (var transactionByChain in blockchainTransaction.GroupBy(transaction => transaction.ChainId))
         {
@@ -34,7 +32,6 @@ public class WalletTransactionConsumer : IWalletTransactionConsumer
                                    transactionsByFrom, ct))
                 {
                     await _repository.BulkMergeAsync(updatedPositions, ct);
-                    yield return transactionsByFrom.ToArray();
                 }
             }
         }

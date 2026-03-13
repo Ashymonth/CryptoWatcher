@@ -20,11 +20,6 @@ public class UniswapV3TransactionFilter : IUniswapTransactionFilter
         {
             throw new InvalidOperationException("No Uniswap v3 addresses found");
         }        
-        
-        if (!transaction.To.Equals(addresses.PositionManager))
-        {
-            return false;
-        }
 
         return transaction.FunctionName is null ||
                V3LiquidityMethods.Any(functionName => transaction.FunctionName.Contains(functionName));

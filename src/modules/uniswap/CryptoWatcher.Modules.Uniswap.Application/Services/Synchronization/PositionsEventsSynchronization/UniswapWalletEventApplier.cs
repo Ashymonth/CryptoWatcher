@@ -24,18 +24,21 @@ public class UniswapWalletEventApplier : IUniswapWalletEventApplier
     {
         var tasks = transaction
             .OrderBy(blockchainTransaction => blockchainTransaction.Timestamp)
-            .Select(tx => _transactionEnricher.TryEnrichAsync(chainConfiguration, tx, ct))
-            .ToArray();
+            .Select(tx => _transactionEnricher.TryEnrichAsync(chainConfiguration, tx, ct));
 
-        var results = await Task.WhenAll(tasks);
-
-        var uniswapEvents = results
-            .Where(x => x != null)
-            .ToArray();
-
-        if (uniswapEvents.Length != 0)
+        foreach (var chunk in tasks.Chunk(5))
         {
-            yield return await _positionUpdater.UpdateFromEventAsync(chainConfiguration, uniswapEvents!, ct);
+            var results = await Task.WhenAll(chunk);
+
+            var uniswapEvents = results
+                .Where(x => x != null)
+                .ToArray();
+
+            if (uniswapEvents.Length != 0)
+            {
+                yield return await _positionUpdater.UpdateFromEventAsync(chainConfiguration, uniswapEvents!, ct);
+            }    
         }
+        
     }
 }
