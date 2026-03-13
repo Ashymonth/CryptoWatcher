@@ -1,4 +1,5 @@
 using System.Numerics;
+using CryptoWatcher.Modules.Contracts.Messages;
 using CryptoWatcher.Modules.WalletIngestion.Application.Models;
 using Riok.Mapperly.Abstractions;
 

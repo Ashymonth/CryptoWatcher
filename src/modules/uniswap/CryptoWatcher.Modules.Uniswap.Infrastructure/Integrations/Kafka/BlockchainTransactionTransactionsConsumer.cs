@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Confluent.Kafka;
+using CryptoWatcher.Modules.Contracts.Messages;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
-using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.WalletIngestion.Infrastructure.Integrations.Configs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -33,7 +33,6 @@ public class BlockchainTransactionTransactionsConsumer : BackgroundService
             EnableAutoCommit = false,
             BootstrapServers = _config.Host.ToString()
         }).Build();
-        
         
         consumer.Assign(new TopicPartitionOffset(_config.RawTransactionsTopic, 0, new Offset(0)));
         consumer.Subscribe(_config.RawTransactionsTopic);

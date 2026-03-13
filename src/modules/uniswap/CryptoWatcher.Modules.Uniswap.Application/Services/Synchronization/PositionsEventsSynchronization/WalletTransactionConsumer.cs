@@ -1,6 +1,6 @@
 using CryptoWatcher.Abstractions;
+using CryptoWatcher.Modules.Contracts.Messages;
 using CryptoWatcher.Modules.Uniswap.Application.Abstractions;
-using CryptoWatcher.Modules.Uniswap.Application.Models;
 using CryptoWatcher.Modules.Uniswap.Entities;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Services.Synchronization.PositionsEventsSynchronization;

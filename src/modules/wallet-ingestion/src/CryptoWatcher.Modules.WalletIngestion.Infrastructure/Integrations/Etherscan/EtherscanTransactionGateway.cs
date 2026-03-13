@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CryptoWatcher.Modules.Contracts.Messages;
 using CryptoWatcher.Modules.WalletIngestion.Application.Abstractions;
 using CryptoWatcher.Modules.WalletIngestion.Application.Models;
 using CryptoWatcher.Modules.WalletIngestion.Infrastructure.Integrations.Etherscan.Api;

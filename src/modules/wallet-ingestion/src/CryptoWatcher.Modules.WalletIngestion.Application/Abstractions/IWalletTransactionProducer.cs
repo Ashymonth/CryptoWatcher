@@ -1,3 +1,4 @@
+using CryptoWatcher.Modules.Contracts.Messages;
 using CryptoWatcher.Modules.WalletIngestion.Application.Models;
 
 namespace CryptoWatcher.Modules.WalletIngestion.Application.Abstractions;

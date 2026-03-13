@@ -1,4 +1,4 @@
-using CryptoWatcher.Modules.Uniswap.Application.Models;
+using CryptoWatcher.Modules.Contracts.Messages;
 
 namespace CryptoWatcher.Modules.Uniswap.Application.Abstractions;
 

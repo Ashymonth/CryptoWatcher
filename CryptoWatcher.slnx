@@ -9,6 +9,7 @@
     <Project Path="src\CryptoWatcher\CryptoWatcher.csproj" />
   </Folder>
   <Folder Name="/src/modules/">
+    <Project Path="src/modules/CryptoWatcher.Modules.Contracts/CryptoWatcher.Modules.Contracts.csproj" />
     <Project Path="src/modules/CryptoWatcher.Modules.Infrastructure.Shared/CryptoWatcher.Modules.Infrastructure.Shared.csproj" />
   </Folder>
   <Folder Name="/src/modules/aave/">
