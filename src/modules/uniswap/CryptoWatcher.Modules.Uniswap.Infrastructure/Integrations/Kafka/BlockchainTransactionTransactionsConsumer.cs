@@ -13,6 +13,7 @@ namespace CryptoWatcher.Modules.Uniswap.Infrastructure.Integrations.Kafka;
 public class BlockchainTransactionTransactionsConsumer : BackgroundService
 {
     private const int MaxRetries = 3;
+    private const int BatchSize = 50;
     private static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web);
 
     private readonly KafkaConfig _config;
@@ -33,6 +34,7 @@ public class BlockchainTransactionTransactionsConsumer : BackgroundService
         {
             GroupId = _config.UniswapConsumerGroupId,
             EnableAutoCommit = false,
+            EnableAutoOffsetStore = false,
             BootstrapServers = _config.Host.ToString()
         }).Build();
 
@@ -42,16 +44,28 @@ public class BlockchainTransactionTransactionsConsumer : BackgroundService
         {
             try
             {
-                var batch = ConsumeBatch(consumer, 50);
-
-                if (batch.Count == 0)
+                var batch = ConsumeBatch(consumer).ToArray();
+                if (batch.Length == 0)
                 {
                     continue;
                 }
 
-                await ProcessBatchSequentially(batch, stoppingToken);
+                using var scope = _scopeFactory.CreateScope();
+                var consumerService = scope.ServiceProvider.GetRequiredService<IWalletTransactionConsumer>();
 
-                consumer.Commit(batch.Last());
+                foreach (var result in batch)
+                {
+                    var transaction = DeserializeTransaction(result);
+
+                    if (transaction is not null)
+                    {
+                        await ProcessWithRetryAsync(consumerService, transaction, stoppingToken);
+                    }
+
+                    consumer.StoreOffset(result);
+                }
+
+                consumer.Commit();
             }
             catch (ConsumeException e)
             {
@@ -61,38 +75,44 @@ public class BlockchainTransactionTransactionsConsumer : BackgroundService
             {
                 break;
             }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error processing batch. Committing last stored offset");
+                consumer.Commit();
+            }
         }
     }
 
-    private async Task ProcessBatchSequentially(
-        List<ConsumeResult<string, string>> batch,
-        CancellationToken stoppingToken)
+    private static IEnumerable<ConsumeResult<string, string>> ConsumeBatch(
+        IConsumer<string, string> consumer)
     {
-        using var scope = _scopeFactory.CreateScope();
-        var consumerService = scope.ServiceProvider.GetRequiredService<IWalletTransactionConsumer>();
-
-        foreach (var message in batch)
+        for (var i = 0; i < BatchSize; i++)
         {
-            if (message.Message.Value is null)
+            var result = consumer.Consume(TimeSpan.FromMilliseconds(100));
+            if (result is null)
             {
-                continue;
+                yield break;
             }
 
-            BlockchainTransaction transaction;
-            try
-            {
-                transaction = JsonSerializer.Deserialize<BlockchainTransaction>(
-                    message.Message.Value, JsonSerializerOptions)!;
-            }
-            catch (JsonException e)
-            {
-                _logger.LogError(e,
-                    "Failed to deserialize message at {Topic}/{Partition}:{Offset}, skipping",
-                    message.Topic, message.Partition.Value, message.Offset.Value);
-                continue;
-            }
+            yield return result;
+        }
+    }
 
-            await ProcessWithRetryAsync(consumerService, transaction, stoppingToken);
+    private BlockchainTransaction? DeserializeTransaction(ConsumeResult<string, string> result)
+    {
+        if (result.Message.Value is null)
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<BlockchainTransaction>(result.Message.Value, JsonSerializerOptions);
+        }
+        catch (JsonException e)
+        {
+            _logger.LogError(e,
+                "Failed to deserialize message at {Topic}/{Partition}:{Offset}",
+                result.Topic, result.Partition.Value, result.Offset.Value);
+            throw;
         }
     }
 
@@ -115,21 +135,7 @@ public class BlockchainTransactionTransactionsConsumer : BackgroundService
                     "Transient error processing transaction {Hash}, attempt {Attempt}/{MaxRetries}. Retrying in {Delay}s",
                     transaction.Hash, attempt, MaxRetries, delay.TotalSeconds);
                 await Task.Delay(delay, stoppingToken);
-            }
-            catch (Exception e) when (IsTransient(e))
-            {
-                _logger.LogError(e,
-                    "Transaction {Hash} failed after {MaxRetries} attempts due to transient error. Stopping batch to preserve ordering",
-                    transaction.Hash, MaxRetries);
-                throw;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e,
-                    "Permanent error processing transaction {Hash}. Stopping batch to preserve ordering",
-                    transaction.Hash);
-                throw;
-            }
+            } 
         }
     }
 
@@ -141,26 +147,5 @@ public class BlockchainTransactionTransactionsConsumer : BackgroundService
             or RpcClientUnknownException
             or TimeoutException
             or TaskCanceledException { InnerException: TimeoutException };
-    }
-
-    private static List<ConsumeResult<string, string>> ConsumeBatch(
-        IConsumer<string, string> consumer,
-        int batchSize)
-    {
-        var batch = new List<ConsumeResult<string, string>>(batchSize);
-
-        for (var i = 0; i < batchSize; i++)
-        {
-            var result = consumer.Consume(TimeSpan.FromMilliseconds(100));
-
-            if (result is null)
-            {
-                break;
-            }
-
-            batch.Add(result);
-        }
-
-        return batch;
     }
 }
