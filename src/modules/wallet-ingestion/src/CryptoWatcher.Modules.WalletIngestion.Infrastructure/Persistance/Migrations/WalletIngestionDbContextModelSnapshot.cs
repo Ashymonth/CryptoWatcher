@@ -4,7 +4,6 @@ using System.Numerics;
 using CryptoWatcher.Modules.WalletIngestion.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -13,11 +12,9 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CryptoWatcher.Modules.WalletIngestion.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(WalletIngestionDbContext))]
-    [Migration("20260307122205_Initial")]
-    partial class Initial
+    partial class WalletIngestionDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +34,6 @@ namespace CryptoWatcher.Modules.WalletIngestion.Infrastructure.Persistance.Migra
 
                     b.Property<int>("ChainId")
                         .HasColumnType("integer");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
 
                     b.Property<BigInteger>("LastPublishedBlockNumber")
                         .HasColumnType("numeric");

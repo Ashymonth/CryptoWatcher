@@ -16,8 +16,6 @@ public class WalletIngestionCheckpoint
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public Guid Id { get; private set; }
-
     public EvmAddress WalletAddress { get; private set; } = null!;
 
     public int ChainId { get; private set; }
